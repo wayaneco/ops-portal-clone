@@ -1,8 +1,11 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
-import "./globals.css";
+import { Flowbite } from "flowbite-react";
 
-import CorbadoProvider from '@/utils/corbado/Provider';
+import CorbadoProvider from "@/utils/corbado/Provider";
+import FlowbiteTheme from "./theme";
+
+import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -19,11 +22,11 @@ export default function RootLayout({
   return (
     <html lang="en">
       <CorbadoProvider>
-        <body className={inter.className}>
-          <main>
-            {children}
-          </main>
-        </body>
+        <Flowbite theme={{ theme: FlowbiteTheme }}>
+          <body className={inter.className}>
+            <main>{children}</main>
+          </body>
+        </Flowbite>
       </CorbadoProvider>
     </html>
   );
