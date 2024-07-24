@@ -1,6 +1,13 @@
 "use client";
 
-import { FloatingLabel, Button, Avatar, Table, Badge } from "flowbite-react";
+import {
+  FloatingLabel,
+  Button,
+  Avatar,
+  Table,
+  Badge,
+  TextInput,
+} from "flowbite-react";
 import Link from "next/link";
 
 const MOCKS = [
@@ -34,25 +41,26 @@ export default function Page() {
   return (
     <div className="py-14">
       <div className="flex justify-between items-center">
-        <FloatingLabel
-          label=""
-          variant="outlined"
+        <TextInput
           placeholder="Search by name"
-          className="w-[450px] border-blue-500 focus:outline-blue-400"
+          color="primary"
+          className="w-[450px]"
         />
-        <Button color="blue">Show All Users</Button>
+        <Button color="primary">Show All Users</Button>
       </div>
       <div className="mt-10 overflow-x-auto">
-        <Table>
+        <Table hoverable>
           <Table.Head>
             <Table.HeadCell>Name</Table.HeadCell>
             <Table.HeadCell>Email</Table.HeadCell>
             <Table.HeadCell>Privileges</Table.HeadCell>
-            <Table.HeadCell></Table.HeadCell>
+            <Table.HeadCell>
+              <span className="sr-only">View</span>
+            </Table.HeadCell>
           </Table.Head>
-          <Table.Body>
+          <Table.Body className="divide-y">
             {MOCKS.map((item) => (
-              <Table.Row key={item?.id}>
+              <Table.Row key={item?.id} className="bg-white">
                 <Table.Cell>{item?.name}</Table.Cell>
                 <Table.Cell>{item?.email}</Table.Cell>
                 <Table.Cell>

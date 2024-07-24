@@ -1,7 +1,7 @@
 "use client";
 
 import { ReactNode } from "react";
-import { Navbar as FBNavbar, NavbarBrand } from "flowbite-react";
+import { Button, Navbar as FBNavbar, NavbarBrand } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -87,11 +87,11 @@ export default function Navbar(): ReactNode {
           href="/auth"
           className="text-base md:text-lg block md:hidden"
         >
-          Login
+          Logout
         </FBNavbar.Link>
       </FBNavbar.Collapse>
       <Link href="/auth" className="text-base md:text-lg hidden md:block">
-        Login
+        Logout
       </Link>
     </FBNavbar>
   );

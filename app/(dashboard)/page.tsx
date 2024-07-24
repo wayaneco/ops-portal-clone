@@ -9,7 +9,7 @@ export default function Page() {
         <br /> for the Everest Network
       </div>
       <div className="mt-20">
-        <Button color="blue" size="lg" pill>
+        <Button color="primary" size="lg" pill>
           Accept Passkey
         </Button>
       </div>
