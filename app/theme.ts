@@ -29,6 +29,12 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
       base: "h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700",
     },
   },
+  sidebar: {
+    root: {
+      inner:
+        "h-full overflow-y-auto overflow-x-hidden bg-gray-50 px-3 py-4 dark:bg-gray-800",
+    },
+  },
   modal: {},
   footer: {},
   navbar: {},

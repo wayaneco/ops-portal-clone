@@ -170,7 +170,7 @@ const getModalContent = (content: ModalContentType): ReactNode => {
         <>
           <div className="flex items-center justify-center">
             <div className="text-center text-lg">
-              Send passkey email invitation to
+              Send passkey email invitation to{" "}
               <strong>bob@toniskitchen.org</strong>?
             </div>
           </div>
