@@ -11,6 +11,10 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        "primary-500": "#006F66",
+        "primary-600": "#01554e",
+      },
       backgroundImage: {
         "gradient-radial": "radial-gradient(var(--tw-gradient-stops))",
         "gradient-conic":

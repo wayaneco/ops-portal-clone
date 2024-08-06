@@ -1,19 +1,11 @@
 "use client";
 
-import {
-  Sidebar,
-  SidebarItems,
-  SidebarItemGroup,
-  SidebarItem,
-  Avatar,
-  TextInput,
-  Button,
-} from "flowbite-react";
-import test from "node:test";
+import { Sidebar, SidebarItems, SidebarItemGroup } from "flowbite-react";
 import { createContext, PropsWithChildren, useState } from "react";
 
 export type SidebarContextType = {
   pathname: string;
+  setPathname: (value: any) => void;
 };
 
 export const SidebarContext = createContext<SidebarContextType | undefined>(
@@ -52,7 +44,7 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
   const [pathname, setPathname] = useState("");
 
   return (
-    <SidebarContext.Provider value={{ pathname }}>
+    <SidebarContext.Provider value={{ pathname, setPathname }}>
       <div className="h-[calc(100vh-100px)]">
         <div className="flex w-full h-full">
           <Sidebar className="pt-[80px] relative z-10">
@@ -63,8 +55,8 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
                   return (
                     <div
                       key={item.id}
-                      className={`text-lg p-4 cursor-pointer rounded-md hover:bg-blue-300 transition-colors duration-200 ${
-                        isActive && "bg-blue-500 text-white"
+                      className={`text-lg p-4 cursor-pointer rounded-md hover:bg-primary-500 hover:text-white transition-colors duration-200 ${
+                        isActive && "bg-primary-600 text-white"
                       }`}
                       onClick={() => setPathname(item.routeName)}
                     >

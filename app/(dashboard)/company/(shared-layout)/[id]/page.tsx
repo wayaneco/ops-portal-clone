@@ -5,7 +5,7 @@ import { NextPage } from "next";
 import { useContext } from "react";
 import { SidebarContext, SidebarContextType } from "../context";
 
-export default function Page(props: NextPage) {
+export default function Page(props: NextPage & { params: { id: string } }) {
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
   )!;

@@ -28,7 +28,7 @@ export function UpsertModal(props: UpsertModalProps) {
 
   return (
     <Modal dismissible show={show} onClose={onClose} {...otherProps}>
-      <Modal.Header>{getModalHeader(modalContent, data?.client)}</Modal.Header>
+      <Modal.Header>{getModalHeader(modalContent, data?.name)}</Modal.Header>
       <Modal.Body>
         {modalContent === ModalContentType.ADD && (
           <TextInput placeholder="Search by client" />
@@ -113,25 +113,39 @@ const getModalContent = (content: ModalContentType): ReactNode => {
         <>
           <div className="flex flex-col gap-y-3">
             <div className="flex items-center gap-2">
-              <Checkbox id="networkAdmin" color="primary" className="w-5 h-5" />
+              <Checkbox color="primary" id="networkAdmin" className="w-5 h-5" />
               <Label className="text-lg" htmlFor="networkAdmin">
                 Network Admin
               </Label>
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox id="companyAdmin" className="w-5 h-5" checked />
+              <Checkbox
+                color="primary"
+                id="companyAdmin"
+                className="w-5 h-5"
+                checked
+              />
               <Label className="text-lg" htmlFor="companyAdmin">
                 Company Admin
               </Label>
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox id="agent" className="w-5 h-5" checked />
+              <Checkbox
+                color="primary"
+                id="agent"
+                className="w-5 h-5"
+                checked
+              />
               <Label className="text-lg" htmlFor="agent">
                 Agent
               </Label>
             </div>
             <div className="flex items-center gap-2">
-              <Checkbox id="primaryContact" className="w-5 h-5" />
+              <Checkbox
+                color="primary"
+                id="primaryContact"
+                className="w-5 h-5"
+              />
               <Label className="text-lg" htmlFor="primaryContact">
                 Primary Contact
               </Label>

@@ -1,90 +1,85 @@
-"use client";
-
+import { createClient } from "@/utils/supabase/server";
 import {
-  FloatingLabel,
   Button,
   Avatar,
   Table,
   Badge,
   TextInput,
+  TableHeadCell,
+  TableBody,
+  TableHead,
+  TableRow,
+  TableCell,
+  Card,
 } from "flowbite-react";
 import Link from "next/link";
 
-const MOCKS = [
-  {
-    id: 1,
-    name: "Mary Smith",
-    email: "msmith88@gmail.com",
-    privilege: ["Company Admin"],
-  },
-  {
-    id: 2,
-    name: "Bob Smith",
-    email: "bob@tonykitchen.com",
-    privilege: ["Company Admin", "Agent"],
-  },
-  {
-    id: 3,
-    name: "Peter Miller",
-    email: "pete@gmail.com",
-    privilege: ["Agent"],
-  },
-  {
-    id: 4,
-    name: "Angel Miller",
-    email: "angel@toniskitchen.com",
-    privilege: ["Agent"],
-  },
-];
+export default async function Page() {
+  const response = await fetch("http://localhost:3000/api/user", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
 
-export default function Page() {
+  const userData = await response.json();
+
   return (
-    <div className="py-14">
-      <div className="flex justify-between items-center">
-        <TextInput
-          placeholder="Search by name"
-          color="primary"
-          className="w-[450px]"
-        />
-        <Button color="primary">Show All Users</Button>
-      </div>
-      <div className="mt-10 overflow-x-auto">
-        <Table hoverable>
-          <Table.Head>
-            <Table.HeadCell>Name</Table.HeadCell>
-            <Table.HeadCell>Email</Table.HeadCell>
-            <Table.HeadCell>Privileges</Table.HeadCell>
-            <Table.HeadCell>
-              <span className="sr-only">View</span>
-            </Table.HeadCell>
-          </Table.Head>
-          <Table.Body className="divide-y">
-            {MOCKS.map((item) => (
-              <Table.Row key={item?.id} className="bg-white">
-                <Table.Cell>{item?.name}</Table.Cell>
-                <Table.Cell>{item?.email}</Table.Cell>
-                <Table.Cell>
-                  <div className="flex gap-2">
-                    {item?.privilege.map((p, i) => (
-                      <Badge key={i} className="w-fit">
-                        {p}
-                      </Badge>
-                    ))}
-                  </div>
-                </Table.Cell>
-                <Table.Cell>
-                  <Link
-                    href={`/user/${item.id}`}
-                    className="text-blue-500 underline cursor-pointer"
-                  >
-                    View
-                  </Link>
-                </Table.Cell>
-              </Table.Row>
-            ))}
-          </Table.Body>
-        </Table>
-      </div>
+    <div className="py-16">
+      <Card>
+        <div className="flex justify-between items-center">
+          <TextInput
+            placeholder="Search by name"
+            color="primary"
+            className="w-[450px]"
+          />
+          <Button color="primary">Show All Users</Button>
+        </div>
+        <div className="mt-10 overflow-x-auto">
+          <Table hoverable>
+            <TableHead>
+              <TableHeadCell>Name</TableHeadCell>
+              <TableHeadCell>Email</TableHeadCell>
+              <TableHeadCell>Privileges</TableHeadCell>
+              <TableHeadCell className="w-32">
+                <span className="sr-only">View</span>
+              </TableHeadCell>
+            </TableHead>
+            <TableBody className="divide-y">
+              {userData?.map(
+                (item: {
+                  id: number;
+                  name: string;
+                  email: string;
+                  privilege: Array<string>;
+                }) => (
+                  <TableRow key={item?.id} className="bg-white">
+                    <TableCell>{item?.name}</TableCell>
+                    <TableCell>{item?.email}</TableCell>
+                    <TableCell>
+                      <div className="flex gap-2">
+                        {item?.privilege.map((p: string, i: number) => (
+                          <Badge key={i} className="w-fit" color="primary">
+                            {p}
+                          </Badge>
+                        ))}
+                      </div>
+                    </TableCell>
+                    <TableCell>
+                      <Link
+                        href={`/user/${item.id}`}
+                        className="text-yellow-500 underline cursor-pointer"
+                      >
+                        View
+                      </Link>
+                    </TableCell>
+                  </TableRow>
+                )
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </Card>
     </div>
   );
 }

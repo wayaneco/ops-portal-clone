@@ -1,6 +1,23 @@
 import { PropsWithChildren } from "react";
 import MainLayout from "../components/MainLayout";
+import { createClient } from "@/utils/supabase/server";
+import { redirect } from "next/navigation";
 
-export default function Layout(props: PropsWithChildren) {
-  return <MainLayout>{props.children}</MainLayout>;
+export default async function Layout(props: PropsWithChildren) {
+  const supabase = await createClient();
+  const session = (await supabase.auth.getSession()).data.session;
+
+  const email = (await supabase.auth.getUser()).data.user?.email;
+
+  const { data } = await supabase
+    .from("users_data_view")
+    .select("role_name")
+    .eq("email", email)
+    .single();
+
+  if (!session) {
+    redirect("/login");
+  }
+
+  return <MainLayout role={data?.role_name}>{props.children}</MainLayout>;
 }

@@ -2,7 +2,7 @@ export type UserDetailType = {
   name: string;
   email: string;
   phoneNumber: string;
-  mailAddress: string;
+  address: string;
   clients: ClientsType;
 };
 
@@ -12,6 +12,6 @@ export enum Privileges {
 }
 
 export type ClientsType = Array<{
-  client: string;
+  name: string;
   privileges: Array<Privileges>;
 }>;
