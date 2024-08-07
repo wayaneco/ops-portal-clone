@@ -1,4 +1,4 @@
-import { createClient } from "@/utils/supabase/server";
+import { createClient } from "@/utils/supabase/client";
 import {
   Button,
   Avatar,
@@ -15,14 +15,19 @@ import {
 import Link from "next/link";
 
 export default async function Page() {
-  const response = await fetch("http://localhost:3000/api/user", {
-    method: "GET",
-    headers: {
-      "Content-Type": "application/json",
-    },
-  });
+  // const response = await fetch("http://localhost:3000/api/user", {
+  //   method: "GET",
+  //   headers: {
+  //     "Content-Type": "application/json",
+  //   },
+  // });
 
-  const userData = await response.json();
+  const supabase = createClient();
+
+  const { data: usersList } = await supabase
+    .from("users_data_view")
+    .select("user_id, name, email");
+  console.log(usersList, "userList here");
 
   return (
     <div className="py-16">
@@ -46,19 +51,19 @@ export default async function Page() {
               </TableHeadCell>
             </TableHead>
             <TableBody className="divide-y">
-              {userData?.map(
+              {usersList?.map(
                 (item: {
-                  id: number;
+                  user_id: string;
                   name: string;
                   email: string;
                   privilege: Array<string>;
                 }) => (
-                  <TableRow key={item?.id} className="bg-white">
+                  <TableRow key={item?.user_id} className="bg-white">
                     <TableCell>{item?.name}</TableCell>
                     <TableCell>{item?.email}</TableCell>
                     <TableCell>
                       <div className="flex gap-2">
-                        {item?.privilege.map((p: string, i: number) => (
+                        {item?.privilege?.map((p: string, i: number) => (
                           <Badge key={i} className="w-fit" color="primary">
                             {p}
                           </Badge>
@@ -67,7 +72,7 @@ export default async function Page() {
                     </TableCell>
                     <TableCell>
                       <Link
-                        href={`/user/${item.id}`}
+                        href={`/user/${item.user_id}`}
                         className="text-yellow-500 underline cursor-pointer"
                       >
                         View
