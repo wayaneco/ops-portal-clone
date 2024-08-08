@@ -5,6 +5,8 @@ import { NextPage } from "next";
 import { useContext } from "react";
 import { SidebarContext, SidebarContextType } from "../context";
 
+import TonisKitchen from "public/tonis.svg";
+import Image from "next/image";
 export default function Page(props: NextPage & { params: { id: string } }) {
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
@@ -16,7 +18,13 @@ export default function Page(props: NextPage & { params: { id: string } }) {
         <div className="flex gap-x-4 items-center">
           <div className="w-64">
             <Avatar
-              img="https://www.everesteffect.com/img/ee_logo_dark.svg"
+              img={(avatarProps) => (
+                <Image
+                  src={TonisKitchen}
+                  alt="Tonis Kitchen"
+                  {...avatarProps}
+                />
+              )}
               size="lg"
             />
           </div>
@@ -24,6 +32,7 @@ export default function Page(props: NextPage & { params: { id: string } }) {
             color="primary"
             placeholder="Add client name"
             className="w-[450px]"
+            defaultValue="Toni's Kitchen"
           />
           <Button color="primary">Done</Button>
         </div>
@@ -49,6 +58,7 @@ const getDynamicComponent = (routeName: string) => {
           <div className="flex gap-x-4">
             <TextInput
               color="primary"
+              defaultValue="tonis-kitchen.everesteffect.com"
               placeholder="domain.everesteffect.com"
               className="w-[450px] placeholder-shown:italic"
             />
@@ -60,7 +70,6 @@ const getDynamicComponent = (routeName: string) => {
         </div>
       );
       break;
-
     case "serviceLocation":
       component = (
         <div>

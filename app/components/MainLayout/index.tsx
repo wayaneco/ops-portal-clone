@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import { createClient } from "@/utils/supabase/client";
 
 type MainLayoutProps = PropsWithChildren & {
-  role: string;
+  privileges: string;
 };
 
 export default function MainLayout(props: MainLayoutProps) {
@@ -32,7 +32,7 @@ export default function MainLayout(props: MainLayoutProps) {
 
   return (
     <>
-      <Navbar role={props?.role} />
+      <Navbar privileges={props?.privileges} />
       <div
         className={`min-h-screen mx-auto pt-[100px] ${
           !regex.test(pathname) && "container"

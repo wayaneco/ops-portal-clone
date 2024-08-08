@@ -2,8 +2,8 @@
 
 import Image from "next/image";
 import * as React from "react";
-import { UserDetailType, Privileges } from "@/app/types/UserDetail";
-import { Button, Card, Avatar, TextInput, Table, Badge } from "flowbite-react";
+import { UserDetailType } from "@/app/types/UserDetail";
+import { Button, Avatar, TextInput, Table, Badge } from "flowbite-react";
 import { UpsertModal } from "../modal";
 
 enum ModalContentType {
@@ -86,7 +86,7 @@ export function MainBody(props: ContentType) {
               })
             }
           >
-            Reissue Policy
+            Reissue Passkey
           </Button>
         </div>
       </div>

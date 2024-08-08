@@ -1,6 +1,8 @@
 import { Avatar, Button, Card } from "flowbite-react";
 import Image from "next/image";
 
+import TonisKitchen from "public/tonis.svg";
+
 export default function Page() {
   return (
     <div className="py-16">
@@ -11,7 +13,7 @@ export default function Page() {
               img={(avatarProps) => (
                 <div className="h-56 w-52">
                   <Image
-                    src="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
+                    src={TonisKitchen}
                     alt={`User Profile`}
                     fill
                     {...avatarProps}

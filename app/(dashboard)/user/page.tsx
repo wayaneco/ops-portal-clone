@@ -79,6 +79,9 @@ export default async function Page() {
             </TableBody>
           </Table>
         </div>
+        <div className="mt-5">
+          <Button color="primary">Add new user</Button>
+        </div>
       </Card>
     </div>
   );

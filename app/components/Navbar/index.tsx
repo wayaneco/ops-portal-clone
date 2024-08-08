@@ -9,17 +9,21 @@ import { usePathname } from "next/navigation";
 import { AuthContext } from "../Context/SupabaseSessionProvider";
 import { createClient } from "@/utils/supabase/client";
 
-export default function Navbar({ role }: { role: string }): ReactNode {
+export default function Navbar({
+  privileges,
+}: {
+  privileges: string;
+}): ReactNode {
   const supabase = createClient();
   const { session } = useContext(AuthContext)!;
   const pathname = usePathname();
 
   const regex = new RegExp(/^\/(company\/)?(add|\w)/);
 
-  const dynamicLinks = (role: string) => {
+  const dynamicLinks = (privileges: string) => {
     let component;
-    switch (role) {
-      case "superuser":
+    switch (privileges) {
+      default:
         component = (
           <>
             <FBNavbar.Link
@@ -67,7 +71,7 @@ export default function Navbar({ role }: { role: string }): ReactNode {
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        {dynamicLinks(role)}
+        {dynamicLinks(privileges)}
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"

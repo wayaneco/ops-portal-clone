@@ -11,7 +11,7 @@ export default async function Layout(props: PropsWithChildren) {
 
   const { data } = await supabase
     .from("users_data_view")
-    .select("role_name")
+    .select("privileges")
     .eq("email", email)
     .single();
 
@@ -19,5 +19,7 @@ export default async function Layout(props: PropsWithChildren) {
     redirect("/login");
   }
 
-  return <MainLayout role={data?.role_name}>{props.children}</MainLayout>;
+  return (
+    <MainLayout privileges={data?.privileges}>{props.children}</MainLayout>
+  );
 }
