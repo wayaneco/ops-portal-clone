@@ -122,13 +122,12 @@ export function MainBody(props: ContentType) {
                   <Table.Cell>{client.name}</Table.Cell>
                   <Table.Cell>
                     <div className="flex gap-2">
-                      {client.privileges?.map(
-                        (privilege: any, i: React.Key | null | undefined) => (
-                          <Badge key={i} className="w-fit" color="primary">
-                            {privilege}
-                          </Badge>
-                        )
-                      )}
+                      {console.log(client, "client here")}
+                      {client.privileges?.map((privilege, i) => (
+                        <Badge key={i} className="w-fit" color="primary">
+                          {privilege}123
+                        </Badge>
+                      ))}
                     </div>
                   </Table.Cell>
                   <Table.Cell>

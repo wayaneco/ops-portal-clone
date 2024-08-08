@@ -30,6 +30,8 @@ const Page = async function (props: { params: { id: string } }) {
 
   if (error) {
     console.log(error);
+  } else {
+    console.log(data, "user single data");
   }
 
   return (
