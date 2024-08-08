@@ -26,7 +26,7 @@ export default async function Page(
   const supabase = createClient();
   const { data, error } = await supabase
     .from("users_data_view")
-    .select("user_id, email, client_name")
+    .select("user_id, email, client_name, privileges")
     .eq("user_id", props.params.id)
     .single();
 

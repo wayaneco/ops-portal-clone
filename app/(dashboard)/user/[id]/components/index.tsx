@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import * as React from "react";
-import { UserDetailType, Privileges } from "@/app/types/UserDetail";
+import { UserDetailType, ClientsType } from "@/app/types/UserDetail";
 import { Button, Card, Avatar, TextInput, Table, Badge } from "flowbite-react";
 import { UpsertModal } from "../modal";
 
@@ -22,12 +22,15 @@ type ModalOptionType = {
 type ContentType = {
   data: UserDetailType;
 };
+
 export function MainBody(props: ContentType) {
   const [modalOptions, setModalOptions] = React.useState<ModalOptionType>({
     data: null,
     show: false,
     modalContent: null,
   });
+
+  const { data } = props;
 
   const handleOpenModal = ({
     data,
@@ -55,7 +58,7 @@ export function MainBody(props: ContentType) {
     <>
       <div className="flex">
         <Avatar
-          img={(avatarProps) => (
+          img={(avatarProps: React.JSX.IntrinsicAttributes) => (
             <div className="h-56 w-52">
               <Image
                 {...avatarProps}
@@ -69,10 +72,16 @@ export function MainBody(props: ContentType) {
         <div className="flex-1 mx-10">
           <form>
             <div className="flex flex-col gap-y-2">
-              <TextInput value={props?.data?.name} disabled />
-              <TextInput value={props?.data?.email} disabled />
-              <TextInput value={props?.data?.phoneNumber} disabled />
-              <TextInput value={props?.data?.address} disabled />
+              <TextInput
+                value={`${data?.first_name} ${data?.middle_name} ${data?.last_name}`}
+                disabled
+              />
+              <TextInput value={data?.email} disabled />
+              <TextInput value={data?.phoneNumber} disabled />
+              <TextInput
+                value={`${data?.line_1} ${data?.line_2} ${data?.city} ${data?.state_province_region}`}
+                disabled
+              />
             </div>
           </form>
         </div>
@@ -94,23 +103,25 @@ export function MainBody(props: ContentType) {
         <div className="overflow-x-auto">
           <Table border={1}>
             <Table.Head>
-              <Table.HeadCell>Client</Table.HeadCell>
+              <Table.HeadCell>Clients</Table.HeadCell>
               <Table.HeadCell>Privileges</Table.HeadCell>
               <Table.HeadCell className="w-40 text-center">
                 Action
               </Table.HeadCell>
             </Table.Head>
             <Table.Body className="divide-y">
-              {props?.data?.clients?.map((client, idx) => (
+              {data?.clients?.map((client: ClientsType, idx) => (
                 <Table.Row key={idx}>
-                  <Table.Cell>{client?.name}</Table.Cell>
+                  <Table.Cell>{client.name}</Table.Cell>
                   <Table.Cell>
                     <div className="flex gap-2">
-                      {client?.privileges?.map((privilege, i) => (
-                        <Badge key={i} className="w-fit" color="primary">
-                          {privilege}
-                        </Badge>
-                      ))}
+                      {client.privileges?.map(
+                        (privilege: any, i: React.Key | null | undefined) => (
+                          <Badge key={i} className="w-fit" color="primary">
+                            {privilege}
+                          </Badge>
+                        )
+                      )}
                     </div>
                   </Table.Cell>
                   <Table.Cell>
@@ -164,7 +175,7 @@ export function MainBody(props: ContentType) {
         modalContent={modalOptions.modalContent as ModalContentType}
         show={modalOptions.show}
         onClose={handleResetModal}
-        data={modalOptions.data as UserDetailType["clients"][0]}
+        data={modalOptions.data as UserDetailType["privileges"][0]}
       />
     </>
   );
