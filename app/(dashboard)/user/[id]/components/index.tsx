@@ -26,11 +26,11 @@ type ModalOptionType = {
   modalContent: ModalContentType | null;
 };
 
-type ContentType = {
-  data: UserDetailType[];
+type UserDetailFormType = {
+  data: UserDetailType;
 };
 
-export function MainBody(props: ContentType) {
+export function UserDetailForm(props: UserDetailFormType) {
   const [modalOptions, setModalOptions] = React.useState<any>({
     data: null,
     show: false,
@@ -86,7 +86,7 @@ export function MainBody(props: ContentType) {
               <TextInput value={data?.email} disabled />
               <TextInput value={data?.primary_phone} disabled />
               <TextInput
-                value={`${data?.line_1} ${data?.line_2} ${data?.city} ${data?.state_province_region}`}
+                value={`${data?.addr_line_1} ${data?.addr_line_2} ${data?.city} ${data?.state_province_region}`}
                 disabled
               />
             </div>
@@ -116,53 +116,51 @@ export function MainBody(props: ContentType) {
                 Action
               </Table.HeadCell>
             </Table.Head>
-            {data.map((item, i) => {
-              <Table.Body className="divide-y">
-                {item?.clients?.map((client: ClientsType, idx) => (
-                  <Table.Row key={idx}>
-                    <Table.Cell>{client.name}</Table.Cell>
-                    <Table.Cell>
-                      <div className="flex gap-2">
-                        {console.log(client, "client here")}
-                        {client.privileges?.map((privilege, i) => (
-                          <Badge key={i} className="w-fit" color="primary">
-                            {privilege}123
-                          </Badge>
-                        ))}
-                      </div>
-                    </Table.Cell>
-                    <Table.Cell>
-                      <div className="flex gap-x-2">
-                        <Button
-                          color="primary"
-                          type="button"
-                          onClick={() => {
-                            handleOpenModal({
-                              data: client,
-                              modalContent: ModalContentType.EDIT,
-                            });
-                          }}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          color="primary"
-                          type="button"
-                          onClick={() => {
-                            handleOpenModal({
-                              data: null,
-                              modalContent: ModalContentType.REVOKE,
-                            });
-                          }}
-                        >
-                          Revoke
-                        </Button>
-                      </div>
-                    </Table.Cell>
-                  </Table.Row>
-                ))}
-              </Table.Body>;
-            })}
+
+            <Table.Body className="divide-y">
+              {data?.clients?.map((client: ClientsType, idx) => (
+                <Table.Row key={idx}>
+                  <Table.Cell>{client.name}</Table.Cell>
+                  <Table.Cell>
+                    <div className="flex gap-2">
+                      {client.privileges?.map((privilege, i) => (
+                        <Badge key={i} className="w-fit" color="primary">
+                          {privilege}
+                        </Badge>
+                      ))}
+                    </div>
+                  </Table.Cell>
+                  <Table.Cell>
+                    <div className="flex gap-x-2">
+                      <Button
+                        color="primary"
+                        type="button"
+                        onClick={() => {
+                          handleOpenModal({
+                            data: client,
+                            modalContent: ModalContentType.EDIT,
+                          });
+                        }}
+                      >
+                        Edit
+                      </Button>
+                      <Button
+                        color="primary"
+                        type="button"
+                        onClick={() => {
+                          handleOpenModal({
+                            data: null,
+                            modalContent: ModalContentType.REVOKE,
+                          });
+                        }}
+                      >
+                        Revoke
+                      </Button>
+                    </div>
+                  </Table.Cell>
+                </Table.Row>
+              ))}
+            </Table.Body>
           </Table>
         </div>
         <div className="mt-10">

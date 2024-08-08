@@ -1,5 +1,5 @@
 import { UserDetailType } from "@/app/types/UserDetail";
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 import {
   Button,
   Avatar,
@@ -27,13 +27,11 @@ export default async function Page() {
 
   const { data: usersList, error } = await supabase
     .from("users_data_view")
-    .select("user_id, first_name, middle_name, last_name, email, privileges");
+    .select("user_id, first_name, middle_name, last_name, email");
 
   if (error) {
     console.log(`Error Fetching Data: `, error);
   }
-
-  console.log(usersList, "user list here");
 
   return (
     !error && (
@@ -58,29 +56,31 @@ export default async function Page() {
                 </TableHeadCell>
               </TableHead>
               <TableBody className="divide-y">
-                {usersList?.map((item: UserDetailType) => (
-                  <TableRow key={item?.user_id} className="bg-white">
-                    <TableCell>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</TableCell>
-                    <TableCell>{item?.email}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2">
+                {(usersList as Array<UserDetailType>)?.map(
+                  (item: UserDetailType) => (
+                    <TableRow key={item?.user_id} className="bg-white">
+                      <TableCell>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</TableCell>
+                      <TableCell>{item?.email}</TableCell>
+                      <TableCell>
+                        {/* <div className="flex gap-2">
                         {item?.privileges?.map((p: string, i: number) => (
                           <Badge key={i} className="w-fit" color="primary">
                             {p}
                           </Badge>
                         ))}
-                      </div>
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        href={`/user/${item.user_id}`}
-                        className="text-yellow-500 underline cursor-pointer"
-                      >
-                        View
-                      </Link>
-                    </TableCell>
-                  </TableRow>
-                ))}
+                      </div> */}
+                      </TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/user/${item.user_id}`}
+                          className="text-yellow-500 underline cursor-pointer"
+                        >
+                          View
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  )
+                )}
               </TableBody>
             </Table>
           </div>
