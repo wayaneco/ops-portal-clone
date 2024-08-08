@@ -24,21 +24,30 @@ export default async function Page(
   // }
 
   const supabase = createClient();
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("users_data_view")
-    .select("user_id, email, name")
+    .select("user_id, email, client_name")
     .eq("user_id", props.params.id)
     .single();
 
-  console.log(data, "data here");
+  if (error) {
+    console.log(error);
+  } else {
+    console.log(data, "data here");
+  }
+
   return (
-    <div className="py-8">
-      <Link href="/user">
-        <Button color="primary">BACK</Button>
-      </Link>
-      <div className="mt-5">
-        <Card>{/* <MainBody data={data} /> */}</Card>
+    !error && (
+      <div className="py-8">
+        <Link href="/user">
+          <Button color="primary">BACK</Button>
+        </Link>
+        <div className="mt-5">
+          <Card>
+            <MainBody data={data} />
+          </Card>
+        </div>
       </div>
-    </div>
+    )
   );
 }
