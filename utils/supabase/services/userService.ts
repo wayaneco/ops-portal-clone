@@ -5,7 +5,7 @@ import { createClient } from "@supabase/supabase-js";
 // import { config as dotenvConfig } from "dotenv";
 // dotenvConfig();
 
-const supabaseUrl = process.env.SUPABASE_URL;
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseRoleKey = process.env.SUPABASE_API_KEY_SERVICE_ROLE;
 
 // console.log(supabaseUrl, supabaseRoleKey);

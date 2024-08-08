@@ -1,6 +1,6 @@
 export type UserDetailType = {
+  user_id: string;
   email: string;
-  phoneNumber: string;
   first_name?: string;
   middle_name?: string;
   last_name?: string;
@@ -8,7 +8,9 @@ export type UserDetailType = {
   line_2?: string;
   city?: string;
   state_province_region?: string;
-  clients: Array<ClientsType>;
+  primary_phone?: string;
+  clients?: Array<ClientsType>;
+  privileges?: Privileges[]
 };
 
 export enum Privileges {

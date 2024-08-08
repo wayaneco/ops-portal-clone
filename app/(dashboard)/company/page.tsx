@@ -1,11 +1,9 @@
 import { Avatar, Button, Card, TextInput } from "flowbite-react";
-import { NextPage } from "next";
 import Image from "next/image";
 import Link from "next/link";
 
 import TonisKitchen from "public/tonis.svg";
-
-export default function Page(props: NextPage) {
+const Page = function () {
   return (
     <div className="py-16">
       <Card>
@@ -45,4 +43,6 @@ export default function Page(props: NextPage) {
       </Card>
     </div>
   );
-}
+};
+
+export default Page;

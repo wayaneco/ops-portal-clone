@@ -21,7 +21,7 @@ enum ModalContentType {
 
 type UpsertModalProps = ModalProps & {
   modalContent: ModalContentType;
-  data: UserDetailType["clients"][0];
+  data: any;
 };
 export function UpsertModal(props: UpsertModalProps) {
   const { show, onClose, modalContent, data, ...otherProps } = props;

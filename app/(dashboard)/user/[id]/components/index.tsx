@@ -21,7 +21,7 @@ enum ModalContentType {
 }
 
 type ModalOptionType = {
-  data: UserDetailType["clients"][0] | null;
+  data: UserDetailType["clients"] | null;
   show: boolean;
   modalContent: ModalContentType | null;
 };
@@ -31,7 +31,7 @@ type ContentType = {
 };
 
 export function MainBody(props: ContentType) {
-  const [modalOptions, setModalOptions] = React.useState<ModalOptionType>({
+  const [modalOptions, setModalOptions] = React.useState<any>({
     data: null,
     show: false,
     modalContent: null,
@@ -43,7 +43,7 @@ export function MainBody(props: ContentType) {
     data,
     modalContent,
   }: {
-    data: UserDetailType["clients"][0] | null;
+    data: any | null;
     modalContent: ModalOptionType["modalContent"];
   }) => {
     setModalOptions({
@@ -84,7 +84,7 @@ export function MainBody(props: ContentType) {
                 disabled
               />
               <TextInput value={data?.email} disabled />
-              <TextInput value={data?.phoneNumber} disabled />
+              <TextInput value={data?.primary_phone} disabled />
               <TextInput
                 value={`${data?.line_1} ${data?.line_2} ${data?.city} ${data?.state_province_region}`}
                 disabled
@@ -182,7 +182,7 @@ export function MainBody(props: ContentType) {
         modalContent={modalOptions.modalContent as ModalContentType}
         show={modalOptions.show}
         onClose={handleResetModal}
-        data={modalOptions.data as UserDetailType["clients"][0]}
+        data={modalOptions.data}
       />
     </>
   );

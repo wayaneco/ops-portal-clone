@@ -6,34 +6,30 @@ import { Button, Card } from "flowbite-react";
 import { MainBody } from "./components";
 import { createClient } from "@/utils/supabase/client";
 
-export default async function Page(
-  props: NextPage & { params: { id: string } }
-) {
-  // const response = await fetch(
-  //   `http://localhost:3000/api/user/${props?.params?.id}`,
-  //   {
-  //     method: "GET",
-  //     headers: {
-  //       "Content-Type": "application/json",
-  //     },
-  //   }
-  // );
-
-  // if (!response.ok) {
-  //   return <div>Error</div>;
-  // }
-
+const Page = async function (props: { params: { id: string } }) {
   const supabase = createClient();
   const { data, error } = await supabase
     .from("users_data_view")
-    .select("user_id, email, client_name, privileges")
+    .select(
+      `
+        user_id, 
+        first_name, 
+        middle_name, 
+        last_name, 
+        email, 
+        addr_line_1, 
+        addr_line_2, 
+        city, 
+        state_province_region, 
+        clients, 
+        privileges
+      `
+    )
     .eq("user_id", props.params.id)
     .single();
 
   if (error) {
     console.log(error);
-  } else {
-    console.log(data, "data here");
   }
 
   return (
@@ -50,4 +46,6 @@ export default async function Page(
       </div>
     )
   );
-}
+};
+
+export default Page;

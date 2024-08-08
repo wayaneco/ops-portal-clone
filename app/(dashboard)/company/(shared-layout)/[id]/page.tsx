@@ -1,13 +1,12 @@
 "use client";
 
 import { Avatar, TextInput, Button, Label, Card } from "flowbite-react";
-import { NextPage } from "next";
 import { useContext } from "react";
 import { SidebarContext, SidebarContextType } from "../context";
 
 import TonisKitchen from "public/tonis.svg";
 import Image from "next/image";
-export default function Page(props: NextPage & { params: { id: string } }) {
+const Page = function (props: { params: { id: string } }) {
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
   )!;
@@ -46,7 +45,7 @@ export default function Page(props: NextPage & { params: { id: string } }) {
       </div>
     </div>
   );
-}
+};
 
 const getDynamicComponent = (routeName: string) => {
   let component;
@@ -400,3 +399,5 @@ const getDynamicComponent = (routeName: string) => {
 
   return component;
 };
+
+export default Page;
