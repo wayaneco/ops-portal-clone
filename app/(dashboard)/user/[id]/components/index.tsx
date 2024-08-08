@@ -27,7 +27,7 @@ type ModalOptionType = {
 };
 
 type ContentType = {
-  data: UserDetailType;
+  data: UserDetailType[];
 };
 
 export function MainBody(props: ContentType) {
@@ -116,51 +116,53 @@ export function MainBody(props: ContentType) {
                 Action
               </Table.HeadCell>
             </Table.Head>
-            <Table.Body className="divide-y">
-              {data?.clients?.map((client: ClientsType, idx) => (
-                <Table.Row key={idx}>
-                  <Table.Cell>{client.name}</Table.Cell>
-                  <Table.Cell>
-                    <div className="flex gap-2">
-                      {console.log(client, "client here")}
-                      {client.privileges?.map((privilege, i) => (
-                        <Badge key={i} className="w-fit" color="primary">
-                          {privilege}123
-                        </Badge>
-                      ))}
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <div className="flex gap-x-2">
-                      <Button
-                        color="primary"
-                        type="button"
-                        onClick={() => {
-                          handleOpenModal({
-                            data: client,
-                            modalContent: ModalContentType.EDIT,
-                          });
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        color="primary"
-                        type="button"
-                        onClick={() => {
-                          handleOpenModal({
-                            data: null,
-                            modalContent: ModalContentType.REVOKE,
-                          });
-                        }}
-                      >
-                        Revoke
-                      </Button>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
+            {data.map((item, i) => {
+              <Table.Body className="divide-y">
+                {item?.clients?.map((client: ClientsType, idx) => (
+                  <Table.Row key={idx}>
+                    <Table.Cell>{client.name}</Table.Cell>
+                    <Table.Cell>
+                      <div className="flex gap-2">
+                        {console.log(client, "client here")}
+                        {client.privileges?.map((privilege, i) => (
+                          <Badge key={i} className="w-fit" color="primary">
+                            {privilege}123
+                          </Badge>
+                        ))}
+                      </div>
+                    </Table.Cell>
+                    <Table.Cell>
+                      <div className="flex gap-x-2">
+                        <Button
+                          color="primary"
+                          type="button"
+                          onClick={() => {
+                            handleOpenModal({
+                              data: client,
+                              modalContent: ModalContentType.EDIT,
+                            });
+                          }}
+                        >
+                          Edit
+                        </Button>
+                        <Button
+                          color="primary"
+                          type="button"
+                          onClick={() => {
+                            handleOpenModal({
+                              data: null,
+                              modalContent: ModalContentType.REVOKE,
+                            });
+                          }}
+                        >
+                          Revoke
+                        </Button>
+                      </div>
+                    </Table.Cell>
+                  </Table.Row>
+                ))}
+              </Table.Body>;
+            })}
           </Table>
         </div>
         <div className="mt-10">

@@ -25,8 +25,7 @@ const Page = async function (props: { params: { id: string } }) {
         privileges
       `
     )
-    .eq("user_id", props.params.id)
-    .single();
+    .eq("user_id", props.params.id);
 
   if (error) {
     console.log(error);
