@@ -8,6 +8,7 @@ type AddClientFormType = { routeName: string };
 
 export const AddClientForm = ({ routeName }: AddClientFormType) => {
   let component;
+
   switch (routeName) {
     case "webAddress":
       component = <WebAddress />;
@@ -28,6 +29,7 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
     case "providerType":
       component = <ProviderType />;
       break;
+
     default:
       component = null;
       break;
