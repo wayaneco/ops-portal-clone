@@ -35,55 +35,62 @@ export const AddClient = () => {
       <Modal.Header>Link to New Client</Modal.Header>
       <Modal.Body>
         <TextInput placeholder="Search by client" />
-        <div className="flex flex-col mt-5">
-          {clientList?.map((client, key) => {
-            const isSelectedClient = selectedClients?.includes(client?.id);
-            return (
-              <div
-                key={key}
-                className={`px-6 py-4 cursor-pointer ${
-                  isSelectedClient ? "bg-primary-500 text-white" : "bg-white"
-                }`}
-                onClick={() => {
-                  const clonedSelectedClients = JSON.parse(
-                    JSON.stringify(selectedClients)
-                  );
-
-                  if (isSelectedClient) {
-                    const filteredClients = clonedSelectedClients.filter(
-                      (c: string) => c !== client?.id
+        <div className="mt-5">
+          <div className="flex flex-col">
+            {clientList?.map((client, key) => {
+              const isSelectedClient = selectedClients?.includes(client?.id);
+              return (
+                <div
+                  key={key}
+                  className={`px-4 py-3 cursor-pointer rounded-md mb-2 border ${
+                    isSelectedClient
+                      ? "bg-primary-500 text-white"
+                      : "bg-white text-black"
+                  }`}
+                  onClick={() => {
+                    const clonedSelectedClients = JSON.parse(
+                      JSON.stringify(selectedClients)
                     );
-                    setValue("clients", filteredClients);
-                  } else {
-                    setValue("clients", [...clonedSelectedClients, client?.id]);
-                  }
-                }}
-              >
-                <div className="flex items-center justify-between">
-                  <span>{client?.name}</span>
-                  {isSelectedClient && (
-                    <svg
-                      className="w-6 h-6 text-white"
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="none"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M5 11.917 9.724 16.5 19 7.5"
-                      />
-                    </svg>
-                  )}
+
+                    if (isSelectedClient) {
+                      const filteredClients = clonedSelectedClients.filter(
+                        (c: string) => c !== client?.id
+                      );
+                      setValue("clients", filteredClients);
+                    } else {
+                      setValue("clients", [
+                        ...clonedSelectedClients,
+                        client?.id,
+                      ]);
+                    }
+                  }}
+                >
+                  <div className="flex items-center justify-between">
+                    <span>{client?.name}</span>
+                    {isSelectedClient && (
+                      <svg
+                        className="w-6 h-6 text-white"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"
+                          stroke-width="2"
+                          d="M5 11.917 9.724 16.5 19 7.5"
+                        />
+                      </svg>
+                    )}
+                  </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
         </div>
         {isLoading && (
           <>
