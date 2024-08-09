@@ -1,4 +1,4 @@
-import { UserDetailType } from "@/app/types/UserDetail";
+import { UserDetailType, ClientsType } from "@/app/types/UserDetail";
 import { createClient } from "@/utils/supabase/server";
 import {
   Button,
@@ -27,7 +27,7 @@ export default async function Page() {
 
   const { data: usersList, error } = await supabase
     .from("users_data_view")
-    .select("user_id, first_name, middle_name, last_name, email");
+    .select("user_id, first_name, middle_name, last_name, email, clients");
 
   if (error) {
     console.log(`Error Fetching Data: `, error);
@@ -62,13 +62,23 @@ export default async function Page() {
                       <TableCell>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</TableCell>
                       <TableCell>{item?.email}</TableCell>
                       <TableCell>
-                        {/* <div className="flex gap-2">
-                        {item?.privileges?.map((p: string, i: number) => (
-                          <Badge key={i} className="w-fit" color="primary">
-                            {p}
-                          </Badge>
-                        ))}
-                      </div> */}
+                        <div className="flex gap-2">
+                          {item?.clients?.map(
+                            (client: ClientsType, i: number) => {
+                              return client.privileges.map((priviledge) => {
+                                return (
+                                  <Badge
+                                    key={i}
+                                    className="w-fit"
+                                    color="primary"
+                                  >
+                                    {priviledge}
+                                  </Badge>
+                                );
+                              });
+                            }
+                          )}
+                        </div>
                       </TableCell>
                       <TableCell>
                         <Link

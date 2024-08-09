@@ -41,7 +41,7 @@ const SIDEBAR_ITEMS = [
 ];
 
 export default function SidebarContextProvider(props: PropsWithChildren) {
-  const [pathname, setPathname] = useState("");
+  const [pathname, setPathname] = useState("webAddress");
 
   return (
     <SidebarContext.Provider value={{ pathname, setPathname }}>
