@@ -23,6 +23,8 @@ export default async function Page() {
   //   },
   // });
 
+  // console.log(response);
+
   const supabase = createClient();
 
   const { data: usersList, error } = await supabase
@@ -59,7 +61,9 @@ export default async function Page() {
                 {(usersList as Array<UserDetailType>)?.map(
                   (item: UserDetailType) => (
                     <TableRow key={item?.user_id} className="bg-white">
-                      <TableCell>{`${item.first_name} ${item.middle_name} ${item.last_name}`}</TableCell>
+                      <TableCell>{`${item.first_name || ""} ${
+                        item.middle_name || ""
+                      } ${item.last_name || ""}`}</TableCell>
                       <TableCell>{item?.email}</TableCell>
                       <TableCell>
                         <div className="flex gap-2">

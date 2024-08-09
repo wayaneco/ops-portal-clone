@@ -30,7 +30,7 @@ export default async function RootLayout({
         <Flowbite theme={{ theme: FlowbiteTheme }}>
           <SupabaseSessionProvider session={session?.data?.session as Session}>
             <body className={inter.className}>
-              <main>{children}</main>
+              <main className="bg-gray-200">{children}</main>
             </body>
           </SupabaseSessionProvider>
         </Flowbite>

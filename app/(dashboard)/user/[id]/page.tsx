@@ -3,9 +3,9 @@ import { NextPage } from "next";
 import Link from "next/link";
 import { Button, Card } from "flowbite-react";
 
-import { UserDetailForm } from "./components";
+import { UserDetailForm } from "./components/user-detail-form";
 
-import { createClient } from "@/utils/supabase/client";
+import { createClient } from "@/utils/supabase/server";
 
 const Page = async function (props: { params: { id: string } }) {
   const supabase = createClient();
@@ -22,7 +22,7 @@ const Page = async function (props: { params: { id: string } }) {
 
   return (
     !error && (
-      <div className="py-8">
+      <div className="py-8 bg-gray-200">
         <Link href="/user">
           <Button color="primary">BACK</Button>
         </Link>

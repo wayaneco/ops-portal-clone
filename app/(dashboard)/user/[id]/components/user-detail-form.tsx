@@ -11,53 +11,49 @@ import {
   Table,
   Badge,
 } from "flowbite-react";
-import { UpsertModal } from "../modal";
+import { UserDetailModal } from "./client-modal";
 
-enum ModalContentType {
-  ADD,
-  EDIT,
-  REVOKE,
-  PASSKEY,
-}
-
-type ModalOptionType = {
-  data: UserDetailType["clients"] | null;
-  show: boolean;
-  modalContent: ModalContentType | null;
-};
+import { ModalContentType } from "../types";
 
 type UserDetailFormType = {
   data: UserDetailType;
 };
 
+type HandleOpenModalType = {
+  data: UserDetailType | null;
+  modalContent: ModalContentType;
+  client?: ClientsType;
+};
+
 export function UserDetailForm(props: UserDetailFormType) {
+  const { data } = props;
+
   const [modalOptions, setModalOptions] = React.useState<any>({
-    data: null,
     show: false,
     modalContent: null,
+    data: null,
+    client: null,
   });
-
-  const { data } = props;
 
   const handleOpenModal = ({
     data,
     modalContent,
-  }: {
-    data: any | null;
-    modalContent: ModalOptionType["modalContent"];
-  }) => {
+    client,
+  }: HandleOpenModalType) => {
     setModalOptions({
-      data,
       show: true,
       modalContent,
+      data,
+      client,
     });
   };
 
   const handleResetModal = () => {
     setModalOptions({
-      data: null,
       show: false,
+      data: null,
       modalContent: null,
+      client: null,
     });
   };
 
@@ -97,7 +93,7 @@ export function UserDetailForm(props: UserDetailFormType) {
             color="primary"
             onClick={() =>
               handleOpenModal({
-                data: null,
+                data,
                 modalContent: ModalContentType.PASSKEY,
               })
             }
@@ -137,7 +133,8 @@ export function UserDetailForm(props: UserDetailFormType) {
                         type="button"
                         onClick={() => {
                           handleOpenModal({
-                            data: client,
+                            data: data,
+                            client,
                             modalContent: ModalContentType.EDIT,
                           });
                         }}
@@ -149,7 +146,8 @@ export function UserDetailForm(props: UserDetailFormType) {
                         type="button"
                         onClick={() => {
                           handleOpenModal({
-                            data: null,
+                            data,
+                            client,
                             modalContent: ModalContentType.REVOKE,
                           });
                         }}
@@ -168,7 +166,7 @@ export function UserDetailForm(props: UserDetailFormType) {
             color="primary"
             onClick={() =>
               handleOpenModal({
-                data: null,
+                data,
                 modalContent: ModalContentType.ADD,
               })
             }
@@ -177,12 +175,15 @@ export function UserDetailForm(props: UserDetailFormType) {
           </Button>
         </div>
       </div>
-      <UpsertModal
-        modalContent={modalOptions.modalContent as ModalContentType}
-        show={modalOptions.show}
-        onClose={handleResetModal}
-        data={modalOptions.data}
-      />
+      {modalOptions?.show && (
+        <UserDetailModal
+          modalContent={modalOptions.modalContent}
+          show={modalOptions.show}
+          onClose={handleResetModal}
+          data={modalOptions.data}
+          client={modalOptions.client}
+        />
+      )}
     </>
   );
 }

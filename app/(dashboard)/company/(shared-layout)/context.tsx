@@ -46,7 +46,7 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
   return (
     <SidebarContext.Provider value={{ pathname, setPathname }}>
       <div className="h-[calc(100vh-100px)]">
-        <div className="flex w-full h-full">
+        <div className="flex w-full h-full ">
           <Sidebar className="pt-[80px] relative z-10">
             <SidebarItems className="h-full">
               <SidebarItemGroup>
@@ -55,8 +55,8 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
                   return (
                     <div
                       key={item.id}
-                      className={`text-lg p-4 cursor-pointer rounded-md hover:bg-primary-500 hover:text-white transition-colors duration-200 ${
-                        isActive && "bg-primary-600 text-white"
+                      className={`text-lg p-4 cursor-pointer rounded-md  hover:bg-primary-500 hover:text-white transition-colors duration-200 ${
+                        isActive ? "bg-primary-600 text-white" : "text-black"
                       }`}
                       onClick={() => setPathname(item.routeName)}
                     >
