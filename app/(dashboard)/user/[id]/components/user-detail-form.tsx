@@ -246,11 +246,18 @@ export function UserDetailForm(props: UserDetailFormType) {
         </div>
       </div>
       {toast.show && (
-        <Toast className="absolute right-5 top-5 bg-primary-500 z-50">
+        <Toast
+          className={`absolute right-5 top-5 z-[9999] ${
+            toast?.error ? "bg-red-600" : "bg-primary-500"
+          }`}
+        >
           <div className="ml-3 text-sm font-normal text-white">
             {toast?.message}
           </div>
-          <Toast.Toggle onClick={handleResetToast} />
+          <Toast.Toggle
+            className={toast?.error ? "bg-red-600" : "bg-primary-500"}
+            onClick={handleResetToast}
+          />
         </Toast>
       )}
       {modalOptions?.show && (

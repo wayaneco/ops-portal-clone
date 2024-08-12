@@ -89,7 +89,7 @@ export const AddClient = () => {
       closeDialog();
     } catch (error: any) {
       setIsSubmitting(false);
-      return setToast(<div>{error?.message}</div>);
+      return setToast(<div>{error?.message}</div>, true);
     }
   };
 

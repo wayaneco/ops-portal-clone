@@ -10,7 +10,7 @@ export async function addClient(params: {
 }) {
   "use server";
 
-  const supabase = await createClient();
+  const supabase = createClient();
 
   const { data, error } = await supabase.rpc("update_user_roles", {
     p_client_id: params.client_id,
