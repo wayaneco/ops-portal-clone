@@ -1,3 +1,4 @@
+import { ModalProps } from "flowbite-react";
 import { ModalContentType } from "../types";
 import { AddClient } from "./add-client";
 import { EditClient } from "./edit-client";

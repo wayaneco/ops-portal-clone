@@ -40,6 +40,21 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
         "h-full overflow-y-auto overflow-x-hidden bg-gray-50 px-3 py-4 dark:bg-gray-800",
     },
   },
+  spinner: {
+    color: {
+      primary: "fill-primary-500",
+    },
+  },
+  toast: {
+    root: {
+      base: "flex w-full max-w-xs items-center rounded-md bg-primary-500 p-4 text-white shadow",
+      closed: "opacity-0 ease-out",
+    },
+    toggle: {
+      base: "-m-1.5 ml-auto inline-flex h-8 w-8 rounded-lg bg-primary-500 p-1.5 text-white",
+      icon: "h-5 w-5 shrink-0",
+    },
+  },
   badge: {
     root: {
       color: {

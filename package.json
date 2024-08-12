@@ -23,6 +23,7 @@
     "react-beautiful-dnd": "^13.1.1",
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
+    "react-tailwindcss-select": "^1.8.5",
     "yup": "^1.4.0"
   },
   "devDependencies": {

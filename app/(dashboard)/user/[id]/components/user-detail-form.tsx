@@ -10,6 +10,7 @@ import {
   TextInput,
   Table,
   Badge,
+  Toast,
 } from "flowbite-react";
 import { UserDetailModal } from "./client-modal";
 
@@ -25,9 +26,43 @@ type HandleOpenModalType = {
   client?: ClientsType;
 };
 
+type UserDetailFormContextType = {
+  setToast: (message: ToastType["message"], isError?: boolean) => void;
+  closeDialog: () => void;
+};
+
+type ToastType = {
+  show: boolean;
+  message: string | React.ReactNode;
+  error: boolean;
+};
+
+const UserDetailFormContext = React.createContext<
+  UserDetailFormContextType | undefined
+>(undefined);
+
+export const useUserDetailFormContext = () => {
+  const context = React.useContext<UserDetailFormContextType | undefined>(
+    UserDetailFormContext
+  );
+
+  if (!context) {
+    throw new Error(
+      "useUserDetailFormContext should be used within the UserDetailFormContextProvider!"
+    );
+  }
+
+  return context;
+};
+
 export function UserDetailForm(props: UserDetailFormType) {
   const { data } = props;
 
+  const [toast, setToast] = React.useState<ToastType>({
+    show: false,
+    message: "",
+    error: false,
+  });
   const [modalOptions, setModalOptions] = React.useState<any>({
     show: false,
     modalContent: null,
@@ -57,8 +92,43 @@ export function UserDetailForm(props: UserDetailFormType) {
     });
   };
 
+  const handleSetToast = (
+    message: string | React.ReactNode,
+    isError?: boolean
+  ) => {
+    setToast({
+      show: true,
+      message,
+      error: isError ?? false,
+    });
+  };
+
+  const handleResetToast = () =>
+    setToast({ show: false, message: "", error: false });
+
+  React.useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (toast.show) {
+      timeout = setTimeout(() => {
+        handleResetToast();
+      }, 5000);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [toast.show]);
+
   return (
-    <>
+    <UserDetailFormContext.Provider
+      value={{
+        setToast: (message: ToastType["message"], isError?: boolean) => {
+          handleSetToast(message, isError);
+        },
+        closeDialog: handleResetModal,
+      }}
+    >
       <div className="flex">
         <Avatar
           img={(avatarProps: AvatarImageProps) => (
@@ -175,6 +245,14 @@ export function UserDetailForm(props: UserDetailFormType) {
           </Button>
         </div>
       </div>
+      {toast.show && (
+        <Toast className="absolute right-5 top-5 bg-primary-500 z-50">
+          <div className="ml-3 text-sm font-normal text-white">
+            {toast?.message}
+          </div>
+          <Toast.Toggle onClick={handleResetToast} />
+        </Toast>
+      )}
       {modalOptions?.show && (
         <UserDetailModal
           modalContent={modalOptions.modalContent}
@@ -184,6 +262,6 @@ export function UserDetailForm(props: UserDetailFormType) {
           client={modalOptions.client}
         />
       )}
-    </>
+    </UserDetailFormContext.Provider>
   );
 }

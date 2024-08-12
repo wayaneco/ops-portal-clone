@@ -33,7 +33,14 @@ export function UserDetailModal(props: UserDetailModal) {
     defaultValues: {
       info: { user, client },
       privilege: client?.privileges?.map((p: string) => p),
-      clients: [],
+      dropdowns: {
+        clientList: [],
+        roleList: [],
+      },
+      add_client: {
+        client_id: null,
+        role_ids: [],
+      },
     },
   });
 
