@@ -123,13 +123,7 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
             </div>
           </div>
           <div className="h-full w-full pl-64">
-            <div className="m-8">
-              <Card>
-                <div className="p-8">
-                  <AddClientForm routeName={pathname} />
-                </div>
-              </Card>
-            </div>
+            <AddClientForm routeName={pathname} />
           </div>
         </div>
       </form>
