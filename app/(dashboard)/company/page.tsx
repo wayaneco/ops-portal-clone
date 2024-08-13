@@ -31,8 +31,6 @@ const Page = async function () {
 
   const clientList = await response.json();
 
-  console.log(clientList);
-
   return (
     <div className="py-16">
       <Card>

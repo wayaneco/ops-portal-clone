@@ -45,6 +45,11 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
       primary: "fill-primary-500",
     },
   },
+  radio: {
+    root: {
+      base: "h-4 w-4 border border-primary-500 text-primary-500 focus:ring-2 focus:ring-primary-500 dark:border-primary-600 dark:bg-primary-700 dark:focus:bg-primary-600 dark:focus:ring-primary-600",
+    },
+  },
   toast: {
     root: {
       base: "flex w-full max-w-xs items-center rounded-md bg-primary-500 p-4 text-white shadow",

@@ -30,7 +30,12 @@ export const WebAddress = () => {
         <Button color="primary">Provision</Button>
       </div>
       <div className="text-sm mt-2 ml-2 text-black">
-        {`${watchWebAddress}.everesteffect.com`}
+        {watchWebAddress && (
+          <div>
+            Your provision link:{" "}
+            <strong>{`${watchWebAddress}.everesteffect.com`}</strong>
+          </div>
+        )}
       </div>
     </div>
   );
