@@ -1,13 +1,21 @@
 "use client";
 
 import { TextInput, Button, Avatar, Modal, Radio, Label } from "flowbite-react";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
 export const ServiceProvided = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
-  const { setValue, watch, control } = useFormContext();
+  const {
+    setValue,
+    watch,
+    control,
+    reset,
+    getValues,
+    trigger,
+    formState: { errors },
+  } = useFormContext();
 
   const serviceProvided = watch("service_provided");
 
@@ -16,7 +24,7 @@ export const ServiceProvided = () => {
     name: "service_provided",
   });
 
-  console.log(fields);
+  console.log(errors);
   return (
     <div>
       <div>
@@ -42,8 +50,10 @@ export const ServiceProvided = () => {
                   const [item] = clonedServiceProvided.splice(source.index, 1);
                   clonedServiceProvided.splice(destination.index, 0, item);
 
-                  setValue("service_provided", clonedServiceProvided);
-                  // move(source.index, destination.index);
+                  reset({
+                    ...getValues(),
+                    service_provided: clonedServiceProvided,
+                  });
                 }}
               >
                 <Droppable droppableId="1">
@@ -61,71 +71,97 @@ export const ServiceProvided = () => {
                           disableInteractiveElementBlocking
                           shouldRespectForcePress
                         >
-                          {(draggableProvided, draggableSnapshot) => (
+                          {(draggableProvided) => (
                             <div
                               ref={draggableProvided.innerRef}
-                              className={`flex items-center gap-x-4 p-4 transition-colors text-black  `}
+                              className={`flex items-start gap-x-4 p-4 transition-colors text-black  `}
                               {...draggableProvided.draggableProps}
                             >
                               <Controller
                                 control={control}
                                 name={`service_provided[${index}].label`}
                                 render={({ field }) => (
-                                  <TextInput
-                                    disabled={
-                                      !isEditing || fields?.length - 1 !== index
-                                    }
-                                    placeholder="Enter service name"
-                                    {...field}
-                                  />
+                                  <div className="w-full">
+                                    <TextInput
+                                      disabled={
+                                        !isEditing ||
+                                        fields?.length - 1 !== index
+                                      }
+                                      placeholder="Enter service name"
+                                      {...field}
+                                    />
+                                    {(errors?.service_provided as any)?.[index]
+                                      ?.label?.message && (
+                                      <small className="text-red-500 mt-1">
+                                        {
+                                          (errors?.service_provided as any)?.[
+                                            index
+                                          ]?.label?.message
+                                        }
+                                      </small>
+                                    )}
+                                  </div>
                                 )}
                               />
                               <Controller
                                 control={control}
                                 name={`service_provided[${index}].type`}
                                 render={({ field }) => (
-                                  <>
-                                    <div className="flex items-center gap-2">
-                                      <Radio
-                                        id={`count-${index}`}
-                                        value="count"
-                                        disabled={
-                                          !isEditing ||
-                                          fields?.length - 1 !== index
-                                        }
-                                        onChange={field?.onChange}
-                                        checked={field?.value === "count"}
-                                      />
-                                      <Label
-                                        htmlFor={`count-${index}`}
-                                        className="cursor-pointer"
-                                      >
-                                        Count
-                                      </Label>
+                                  <div className="flex flex-col">
+                                    <div className="flex gap-x-4 mt-3">
+                                      <div className="flex items-center gap-2">
+                                        <Radio
+                                          id={`count-${index}`}
+                                          value="count"
+                                          disabled={
+                                            !isEditing ||
+                                            fields?.length - 1 !== index
+                                          }
+                                          onChange={field?.onChange}
+                                          checked={field?.value === "count"}
+                                        />
+                                        <Label
+                                          htmlFor={`count-${index}`}
+                                          className="cursor-pointer"
+                                        >
+                                          Count
+                                        </Label>
+                                      </div>
+                                      <div className="flex items-center gap-2">
+                                        <Radio
+                                          id={`string-${index}`}
+                                          value="string"
+                                          disabled={
+                                            !isEditing ||
+                                            fields?.length - 1 !== index
+                                          }
+                                          onChange={field?.onChange}
+                                          checked={field?.value === "string"}
+                                        />
+                                        <Label
+                                          htmlFor={`string-${index}`}
+                                          className="cursor-pointer"
+                                        >
+                                          String
+                                        </Label>
+                                      </div>
                                     </div>
-                                    <div className="flex items-center gap-2">
-                                      <Radio
-                                        id={`string-${index}`}
-                                        value="string"
-                                        disabled={
-                                          !isEditing ||
-                                          fields?.length - 1 !== index
+
+                                    {(errors?.service_provided as any)?.[index]
+                                      ?.type?.message && (
+                                      <small className="text-red-500 mt-1">
+                                        {
+                                          (errors?.service_provided as any)?.[
+                                            index
+                                          ]?.type?.message
                                         }
-                                        onChange={field?.onChange}
-                                        checked={field?.value === "string"}
-                                      />
-                                      <Label
-                                        htmlFor={`string-${index}`}
-                                        className="cursor-pointer"
-                                      >
-                                        String
-                                      </Label>
-                                    </div>
-                                  </>
+                                      </small>
+                                    )}
+                                  </div>
                                 )}
                               />
                               {!isEditing && (
-                                <>
+                                <div className="mt-2.5 flex">
                                   <div
                                     {...draggableProvided.dragHandleProps}
                                     className="p-2 rounded-md text-black cursor-pointer hover:bg-primary-500 group"
@@ -148,7 +184,10 @@ export const ServiceProvided = () => {
                                       />
                                     </svg>
                                   </div>
-                                  <div className="p-2 rounded-md text-black cursor-pointer hover:bg-red-500 group">
+                                  <div
+                                    className="p-2 rounded-md text-black cursor-pointer hover:bg-red-500 group"
+                                    onClick={() => remove(index)}
+                                  >
                                     <svg
                                       className="w-4 h-4 text-gray-800  group-hover:text-white"
                                       aria-hidden="true"
@@ -167,10 +206,29 @@ export const ServiceProvided = () => {
                                       />
                                     </svg>
                                   </div>
-                                </>
+                                </div>
                               )}
                               {fields?.length - 1 === index && isEditing && (
-                                <Button onClick={() => setIsEditing(false)}>
+                                <Button
+                                  onClick={() => {
+                                    const fieldType = watch(
+                                      `service_provided[${index}].type`
+                                    );
+                                    const fieldLabel = watch(
+                                      `service_provided[${index}].label`
+                                    );
+
+                                    if (!fieldType || !fieldLabel) {
+                                      trigger([
+                                        `service_provided[${index}].label`,
+                                        `service_provided[${index}].type`,
+                                      ]);
+                                      return;
+                                    }
+
+                                    setIsEditing(false);
+                                  }}
+                                >
                                   Save
                                 </Button>
                               )}
@@ -190,6 +248,7 @@ export const ServiceProvided = () => {
 
       <div className="mt-10">
         <Button
+          disabled={isEditing}
           color="primary"
           onClick={() => {
             setIsEditing(true);

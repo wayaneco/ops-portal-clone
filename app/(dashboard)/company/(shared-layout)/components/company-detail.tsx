@@ -118,7 +118,7 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
                 color="primary"
                 disabled={!watchName || !watchWebAddress}
               >
-                Save
+                {companyInfo ? "Update Company" : "Add Company"}
               </Button>
             </div>
           </div>

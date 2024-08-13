@@ -79,9 +79,23 @@ const MapComponent = () => {
         <Marker
           position={newMarkerPosition}
           draggable={true}
-          onDragEnd={onMarkerDragEnd}
+          onDragEnd={onMarkerDragEnd as any}
         />
       </GoogleMap>
+      {(newMarkerPosition.lat || newMarkerPosition.lng) && (
+        <div className="mt-10">
+          <div className="flex justify-between">
+            <div className="flex text-black text-lg">
+              <div>Latitude: </div>
+              <strong className="ml-2">{newMarkerPosition.lat}</strong>
+            </div>
+            <div className="flex text-black text-lg">
+              <div>Longitude:</div>
+              <strong className="ml-2">{newMarkerPosition.lng}</strong>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 };

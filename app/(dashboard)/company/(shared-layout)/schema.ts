@@ -9,11 +9,21 @@ export const schema = Yup.object().shape({
   web_address: Yup.string().required(),
   service_provided: Yup.array().of(
     Yup.object().shape({
-      label: Yup.string().required(),
-      type: Yup.string().required(),
+      label: Yup.string().required("This field is required."),
+      type: Yup.string().required("This field is required."),
     })
   ),
-  tags: Yup.array(),
-  provider_types: Yup.array(),
+  tags: Yup.array().of(
+    Yup.object().shape({
+      label: Yup.string().required("This field is required."),
+      type: Yup.string().required("This field is required."),
+    })
+  ),
+  provider_types: Yup.array().of(
+    Yup.object().shape({
+      label: Yup.string().required("This field is required."),
+      type: Yup.string().required("This field is required."),
+    })
+  ),
   provisioning_status: Yup.string(),
 });

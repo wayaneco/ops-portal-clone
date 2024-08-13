@@ -83,6 +83,7 @@ export default function Navbar({
         <Button
           color="white"
           type="button"
+          className="text-black"
           onClick={() => {
             supabase.auth.signOut();
           }}
@@ -90,7 +91,10 @@ export default function Navbar({
           Logout
         </Button>
       ) : (
-        <Link href="/login" className="text-base md:text-lg hidden md:block">
+        <Link
+          href="/login"
+          className="text-base text-black md:text-lg hidden md:block"
+        >
           Login
         </Link>
       )}

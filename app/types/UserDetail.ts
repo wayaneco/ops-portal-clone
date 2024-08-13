@@ -36,9 +36,18 @@ export type ClientsType = {
   time_zone: string;
   is_enabled: boolean;
   privileges: Array<Privileges>;
-  tags: Array<string>;
-  provider_types: Array<string>;
-  service_provided: Array<string>;
+  tags: Array<{
+    label: string;
+    type: string;
+  }>;
+  provider_types: Array<{
+    label: string;
+    type: string;
+  }>;
+  service_provided: Array<{
+    label: string;
+    type: string;
+  }>;
   description: string;
   web_address: string;
   provisioning_status: string;
