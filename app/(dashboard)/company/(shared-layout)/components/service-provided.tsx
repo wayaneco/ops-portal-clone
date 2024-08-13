@@ -83,6 +83,7 @@ export const ServiceProvided = () => {
                                 render={({ field }) => (
                                   <div className="w-full">
                                     <TextInput
+                                      color="primary"
                                       disabled={
                                         !isEditing ||
                                         fields?.length - 1 !== index
@@ -210,6 +211,7 @@ export const ServiceProvided = () => {
                               )}
                               {fields?.length - 1 === index && isEditing && (
                                 <Button
+                                  color="primary"
                                   onClick={() => {
                                     const fieldType = watch(
                                       `service_provided[${index}].type`

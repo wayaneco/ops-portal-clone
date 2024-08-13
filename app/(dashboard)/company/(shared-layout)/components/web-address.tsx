@@ -6,6 +6,8 @@ export const WebAddress = () => {
   const inputRef = useRef();
   const { control, watch } = useFormContext();
 
+  const watchWebAddress = watch("web_address");
+
   return (
     <div>
       <Label className="mb-2 block">Host Name</Label>
@@ -27,8 +29,8 @@ export const WebAddress = () => {
         />
         <Button color="primary">Provision</Button>
       </div>
-      <div className="text-sm mt-2 ml-2 ">
-        Required to provision the Everest Portal subdomain for this client
+      <div className="text-sm mt-2 ml-2 text-black">
+        {`${watchWebAddress}.everesteffect.com`}
       </div>
     </div>
   );
