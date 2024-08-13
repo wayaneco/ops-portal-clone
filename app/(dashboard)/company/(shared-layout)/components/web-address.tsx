@@ -1,8 +1,10 @@
 import { Label, TextInput, Button } from "flowbite-react";
+import { useRef } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 
 export const WebAddress = () => {
-  const { control } = useFormContext();
+  const inputRef = useRef();
+  const { control, watch } = useFormContext();
 
   return (
     <div>
@@ -11,12 +13,15 @@ export const WebAddress = () => {
         <Controller
           control={control}
           name="web_address"
-          render={({ field }) => (
+          defaultValue=""
+          render={({ field: { value, onChange } }) => (
             <TextInput
+              ref={inputRef as any}
               color="primary"
               placeholder="domain.everesteffect.com"
-              className="w-[450px] placeholder-shown:italic"
-              {...field}
+              className="w-[450px] placeholder-shown:italic "
+              value={value}
+              onChange={onChange}
             />
           )}
         />

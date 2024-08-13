@@ -1,4 +1,4 @@
-//Since the map will be laoded and displayed on client side
+//Since the map will be loaded and displayed on client side
 "use client";
 
 // Import necessary modules and functions from external libraries and our own project

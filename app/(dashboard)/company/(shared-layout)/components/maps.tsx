@@ -4,19 +4,14 @@ we need to make this component client rendered as well*/
 
 //Map component Component from library
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { useFormContext } from "react-hook-form";
 
 //Map's styling
 const defaultMapContainerStyle = {
   width: "100%",
   height: "50vh",
   borderRadius: "15px 0px 0px 15px",
-};
-
-//K2's coordinates
-const defaultMapCenter = {
-  lat: 45.20489171079101,
-  lng: -103.67174796177827,
 };
 
 //Default zoom level, can be adjusted
@@ -32,10 +27,17 @@ const defaultMapOptions = {
 };
 
 const MapComponent = () => {
+  const { setValue, watch } = useFormContext();
+
+  const watchLatitude = watch("latitude");
+  const watchLongitude = watch("longitude");
   const [newMarkerPosition, setNewMarkerPosition] = useState<{
     lat: number;
     lng: number;
-  }>(defaultMapCenter);
+  }>({
+    lat: watchLatitude,
+    lng: watchLongitude,
+  });
 
   const onMarkerDragEnd = (event: {
     latLng: { lat: () => any; lng: () => any };
@@ -44,14 +46,32 @@ const MapComponent = () => {
     const newLng = event.latLng.lng();
     setNewMarkerPosition({ lat: newLat, lng: newLng });
 
-    // You can use these new coordinates wherever you need
-    console.log("New position:", { lat: newLat, lng: newLng });
+    setValue("latitude", newLat);
+    setValue("longitude", newLng);
   };
+
+  useEffect(() => {
+    if (navigator.geolocation) {
+      navigator.geolocation.getCurrentPosition((position) => {
+        const { latitude, longitude } = position.coords;
+
+        setNewMarkerPosition({
+          lat: latitude,
+          lng: longitude,
+        });
+
+        setValue("latitude", latitude);
+        setValue("longitude", longitude);
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div className="w-full">
       <GoogleMap
         mapContainerStyle={defaultMapContainerStyle}
-        center={defaultMapCenter}
+        center={newMarkerPosition}
         zoom={defaultMapZoom}
         options={defaultMapOptions}
       >

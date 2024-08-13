@@ -18,7 +18,7 @@ export default function Navbar({
   const { session } = useContext(AuthContext)!;
   const pathname = usePathname();
 
-  const regex = new RegExp(/^\/(company\/)?(add|\w)/);
+  const regex = new RegExp(/^\/company?\w/);
 
   const dynamicLinks = (privileges: string) => {
     let component;
@@ -57,7 +57,7 @@ export default function Navbar({
   };
 
   return (
-    <FBNavbar className="fixed w-full">
+    <FBNavbar className="fixed w-full" fluid={/^\/company\/\w/.test(pathname)}>
       <FBNavbar.Brand
         as={Link}
         href="/"

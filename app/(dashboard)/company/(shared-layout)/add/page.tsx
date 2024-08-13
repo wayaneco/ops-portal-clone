@@ -1,24 +1,13 @@
 "use client";
 
-import { Avatar, TextInput, Button, Label, Card } from "flowbite-react";
-import {
-  ChangeEvent,
-  LegacyRef,
-  MutableRefObject,
-  useContext,
-  useRef,
-} from "react";
+import { Avatar, TextInput, Button, Card } from "flowbite-react";
+import { ChangeEvent, LegacyRef, useContext, useRef } from "react";
 import { SidebarContext, SidebarContextType } from "../context";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import Image from "next/image";
-
-import TonisKitchen from "public/tonis.svg";
-import ImagePlaceholder from "public/image-placeholder.jpg";
-
-import { schema } from "./schema";
-import { AddClientForm } from "./add-form";
+import { schema } from "../schema";
+import { AddClientForm } from "../components/form";
 import { read } from "fs";
 
 const Page = function () {
@@ -41,11 +30,15 @@ const Page = function () {
       provisioning_status: "DRAFT",
     },
     resolver: yupResolver(schema),
+    mode: "onChange",
   });
 
   const onSubmit = (data: unknown) => {
     console.log(data);
   };
+
+  const watchName = methods.watch("name");
+  const watchWebAddress = methods.watch("web_address");
 
   return (
     <FormProvider {...methods}>
@@ -59,11 +52,11 @@ const Page = function () {
                   name="logo"
                   render={({ field: { value, onChange } }) => (
                     <div
-                      className="flex items-center cursor-pointer"
+                      className="flex items-center justify-center cursor-pointer"
                       onClick={() => inputRef.current?.click()}
                     >
                       {!value ? (
-                        <div className="flex items-center justify-center w-20 h-20 bg-gray-300 rounded  dark:bg-gray-700">
+                        <div className="flex items-center justify-center w-full h-20 bg-gray-300 rounded  dark:bg-gray-700">
                           <svg
                             className="w-10 h-10 text-gray-200 dark:text-gray-600"
                             aria-hidden="true"
@@ -75,23 +68,18 @@ const Page = function () {
                           </svg>
                         </div>
                       ) : (
-                        <Avatar
-                          img={(avatarProps) => (
-                            <img
-                              src={value}
-                              width="100%"
-                              alt="Tonis Kitchen"
-                              {...avatarProps}
-                            />
-                          )}
-                          size="lg"
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={value}
+                          alt="Tonis Kitchen"
+                          className="w-auto h-20"
                         />
                       )}
                       <input
                         className="hidden"
                         type="file"
                         ref={inputRef as LegacyRef<HTMLInputElement>}
-                        accept="image/**"
+                        accept="image/png, image/webp, image/jpeg"
                         onChange={(event: ChangeEvent<HTMLInputElement>) => {
                           if (!event?.currentTarget?.files![0]) return;
 
@@ -99,7 +87,7 @@ const Page = function () {
 
                           var reader = new FileReader();
                           reader.onloadend = function () {
-                            methods.setValue("logo", reader?.result);
+                            onChange(reader.result);
                           };
 
                           reader.readAsDataURL(file);
@@ -121,8 +109,12 @@ const Page = function () {
                   />
                 )}
               />
-              <Button type="submit" color="primary">
-                Done
+              <Button
+                type="submit"
+                color="primary"
+                disabled={!watchName || !watchWebAddress}
+              >
+                Save
               </Button>
             </div>
           </div>

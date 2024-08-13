@@ -1,418 +1,146 @@
 "use client";
 
-import { useContext } from "react";
-import { MapProvider } from "@/providers/map-provider";
-import { MapComponent } from "./components/maps";
-import { SidebarContext, SidebarContextType } from "../context";
-import TonisKitchen from "public/tonis.svg";
 import { Avatar, TextInput, Button, Label, Card } from "flowbite-react";
+import {
+  ChangeEvent,
+  LegacyRef,
+  MutableRefObject,
+  useContext,
+  useRef,
+} from "react";
+import { SidebarContext, SidebarContextType } from "../context";
+import { Controller, FormProvider, useForm } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import Image from "next/image";
 
-const Page = function (props: { params: { id: string } }) {
+import TonisKitchen from "public/tonis.svg";
+import ImagePlaceholder from "public/image-placeholder.jpg";
+
+import { schema } from "../schema";
+import { AddClientForm } from "../components/form";
+
+const Page = function () {
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
   )!;
+  const inputRef = useRef<HTMLInputElement>();
+
+  const methods = useForm({
+    defaultValues: {
+      logo: "",
+      name: "",
+      web_address: "",
+      longitude: "",
+      latitude: "",
+      is_enabled: false,
+      service_provided: [],
+      tags: [],
+      provider_types: [],
+      provisioning_status: "DRAFT",
+    },
+    resolver: yupResolver(schema),
+    mode: "onChange",
+  });
+
+  const onSubmit = (data: unknown) => {
+    console.log(data);
+  };
+
+  const watchName = methods.watch("name");
+  const watchWebAddress = methods.watch("web_address");
 
   return (
-    <div className="absolute left-0 right-0 overflow-x-hidden">
-      <div className="bg-gray-50">
-        <div className="flex gap-x-4 items-center">
-          <div className="w-64">
-            <Avatar
-              img={(avatarProps) => (
-                <Image
-                  src={TonisKitchen}
-                  alt="Tonis Kitchen"
-                  {...avatarProps}
+    <FormProvider {...methods}>
+      <form onSubmit={methods.handleSubmit(onSubmit)}>
+        <div className="absolute left-0 right-0 overflow-x-hidden">
+          <div className="relative z-50 bg-gray-50">
+            <div className="flex gap-x-4 items-center">
+              <div className="w-64">
+                <Controller
+                  control={methods.control}
+                  name="logo"
+                  render={({ field: { value, onChange } }) => (
+                    <div
+                      className="flex items-center justify-center cursor-pointer"
+                      onClick={() => inputRef.current?.click()}
+                    >
+                      {!value ? (
+                        <div className="flex items-center justify-center w-full h-20 bg-gray-300 rounded  dark:bg-gray-700">
+                          <svg
+                            className="w-10 h-10 text-gray-200 dark:text-gray-600"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="currentColor"
+                            viewBox="0 0 20 18"
+                          >
+                            <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z" />
+                          </svg>
+                        </div>
+                      ) : (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={value}
+                          alt="Tonis Kitchen"
+                          className="w-auto h-20"
+                        />
+                      )}
+                      <input
+                        className="hidden"
+                        type="file"
+                        ref={inputRef as LegacyRef<HTMLInputElement>}
+                        accept="image/**"
+                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                          if (!event?.currentTarget?.files![0]) return;
+
+                          var file = event?.currentTarget?.files![0];
+
+                          var reader = new FileReader();
+                          reader.onloadend = function () {
+                            onChange(reader.result);
+                          };
+
+                          reader.readAsDataURL(file);
+                        }}
+                      />
+                    </div>
+                  )}
                 />
-              )}
-              size="lg"
-            />
+              </div>
+              <Controller
+                control={methods.control}
+                name="name"
+                render={({ field }) => (
+                  <TextInput
+                    color="primary"
+                    placeholder="Add client name"
+                    className="w-[450px]"
+                    {...field}
+                  />
+                )}
+              />
+              <Button
+                type="submit"
+                color="primary"
+                disabled={!watchName || !watchWebAddress}
+              >
+                Save
+              </Button>
+            </div>
           </div>
-          <TextInput
-            color="primary"
-            placeholder="Add client name"
-            className="w-[450px]"
-            defaultValue="Toni's Kitchen"
-          />
-          <Button color="primary">Done</Button>
+          <div className="h-full w-full pl-64">
+            <div className="m-8">
+              <Card>
+                <div className="p-8">
+                  <AddClientForm routeName={pathname} />
+                </div>
+              </Card>
+            </div>
+          </div>
         </div>
-      </div>
-      <div className="h-full w-full pl-64">
-        <div className="m-8">
-          <Card>
-            <div className="p-8">{getDynamicComponent(pathname)}</div>
-          </Card>
-        </div>
-      </div>
-    </div>
+      </form>
+    </FormProvider>
   );
-};
-
-const getDynamicComponent = (routeName: string) => {
-  let component;
-
-  //Map's styling
-  const defaultMapContainerStyle = {
-    width: "100%",
-    height: "80vh",
-    borderRadius: "15px 0px 0px 15px",
-  };
-  switch (routeName) {
-    case "webAddress":
-      component = (
-        <div>
-          <Label className="mb-2 block">Host Name</Label>
-          <div className="flex gap-x-4">
-            <TextInput
-              color="primary"
-              defaultValue="tonis-kitchen.everesteffect.com"
-              placeholder="domain.everesteffect.com"
-              className="w-[450px] placeholder-shown:italic"
-            />
-            <Button color="primary">Provision</Button>
-          </div>
-          <div className="text-sm mt-2 ml-2 ">
-            Required to provision the Everest Portal subdomain for this client
-          </div>
-        </div>
-      );
-      break;
-    case "serviceLocation":
-      component = (
-        <div>
-          {/* <div className="mapouter">
-            <div className="gmap_canvas">
-              <iframe
-                className="gmap_iframe"
-                width="100%"
-                frameborder="0"
-                scrolling="no"
-                marginheight="0"
-                marginwidth="0"
-                src="https://maps.google.com/maps?width=961&amp;height=448&amp;hl=en&amp;q=makati&amp;t=&amp;z=12&amp;ie=UTF8&amp;iwloc=B&amp;output=embed"
-              ></iframe>
-              <a href="https://embed-googlemap.com">
-                embed google maps in website
-              </a>
-            </div>
-          </div> */}
-          <main>
-            <MapProvider>
-              <MapComponent></MapComponent>
-            </MapProvider>
-          </main>
-          Service Location Body
-        </div>
-      );
-      break;
-
-    case "serviceProvided":
-      component = (
-        <div>
-          <div className="flex item-center gap-x-4">
-            <TextInput
-              placeholder="Search service provided"
-              color="primary"
-              className="w-[450px]"
-            />
-            <Button color="primary">Search</Button>
-            <div className="ml-auto">
-              <Button color="primary">Create new service</Button>
-            </div>
-          </div>
-          <div className="mt-10">
-            <div className="overflow-y-auto">
-              <div className="max-h-[calc(100vh-550px)]">
-                <div className="bg-white">
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 1</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 2</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 3</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 4</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 5</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 6</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 7</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 8</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 9</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Service No - 10</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <Button color="primary">Add</Button>
-          </div>
-        </div>
-      );
-      break;
-
-    case "tags":
-      component = (
-        <div>
-          <div className="flex item-center gap-x-4">
-            <TextInput
-              placeholder="Search organizational tags"
-              color="primary"
-              className="w-[450px]"
-            />
-            <Button color="primary">Search</Button>
-            <div className="ml-auto">
-              <Button color="primary">Create new tag</Button>
-            </div>
-          </div>
-          <div className="mt-10">
-            <div className="overflow-y-auto">
-              <div className="max-h-[calc(100vh-550px)]">
-                <div className="bg-white">
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 1</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 2</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 3</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 4</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 5</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 6</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 7</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 8</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 9</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Tag No - 10</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <Button color="primary">Add</Button>
-          </div>
-        </div>
-      );
-      break;
-
-    case "providerType":
-      component = (
-        <div>
-          <div className="flex item-center gap-x-4">
-            <TextInput
-              placeholder="Search provider types"
-              color="primary"
-              className="w-[450px]"
-            />
-            <Button color="primary">Search</Button>
-            <div className="ml-auto">
-              <Button color="primary">Create new type</Button>
-            </div>
-          </div>
-          <div className="mt-10">
-            <div className="overflow-y-auto">
-              <div className="max-h-[calc(100vh-550px)]">
-                <div className="bg-white">
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 1</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 2</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 3</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 4</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 5</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 6</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 7</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 8</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 9</div>
-                  </div>
-                  <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-blue-100 ">
-                    <Avatar
-                      img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                      size="md"
-                    />
-                    <div className="text-lg">Type No - 10</div>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="mt-10">
-            <Button color="primary">Add</Button>
-          </div>
-        </div>
-      );
-      break;
-    default:
-      component = null;
-      break;
-  }
-
-  return component;
 };
 
 export default Page;

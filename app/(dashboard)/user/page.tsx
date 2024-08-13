@@ -44,10 +44,16 @@ export default async function Page() {
         <div className="mt-10 overflow-x-auto">
           <Table hoverable>
             <TableHead>
-              <TableHeadCell>Name</TableHeadCell>
-              <TableHeadCell>Email</TableHeadCell>
-              <TableHeadCell>Privileges</TableHeadCell>
-              <TableHeadCell className="w-32">
+              <TableHeadCell className="bg-primary-500 text-white">
+                Name
+              </TableHeadCell>
+              <TableHeadCell className="bg-primary-500 text-white">
+                Email
+              </TableHeadCell>
+              <TableHeadCell className="bg-primary-500 text-white">
+                Privileges
+              </TableHeadCell>
+              <TableHeadCell className="w-32 bg-primary-500 text-white">
                 <span className="sr-only">View</span>
               </TableHeadCell>
             </TableHead>

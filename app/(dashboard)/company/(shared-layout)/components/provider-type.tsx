@@ -5,13 +5,13 @@ import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useFormContext } from "react-hook-form";
 
-export const ServiceProvided = () => {
+export const ProviderType = () => {
   const [showModal, setShowModal] = useState(false);
-  const [newServiceProvided, setNewServiceProvided] = useState("");
+  const [newProviderType, setNewProviderType] = useState("");
 
   const { setValue, watch } = useFormContext();
 
-  const serviceProvided = watch("service_provided");
+  const providerTypes = watch("provider_types");
 
   return (
     <div>
@@ -21,7 +21,7 @@ export const ServiceProvided = () => {
             <div className="bg-white">
               <DragDropContext
                 onDragEnd={(result) => {
-                  const { destination, source } = result;
+                  const { destination, source, draggableId } = result;
 
                   if (!destination) return;
 
@@ -31,14 +31,14 @@ export const ServiceProvided = () => {
                   )
                     return;
 
-                  const clonedServiceProvided = JSON.parse(
-                    JSON.stringify(serviceProvided)
+                  const clonedProviderTypes = JSON.parse(
+                    JSON.stringify(providerTypes)
                   );
 
-                  const [item] = clonedServiceProvided.splice(source.index, 1);
-                  clonedServiceProvided.splice(destination.index, 0, item);
+                  const [item] = clonedProviderTypes.splice(source.index, 1);
+                  clonedProviderTypes.splice(destination.index, 0, item);
 
-                  setValue("service_provided", clonedServiceProvided);
+                  setValue("provider_types", clonedProviderTypes);
                 }}
               >
                 <Droppable droppableId="1">
@@ -47,7 +47,7 @@ export const ServiceProvided = () => {
                       ref={droppableProvided.innerRef}
                       {...droppableProvided.droppableProps}
                     >
-                      {serviceProvided.map((item: string, key: number) => (
+                      {providerTypes.map((item: string, key: number) => (
                         <Draggable
                           key={`draggable-${key}`}
                           index={key}
@@ -56,7 +56,7 @@ export const ServiceProvided = () => {
                           {(draggableProvided, draggableSnapshot) => (
                             <div
                               ref={draggableProvided.innerRef}
-                              className={`flex items-center gap-x-4 p-4 cursor-pointer transition-colors hover:bg-primary-500 hover:text-white ${
+                              className={`flex items-center gap-x-4 p-4 cursor-pointer transition-colors text-black hover:bg-primary-500 hover:text-white ${
                                 draggableSnapshot.isDragging &&
                                 "bg-primary-500 text-white"
                               }`}
@@ -88,25 +88,22 @@ export const ServiceProvided = () => {
         </Button>
       </div>
       <Modal dismissible show={showModal} onClose={() => setShowModal(false)}>
-        <Modal.Header>Add service provided</Modal.Header>
+        <Modal.Header>Add new Provider type</Modal.Header>
         <Modal.Body>
           <TextInput
             color="primary"
-            placeholder="Add service provided"
-            value={newServiceProvided}
+            placeholder="Add new provider type"
+            value={newProviderType}
             autoFocus
-            onChange={(event) => setNewServiceProvided(event.target.value)}
+            onChange={(event) => setNewProviderType(event.target.value)}
           />
           <Button
             type="button"
             color="primary"
             className="mt-5 mx-auto"
             onClick={() => {
-              setValue("service_provided", [
-                ...serviceProvided,
-                newServiceProvided,
-              ]);
-              setNewServiceProvided("");
+              setValue("provider_types", [...providerTypes, newProviderType]);
+              setNewProviderType("");
               setShowModal(false);
             }}
           >

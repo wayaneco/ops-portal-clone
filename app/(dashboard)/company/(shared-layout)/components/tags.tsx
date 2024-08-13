@@ -54,7 +54,7 @@ export const Tags = () => {
                           {(draggableProvided, draggableSnapshot) => (
                             <div
                               ref={draggableProvided.innerRef}
-                              className={`flex items-center gap-x-4 p-4 cursor-pointer transition-colors hover:bg-primary-500 hover:text-white ${
+                              className={`flex items-center gap-x-4 p-4 cursor-pointer transition-colors text-black hover:bg-primary-500 hover:text-white ${
                                 draggableSnapshot.isDragging &&
                                 "bg-primary-500 text-white"
                               }`}

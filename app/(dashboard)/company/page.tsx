@@ -1,9 +1,38 @@
-import { Avatar, Button, Card, TextInput } from "flowbite-react";
+import { ClientsType } from "@/app/types";
+import {
+  Avatar,
+  Button,
+  Card,
+  TextInput,
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeadCell,
+  TableRow,
+} from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
 
 import TonisKitchen from "public/tonis.svg";
-const Page = function () {
+
+const Page = async function () {
+  const response = await fetch("http://localhost:3000/api/company", {
+    method: "GET",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    cache: "no-cache",
+  });
+
+  if (!response.ok) {
+    return <div>Error fetching data</div>;
+  }
+
+  const clientList = await response.json();
+
+  console.log(clientList);
+
   return (
     <div className="py-16">
       <Card>
@@ -13,28 +42,41 @@ const Page = function () {
           className="w-[450px]"
         />
 
-        <div className="overflow-auto bg-gray-100">
-          <div className="h-[calc(100vh-500px)]">
-            {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((k) => (
-              <Link key={4} href={`/company/${k}`}>
-                <div className="flex items-center gap-x-4 p-4 cursor-pointer hover:bg-gray-200">
-                  <Avatar
-                    bordered
-                    img={(avatarProps) => (
-                      <Image
-                        src={TonisKitchen}
-                        alt="Tonis Kitchen"
-                        {...avatarProps}
-                      />
-                    )}
-                    size="md"
-                  />
-                  <div className="text-lg text-black">
-                    Toni&apos;s Kitchen - {k}
-                  </div>
-                </div>
-              </Link>
-            ))}
+        <div className="mt-5">
+          <div className="overflow-auto bg-gray-100">
+            <div className="max-h-[calc(100vh-500px)]">
+              <Table hoverable>
+                <TableHead>
+                  <TableHeadCell className="w-32 text-center bg-primary-500 text-white">
+                    Logo
+                  </TableHeadCell>
+                  <TableHeadCell className="bg-primary-500 text-white">
+                    Email
+                  </TableHeadCell>
+                  <TableHeadCell className="w-32 bg-primary-500 text-white">
+                    <span className="sr-only">View</span>
+                  </TableHeadCell>
+                </TableHead>
+                <TableBody className="divide-y">
+                  {clientList?.map((client: ClientsType) => (
+                    <TableRow key={client?.id} className="bg-white">
+                      <TableCell>
+                        <Image src={TonisKitchen} alt="Tonis Kitchen" />
+                      </TableCell>
+                      <TableCell>{client?.name}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/company/${client.id}`}
+                          className="text-yellow-500 underline cursor-pointer"
+                        >
+                          View
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
           </div>
         </div>
         <div className="mt-5">
