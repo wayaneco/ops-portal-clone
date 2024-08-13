@@ -1,11 +1,14 @@
 "use client";
 
-import { Avatar, TextInput, Button, Label, Card } from "flowbite-react";
 import { useContext } from "react";
+import { MapProvider } from "@/providers/map-provider";
+import { MapComponent } from "./components/maps";
 import { SidebarContext, SidebarContextType } from "../context";
-
 import TonisKitchen from "public/tonis.svg";
+import { Avatar, TextInput, Button, Label, Card } from "flowbite-react";
+
 import Image from "next/image";
+
 const Page = function (props: { params: { id: string } }) {
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
@@ -49,6 +52,13 @@ const Page = function (props: { params: { id: string } }) {
 
 const getDynamicComponent = (routeName: string) => {
   let component;
+
+  //Map's styling
+  const defaultMapContainerStyle = {
+    width: "100%",
+    height: "80vh",
+    borderRadius: "15px 0px 0px 15px",
+  };
   switch (routeName) {
     case "webAddress":
       component = (
@@ -88,6 +98,11 @@ const getDynamicComponent = (routeName: string) => {
               </a>
             </div>
           </div> */}
+          <main>
+            <MapProvider>
+              <MapComponent></MapComponent>
+            </MapProvider>
+          </main>
           Service Location Body
         </div>
       );
