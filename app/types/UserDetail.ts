@@ -29,14 +29,16 @@ export enum Privileges {
 export type ClientsType = {
   id: string;
   name: string;
-  tags: string;
   latitude: string;
   logo_url: string;
   zip_code: string;
   longitude: string;
   time_zone: string;
-  is_enabled: string;
+  is_enabled: boolean;
   privileges: Array<Privileges>;
+  tags: Array<string>;
+  provider_types: Array<string>;
+  service_provided: Array<string>;
   description: string;
   web_address: string;
   provisioning_status: string;

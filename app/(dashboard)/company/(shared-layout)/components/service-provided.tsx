@@ -1,18 +1,22 @@
 "use client";
 
-import { TextInput, Button, Avatar, Modal } from "flowbite-react";
+import { TextInput, Button, Avatar, Modal, Radio, Label } from "flowbite-react";
 import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { useFormContext } from "react-hook-form";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
 export const ServiceProvided = () => {
-  const [showModal, setShowModal] = useState(false);
-  const [newServiceProvided, setNewServiceProvided] = useState("");
-
-  const { setValue, watch } = useFormContext();
+  const [isEditing, setIsEditing] = useState<boolean>(false);
+  const { setValue, watch, control } = useFormContext();
 
   const serviceProvided = watch("service_provided");
 
+  const { fields, append, remove, move } = useFieldArray({
+    control,
+    name: "service_provided",
+  });
+
+  console.log(fields);
   return (
     <div>
       <div>
@@ -39,6 +43,7 @@ export const ServiceProvided = () => {
                   clonedServiceProvided.splice(destination.index, 0, item);
 
                   setValue("service_provided", clonedServiceProvided);
+                  // move(source.index, destination.index);
                 }}
               >
                 <Droppable droppableId="1">
@@ -47,27 +52,128 @@ export const ServiceProvided = () => {
                       ref={droppableProvided.innerRef}
                       {...droppableProvided.droppableProps}
                     >
-                      {serviceProvided.map((item: string, key: number) => (
+                      {fields.map((_, index: number) => (
                         <Draggable
-                          key={`draggable-${key}`}
-                          index={key}
-                          draggableId={`draggable-${key}`}
+                          key={`draggable-${index}`}
+                          index={index}
+                          draggableId={`draggable-${index}`}
+                          isDragDisabled={isEditing}
+                          disableInteractiveElementBlocking
+                          shouldRespectForcePress
                         >
                           {(draggableProvided, draggableSnapshot) => (
                             <div
                               ref={draggableProvided.innerRef}
-                              className={`flex items-center gap-x-4 p-4 cursor-pointer transition-colors text-black hover:bg-primary-500 hover:text-white ${
-                                draggableSnapshot.isDragging &&
-                                "bg-primary-500 text-white"
-                              }`}
+                              className={`flex items-center gap-x-4 p-4 transition-colors text-black  `}
                               {...draggableProvided.draggableProps}
-                              {...draggableProvided.dragHandleProps}
                             >
-                              <Avatar
-                                img="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                                size="md"
+                              <Controller
+                                control={control}
+                                name={`service_provided[${index}].label`}
+                                render={({ field }) => (
+                                  <TextInput
+                                    disabled={
+                                      !isEditing || fields?.length - 1 !== index
+                                    }
+                                    placeholder="Enter service name"
+                                    {...field}
+                                  />
+                                )}
                               />
-                              <div className="text-lg">{item}</div>
+                              <Controller
+                                control={control}
+                                name={`service_provided[${index}].type`}
+                                render={({ field }) => (
+                                  <>
+                                    <div className="flex items-center gap-2">
+                                      <Radio
+                                        id={`count-${index}`}
+                                        value="count"
+                                        disabled={
+                                          !isEditing ||
+                                          fields?.length - 1 !== index
+                                        }
+                                        onChange={field?.onChange}
+                                        checked={field?.value === "count"}
+                                      />
+                                      <Label
+                                        htmlFor={`count-${index}`}
+                                        className="cursor-pointer"
+                                      >
+                                        Count
+                                      </Label>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Radio
+                                        id={`string-${index}`}
+                                        value="string"
+                                        disabled={
+                                          !isEditing ||
+                                          fields?.length - 1 !== index
+                                        }
+                                        onChange={field?.onChange}
+                                        checked={field?.value === "string"}
+                                      />
+                                      <Label
+                                        htmlFor={`string-${index}`}
+                                        className="cursor-pointer"
+                                      >
+                                        String
+                                      </Label>
+                                    </div>
+                                  </>
+                                )}
+                              />
+                              {!isEditing && (
+                                <>
+                                  <div
+                                    {...draggableProvided.dragHandleProps}
+                                    className="p-2 rounded-md text-black cursor-pointer hover:bg-primary-500 group"
+                                    title="drag"
+                                  >
+                                    <svg
+                                      className="w-4 h-4 text-gray-800 group-hover:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-width="2"
+                                        d="M5 7h14M5 12h14M5 17h14"
+                                      />
+                                    </svg>
+                                  </div>
+                                  <div className="p-2 rounded-md text-black cursor-pointer hover:bg-red-500 group">
+                                    <svg
+                                      className="w-4 h-4 text-gray-800  group-hover:text-white"
+                                      aria-hidden="true"
+                                      xmlns="http://www.w3.org/2000/svg"
+                                      width="24"
+                                      height="24"
+                                      fill="none"
+                                      viewBox="0 0 24 24"
+                                    >
+                                      <path
+                                        stroke="currentColor"
+                                        stroke-linecap="round"
+                                        stroke-linejoin="round"
+                                        stroke-width="2"
+                                        d="M6 18 17.94 6M18 18 6.06 6"
+                                      />
+                                    </svg>
+                                  </div>
+                                </>
+                              )}
+                              {fields?.length - 1 === index && isEditing && (
+                                <Button onClick={() => setIsEditing(false)}>
+                                  Save
+                                </Button>
+                              )}
                             </div>
                           )}
                         </Draggable>
@@ -83,37 +189,19 @@ export const ServiceProvided = () => {
       </div>
 
       <div className="mt-10">
-        <Button color="primary" onClick={() => setShowModal(true)}>
+        <Button
+          color="primary"
+          onClick={() => {
+            setIsEditing(true);
+            append({
+              label: "",
+              type: "",
+            });
+          }}
+        >
           Add
         </Button>
       </div>
-      <Modal dismissible show={showModal} onClose={() => setShowModal(false)}>
-        <Modal.Header>Add service provided</Modal.Header>
-        <Modal.Body>
-          <TextInput
-            color="primary"
-            placeholder="Add service provided"
-            value={newServiceProvided}
-            autoFocus
-            onChange={(event) => setNewServiceProvided(event.target.value)}
-          />
-          <Button
-            type="button"
-            color="primary"
-            className="mt-5 mx-auto"
-            onClick={() => {
-              setValue("service_provided", [
-                ...serviceProvided,
-                newServiceProvided,
-              ]);
-              setNewServiceProvided("");
-              setShowModal(false);
-            }}
-          >
-            Submit
-          </Button>
-        </Modal.Body>
-      </Modal>
     </div>
   );
 };

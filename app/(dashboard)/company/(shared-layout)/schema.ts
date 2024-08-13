@@ -7,7 +7,12 @@ export const schema = Yup.object().shape({
   latitude: Yup.string(),
   is_enabled: Yup.boolean(),
   web_address: Yup.string().required(),
-  service_provided: Yup.array(),
+  service_provided: Yup.array().of(
+    Yup.object().shape({
+      label: Yup.string().required(),
+      type: Yup.string().required(),
+    })
+  ),
   tags: Yup.array(),
   provider_types: Yup.array(),
   provisioning_status: Yup.string(),
