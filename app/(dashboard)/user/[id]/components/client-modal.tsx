@@ -8,12 +8,14 @@ import {
   TextInput,
   type ModalProps,
 } from "flowbite-react";
+import { yupResolver } from "@hookform/resolvers/yup";
 
 import { ClientsType, UserDetailType } from "@/types/UserDetail";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { ModalContentType } from "../types";
 import { UserModalForm } from "./modal-body";
+import { schema } from "./schema";
 
 type UserDetailModal = ModalProps & {
   modalContent: ModalContentType;
@@ -32,7 +34,6 @@ export function UserDetailModal(props: UserDetailModal) {
   const methods = useForm({
     defaultValues: {
       info: { user, client },
-      privilege: client?.privileges?.map((p: string) => p),
       dropdowns: {
         clientList: [],
         roleList: [],
@@ -41,8 +42,15 @@ export function UserDetailModal(props: UserDetailModal) {
         client_id: null,
         role_ids: [],
       },
+      edit_client: {
+        role_ids: client?.privileges?.map((role: string) => role),
+      },
     },
+    mode: "onChange",
+    resolver: yupResolver(schema(modalContent)),
   });
+
+  console.log(methods.formState.errors);
 
   return (
     <Modal show={show} onClose={onClose} {...otherProps}>
@@ -52,28 +60,3 @@ export function UserDetailModal(props: UserDetailModal) {
     </Modal>
   );
 }
-
-const getModalHeader = (content: ModalContentType, client: string): string => {
-  let text: string;
-
-  switch (content) {
-    case ModalContentType.ADD:
-      text = "Link to New Client";
-      break;
-    case ModalContentType.EDIT:
-      text = client;
-      break;
-
-    case ModalContentType.REVOKE:
-      text = "Revoke Access";
-      break;
-    case ModalContentType.PASSKEY:
-      text = "Send Invation";
-      break;
-    default:
-      text = "";
-      break;
-  }
-
-  return text;
-};

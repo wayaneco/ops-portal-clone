@@ -1,9 +1,10 @@
 import { Label, TextInput, Button, Avatar } from "flowbite-react";
-import { WebAddress } from "./components/web-address";
-import { ServiceProvided } from "./components/service-provided";
-import { Tags } from "./components/tags";
-import { ProviderType } from "./components/provider-type";
-
+import { WebAddress } from "./web-address";
+import { ServiceProvided } from "./service-provided";
+import { Tags } from "./tags";
+import { ProviderType } from "./provider-type";
+import { MapProvider } from "@/providers/map-provider";
+import { MapComponent } from "../components/maps";
 type AddClientFormType = { routeName: string };
 
 export const AddClientForm = ({ routeName }: AddClientFormType) => {
@@ -15,7 +16,11 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
       break;
 
     case "serviceLocation":
-      component = <div>Service Location Body</div>;
+      component = (
+        <MapProvider>
+          <MapComponent></MapComponent>
+        </MapProvider>
+      );
       break;
 
     case "serviceProvided":

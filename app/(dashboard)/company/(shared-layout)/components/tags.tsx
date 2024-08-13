@@ -5,13 +5,13 @@ import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { useFormContext } from "react-hook-form";
 
-export const ProviderType = () => {
+export const Tags = () => {
   const [showModal, setShowModal] = useState(false);
-  const [newProviderType, setNewProviderType] = useState("");
+  const [tag, setNewTag] = useState("");
 
   const { setValue, watch } = useFormContext();
 
-  const providerTypes = watch("provider_types");
+  const tags = watch("tags");
 
   return (
     <div>
@@ -31,14 +31,12 @@ export const ProviderType = () => {
                   )
                     return;
 
-                  const clonedProviderTypes = JSON.parse(
-                    JSON.stringify(providerTypes)
-                  );
+                  const clonedTags = JSON.parse(JSON.stringify(tags));
 
-                  const [item] = clonedProviderTypes.splice(source.index, 1);
-                  clonedProviderTypes.splice(destination.index, 0, item);
+                  const [item] = clonedTags.splice(source.index, 1);
+                  clonedTags.splice(destination.index, 0, item);
 
-                  setValue("provider_types", clonedProviderTypes);
+                  setValue("tags", clonedTags);
                 }}
               >
                 <Droppable droppableId="1">
@@ -47,7 +45,7 @@ export const ProviderType = () => {
                       ref={droppableProvided.innerRef}
                       {...droppableProvided.droppableProps}
                     >
-                      {providerTypes.map((item: string, key: number) => (
+                      {tags.map((item: string, key: number) => (
                         <Draggable
                           key={`draggable-${key}`}
                           index={key}
@@ -56,7 +54,7 @@ export const ProviderType = () => {
                           {(draggableProvided, draggableSnapshot) => (
                             <div
                               ref={draggableProvided.innerRef}
-                              className={`flex items-center gap-x-4 p-4 cursor-pointer transition-colors hover:bg-primary-500 hover:text-white ${
+                              className={`flex items-center gap-x-4 p-4 cursor-pointer transition-colors text-black hover:bg-primary-500 hover:text-white ${
                                 draggableSnapshot.isDragging &&
                                 "bg-primary-500 text-white"
                               }`}
@@ -88,22 +86,22 @@ export const ProviderType = () => {
         </Button>
       </div>
       <Modal dismissible show={showModal} onClose={() => setShowModal(false)}>
-        <Modal.Header>Add new Provider type</Modal.Header>
+        <Modal.Header>Add tag type</Modal.Header>
         <Modal.Body>
           <TextInput
             color="primary"
-            placeholder="Add new provider type"
-            value={newProviderType}
+            placeholder="Add tag"
+            value={tag}
             autoFocus
-            onChange={(event) => setNewProviderType(event.target.value)}
+            onChange={(event) => setNewTag(event.target.value)}
           />
           <Button
             type="button"
             color="primary"
             className="mt-5 mx-auto"
             onClick={() => {
-              setValue("provider_types", [...providerTypes, newProviderType]);
-              setNewProviderType("");
+              setValue("tags", [...tags, tag]);
+              setNewTag("");
               setShowModal(false);
             }}
           >

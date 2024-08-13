@@ -7,9 +7,9 @@ export async function GET(
   const supabase = createClient();
 
   const { data, error } = await supabase
-    .from("users_data_view")
+    .from("clients")
     .select()
-    .eq("user_id", params.id)
+    .eq("id", params.id)
     .single();
 
   if (error) {

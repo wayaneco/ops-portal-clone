@@ -21,6 +21,7 @@ export default async function Page() {
     headers: {
       "Content-Type": "application/json",
     },
+    cache: "no-cache",
   });
 
   if (!response.ok) {
@@ -43,10 +44,16 @@ export default async function Page() {
         <div className="mt-10 overflow-x-auto">
           <Table hoverable>
             <TableHead>
-              <TableHeadCell>Name</TableHeadCell>
-              <TableHeadCell>Email</TableHeadCell>
-              <TableHeadCell>Privileges</TableHeadCell>
-              <TableHeadCell className="w-32">
+              <TableHeadCell className="bg-primary-500 text-white">
+                Name
+              </TableHeadCell>
+              <TableHeadCell className="bg-primary-500 text-white">
+                Email
+              </TableHeadCell>
+              <TableHeadCell className="bg-primary-500 text-white">
+                Privileges
+              </TableHeadCell>
+              <TableHeadCell className="w-32 bg-primary-500 text-white">
                 <span className="sr-only">View</span>
               </TableHeadCell>
             </TableHead>
@@ -59,7 +66,7 @@ export default async function Page() {
                     } ${item.last_name || ""}`}</TableCell>
                     <TableCell>{item?.email}</TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {item?.clients?.map(
                           (client: ClientsType, i: number) => {
                             return client.privileges.map((priviledge) => {

@@ -146,13 +146,17 @@ export function UserDetailForm(props: UserDetailFormType) {
           <form>
             <div className="flex flex-col gap-y-2">
               <TextInput
-                value={`${data?.first_name} ${data?.middle_name} ${data?.last_name}`}
+                value={`${data?.first_name || ""} ${data?.middle_name || ""} ${
+                  data?.last_name || ""
+                }`}
                 disabled
               />
               <TextInput value={data?.email} disabled />
               <TextInput value={data?.primary_phone} disabled />
               <TextInput
-                value={`${data?.addr_line_1} ${data?.addr_line_2} ${data?.city} ${data?.state_province_region}`}
+                value={`${data?.addr_line_1 || ""} ${data?.addr_line_2 || ""} ${
+                  data?.city || ""
+                } ${data?.state_province_region || ""}`}
                 disabled
               />
             </div>

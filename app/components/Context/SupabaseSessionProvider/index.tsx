@@ -1,7 +1,7 @@
 "use client";
 
 import { Session } from "@supabase/supabase-js";
-import { createContext, PropsWithChildren } from "react";
+import { createContext, PropsWithChildren, useContext } from "react";
 
 export type AuthContextType = {
   getSession(): Session;
@@ -25,3 +25,13 @@ export function SupabaseSessionProvider(props: SupabaseSessionProviderProps) {
     </AuthContext.Provider>
   );
 }
+
+export const useSupabaseSessionContext = () => {
+  const context = useContext<AuthContextType | undefined>(AuthContext!);
+
+  if (!context) {
+    throw new Error("uWu");
+  }
+
+  return context;
+};
