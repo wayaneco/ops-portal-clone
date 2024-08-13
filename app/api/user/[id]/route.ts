@@ -4,14 +4,17 @@ export async function GET(
   _: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  const supabase = await createClient();
+  const supabase = createClient();
 
-  console.log("++++++++++++++++++++++++++++++++++++++++");
-  const { data } = await supabase
+  const { data, error } = await supabase
     .from("users_data_view")
-    .select("*")
-    .eq("id", params.id)
+    .select()
+    .eq("user_id", params.id)
     .single();
+
+  if (error) {
+    console.log(error);
+  }
 
   return NextResponse.json(data);
 }

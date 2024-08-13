@@ -29,7 +29,9 @@ const Page = function () {
                     )}
                     size="md"
                   />
-                  <div className="text-lg">Toni&apos;s Kitchen - {k}</div>
+                  <div className="text-lg text-black">
+                    Toni&apos;s Kitchen - {k}
+                  </div>
                 </div>
               </Link>
             ))}

@@ -21,6 +21,7 @@ export default async function Page() {
     headers: {
       "Content-Type": "application/json",
     },
+    cache: "no-cache",
   });
 
   if (!response.ok) {
@@ -59,7 +60,7 @@ export default async function Page() {
                     } ${item.last_name || ""}`}</TableCell>
                     <TableCell>{item?.email}</TableCell>
                     <TableCell>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         {item?.clients?.map(
                           (client: ClientsType, i: number) => {
                             return client.privileges.map((priviledge) => {

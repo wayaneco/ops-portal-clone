@@ -5,34 +5,38 @@ import { Button, Card } from "flowbite-react";
 
 import { UserDetailForm } from "./components/user-detail-form";
 
-import { createClient } from "@/utils/supabase/server";
-
 const Page = async function (props: { params: { id: string } }) {
-  const supabase = createClient();
+  const response = await fetch(
+    `http://localhost:3000/api/user/${props?.params?.id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: {
+        tags: ["user_details"],
+        revalidate: 0,
+      },
+    }
+  );
 
-  const { data, error } = await supabase
-    .from("users_data_view")
-    .select()
-    .eq("user_id", props.params.id)
-    .single();
-
-  if (error) {
-    console.log(error);
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user ${props?.params.id}`);
   }
 
+  const data = await response.json();
+
   return (
-    !error && (
-      <div className="py-8 bg-gray-200">
-        <Link href="/user">
-          <Button color="primary">BACK</Button>
-        </Link>
-        <div className="mt-5">
-          <Card>
-            <UserDetailForm data={data} />
-          </Card>
-        </div>
+    <div className="py-8 bg-gray-200">
+      <Link href="/user">
+        <Button color="primary">BACK</Button>
+      </Link>
+      <div className="mt-5">
+        <Card>
+          <UserDetailForm data={data} />
+        </Card>
       </div>
-    )
+    </div>
   );
 };
 

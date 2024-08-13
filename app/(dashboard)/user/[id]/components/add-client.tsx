@@ -6,9 +6,10 @@ import { createClient } from "@/utils/supabase/client";
 import { useFormContext, Controller } from "react-hook-form";
 import Select from "react-tailwindcss-select";
 
-import { addClient } from "app/actions/user/add-client";
+import { updateUserRoles } from "app/actions/user/update-client";
 import { ClientsType, RoleType } from "@/app/types";
 import { useUserDetailFormContext } from "./user-detail-form";
+import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 
 export const AddClient = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -17,9 +18,17 @@ export const AddClient = () => {
   const [clientList, setClientList] = useState<Array<ClientsType>>([]);
 
   const { setToast, closeDialog } = useUserDetailFormContext();
-  const { setValue, watch, control } = useFormContext();
+  const {
+    setValue,
+    watch,
+    control,
+    setError,
+    clearErrors,
+    formState: { errors },
+  } = useFormContext();
+  const { session } = useSupabaseSessionContext();
 
-  const { user } = watch("info");
+  const { user, client } = watch("info");
   const { client_id, role_ids } = watch("add_client");
   const clientListDropdown = watch("dropdowns.clientList");
   const roleListDropdown = watch("dropdowns.roleList");
@@ -32,6 +41,7 @@ export const AddClient = () => {
         .then((result) => {
           setValue("dropdowns.clientList", result?.data);
           setClientList(result?.data as Array<any>);
+          setIsLoading(false);
         });
     };
 
@@ -41,7 +51,6 @@ export const AddClient = () => {
         .select()
         .then((result) => {
           setValue("dropdowns.roleList", result?.data);
-          setIsLoading(false);
         });
     };
 
@@ -58,11 +67,30 @@ export const AddClient = () => {
 
   const handleSubmit = async () => {
     try {
+      if (!client_id) {
+        setError("add_client.client_id", {
+          message: "Please select a client to add.",
+          type: "required",
+        });
+
+        return;
+      }
+
+      if (!role_ids?.length) {
+        setError("add_client.role_ids", {
+          message: "Please select a role to the user",
+          type: "required",
+        });
+
+        return;
+      }
+
       setIsSubmitting(true);
 
-      await addClient({
-        user_id: user.user_id,
+      await updateUserRoles({
         client_id,
+        user_id: user.user_id,
+        staff_id: session?.user?.id,
         role_ids: role_ids?.map((role: { value: string }) => role?.value),
       });
 
@@ -82,8 +110,8 @@ export const AddClient = () => {
 
       setToast(
         <div>
-          {clientName} added on <strong>{user?.email}</strong> with role{" "}
-          <strong>{roleNameList}</strong>.
+          <strong>{clientName}</strong> added on <strong>{user?.email}</strong>{" "}
+          with role <strong>{roleNameList}</strong>.
         </div>
       );
       closeDialog();
@@ -130,26 +158,47 @@ export const AddClient = () => {
             </>
           )}
           <div className="flex flex-col">
+            {(errors?.add_client as any)?.client_id?.message && (
+              <small className="text-red-500 mb-1">
+                {(errors?.add_client as any)?.client_id?.message}
+              </small>
+            )}
             {clientList?.map((client, key) => {
               const isSelectedClient = client_id === client?.id;
+              const isAlreadyExisting = user?.clients?.some(
+                (xClient: ClientsType) => xClient?.id === client?.id
+              );
+
               return (
                 <div
                   key={key}
-                  className={`px-4 py-3 cursor-pointer rounded-md mb-2 border ${
+                  className={`px-4 py-3 rounded-md mb-2 border ${
                     isSelectedClient
                       ? "bg-primary-500 text-white"
                       : "bg-white text-black"
+                  } ${
+                    isAlreadyExisting
+                      ? "!bg-gray-200 cursor-not-allowed"
+                      : "cursor-pointer"
                   }`}
                   onClick={() => {
+                    if (isAlreadyExisting) return;
+
                     if (isSelectedClient) {
                       setValue("add_client.client_id", null);
                       setValue("add_client.role_ids", null);
                       setClientList(clientListDropdown);
+                      setError("add_client.client_id", {
+                        message: "Please select a client to add.",
+                        type: "required",
+                      });
                     } else {
                       setValue("add_client.client_id", client?.id);
                       setClientList([client]);
+                      clearErrors("add_client.client_id");
                     }
 
+                    clearErrors("add_client.role_ids");
                     setValue("add_client.role_ids", null);
                     setSearch("");
                   }}
@@ -186,20 +235,27 @@ export const AddClient = () => {
               control={control}
               render={({ field }) => {
                 return (
-                  <Select
-                    {...field}
-                    value={!field?.value?.length ? null : field?.value}
-                    primaryColor="primary-500"
-                    classNames={{
-                      menu: `relative z-10 w-full bg-white shadow-lg border rounded py-1 mt-1.5 text-sm text-gray-700`,
-                    }}
-                    placeholder="Select client role"
-                    isMultiple
-                    options={roleListDropdown?.map((role: RoleType) => ({
-                      label: role?.name,
-                      value: role?.id,
-                    }))}
-                  />
+                  <>
+                    <Select
+                      {...field}
+                      value={!field?.value?.length ? null : field?.value}
+                      primaryColor="primary-500"
+                      classNames={{
+                        menu: `relative z-10 w-full bg-white shadow-lg border rounded py-1 mt-1.5 text-sm text-gray-700`,
+                      }}
+                      placeholder="Select client role"
+                      isMultiple
+                      options={roleListDropdown?.map((role: RoleType) => ({
+                        label: role?.name,
+                        value: role?.id,
+                      }))}
+                    />
+                    {(errors?.add_client as any)?.role_ids?.message && (
+                      <small className="text-red-500 mt-1">
+                        {(errors?.add_client as any)?.role_ids?.message}
+                      </small>
+                    )}
+                  </>
                 );
               }}
             />
@@ -207,6 +263,7 @@ export const AddClient = () => {
         </div>
         <div className="mt-10">
           <Button
+            type="submit"
             color="primary"
             className="w-[150px] mx-auto"
             onClick={handleSubmit}
