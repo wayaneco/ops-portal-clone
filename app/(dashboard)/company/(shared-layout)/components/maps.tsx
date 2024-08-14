@@ -10,8 +10,7 @@ import { useFormContext } from "react-hook-form";
 //Map's styling
 const defaultMapContainerStyle = {
   width: "100%",
-  height: "50vh",
-  borderRadius: "15px 0px 0px 15px",
+  height: "calc(100vh - 11.25rem)",
 };
 
 //Default zoom level, can be adjusted
@@ -68,7 +67,7 @@ const MapComponent = () => {
   }, []);
 
   return (
-    <div className="w-full">
+    <div className="w-full relative">
       <GoogleMap
         mapContainerStyle={defaultMapContainerStyle}
         center={newMarkerPosition}
@@ -83,7 +82,7 @@ const MapComponent = () => {
         />
       </GoogleMap>
       {(newMarkerPosition.lat || newMarkerPosition.lng) && (
-        <div className="mt-10">
+        <div className="absolute bottom-0 w-full bg-white/50 p-5 z-10">
           <div className="flex justify-between">
             <div className="flex text-black text-lg">
               <div>Latitude: </div>

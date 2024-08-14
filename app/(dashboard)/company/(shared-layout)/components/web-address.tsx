@@ -23,6 +23,13 @@ export const WebAddress = () => {
               placeholder="domain.everesteffect.com"
               className="w-[450px] placeholder-shown:italic "
               value={value}
+              onKeyPress={(e) => {
+                e.persist();
+
+                if (!/^(\d|\w)+$/.test(e.key)) {
+                  e.preventDefault();
+                }
+              }}
               onChange={onChange}
             />
           )}

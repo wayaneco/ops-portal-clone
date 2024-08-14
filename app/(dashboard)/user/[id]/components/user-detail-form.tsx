@@ -178,11 +178,15 @@ export function UserDetailForm(props: UserDetailFormType) {
       </div>
       <div className="mt-10">
         <div className="overflow-x-auto">
-          <Table border={1}>
+          <Table hoverable>
             <Table.Head>
-              <Table.HeadCell>Clients</Table.HeadCell>
-              <Table.HeadCell>Privileges</Table.HeadCell>
-              <Table.HeadCell className="w-40 text-center">
+              <Table.HeadCell className="bg-primary-500 text-white">
+                Clients
+              </Table.HeadCell>
+              <Table.HeadCell className="bg-primary-500 text-white">
+                Privileges
+              </Table.HeadCell>
+              <Table.HeadCell className="w-40 text-center bg-primary-500 text-white">
                 Action
               </Table.HeadCell>
             </Table.Head>

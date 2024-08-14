@@ -1,4 +1,4 @@
-import { Label, TextInput, Button, Avatar } from "flowbite-react";
+import { Label, TextInput, Button, Avatar, Card } from "flowbite-react";
 import { WebAddress } from "./web-address";
 import { ServiceProvided } from "./service-provided";
 import { Tags } from "./tags";
@@ -12,7 +12,15 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
 
   switch (routeName) {
     case "webAddress":
-      component = <WebAddress />;
+      component = (
+        <div className="m-8">
+          <Card>
+            <div className="p-8">
+              <WebAddress />
+            </div>
+          </Card>
+        </div>
+      );
       break;
 
     case "serviceLocation":
@@ -24,15 +32,39 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
       break;
 
     case "serviceProvided":
-      component = <ServiceProvided />;
+      component = (
+        <div className="m-8">
+          <Card>
+            <div className="p-8">
+              <ServiceProvided />
+            </div>
+          </Card>
+        </div>
+      );
       break;
 
     case "tags":
-      component = <Tags />;
+      component = (
+        <div className="m-8">
+          <Card>
+            <div className="p-8">
+              <Tags />
+            </div>
+          </Card>
+        </div>
+      );
       break;
 
     case "providerType":
-      component = <ProviderType />;
+      component = (
+        <div className="m-8">
+          <Card>
+            <div className="p-8">
+              <ProviderType />
+            </div>
+          </Card>
+        </div>
+      );
       break;
 
     default:
