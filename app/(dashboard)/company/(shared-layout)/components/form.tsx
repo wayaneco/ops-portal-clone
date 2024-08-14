@@ -5,6 +5,7 @@ import { Tags } from "./tags";
 import { ProviderType } from "./provider-type";
 import { MapProvider } from "@/providers/map-provider";
 import { MapComponent } from "../components/maps";
+
 type AddClientFormType = { routeName: string };
 
 export const AddClientForm = ({ routeName }: AddClientFormType) => {

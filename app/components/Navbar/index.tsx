@@ -57,7 +57,10 @@ export default function Navbar({
   };
 
   return (
-    <FBNavbar className="fixed w-full" fluid={/^\/company\/\w/.test(pathname)}>
+    <FBNavbar
+      className="fixed w-full z-50 shadow-md"
+      fluid={/^\/company\/\w/.test(pathname)}
+    >
       <FBNavbar.Brand
         as={Link}
         href="/"
