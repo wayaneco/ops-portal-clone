@@ -59,31 +59,27 @@ const Page = async function () {
                   </TableHeadCell>
                 </TableHead>
                 <TableBody className="divide-y">
-                  {!clientList?.length ? (
-                    <div> No DATA</div>
-                  ) : (
-                    clientList?.map((client: ClientsType) => (
-                      <TableRow key={client?.id} className="bg-white">
-                        <TableCell>
-                          <div className="relative h-9 ">
-                            <img
-                              src={client?.logo_url}
-                              alt={`${client?.name} logo`}
-                            />
-                          </div>
-                        </TableCell>
-                        <TableCell>{client?.name}</TableCell>
-                        <TableCell>
-                          <Link
-                            href={`/company/${client.id}`}
-                            className="text-yellow-500 underline cursor-pointer"
-                          >
-                            View
-                          </Link>
-                        </TableCell>
-                      </TableRow>
-                    ))
-                  )}
+                  {clientList?.map((client: ClientsType) => (
+                    <TableRow key={client?.id} className="bg-white">
+                      <TableCell>
+                        <div className="relative h-9 ">
+                          <img
+                            src={client?.logo_url}
+                            alt={`${client?.name} logo`}
+                          />
+                        </div>
+                      </TableCell>
+                      <TableCell>{client?.name}</TableCell>
+                      <TableCell>
+                        <Link
+                          href={`/company/${client.id}`}
+                          className="text-yellow-500 underline cursor-pointer"
+                        >
+                          View
+                        </Link>
+                      </TableCell>
+                    </TableRow>
+                  ))}
                 </TableBody>
               </Table>
             </div>
