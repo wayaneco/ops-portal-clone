@@ -22,6 +22,10 @@ const Page = async function () {
     headers: {
       "Content-Type": "application/json",
     },
+    next: {
+      revalidate: 0,
+      tags: ["company_list"],
+    },
     cache: "no-cache",
   });
 
@@ -39,7 +43,6 @@ const Page = async function () {
           color="primary"
           className="w-[450px]"
         />
-
         <div className="mt-5">
           <div className="overflow-auto bg-gray-100">
             <div className="max-h-[calc(100vh-500px)]">
@@ -56,22 +59,31 @@ const Page = async function () {
                   </TableHeadCell>
                 </TableHead>
                 <TableBody className="divide-y">
-                  {clientList?.map((client: ClientsType) => (
-                    <TableRow key={client?.id} className="bg-white">
-                      <TableCell>
-                        <Image src={TonisKitchen} alt="Tonis Kitchen" />
-                      </TableCell>
-                      <TableCell>{client?.name}</TableCell>
-                      <TableCell>
-                        <Link
-                          href={`/company/${client.id}`}
-                          className="text-yellow-500 underline cursor-pointer"
-                        >
-                          View
-                        </Link>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {!clientList?.length ? (
+                    <div> No DATA</div>
+                  ) : (
+                    clientList?.map((client: ClientsType) => (
+                      <TableRow key={client?.id} className="bg-white">
+                        <TableCell>
+                          <div className="relative h-9 ">
+                            <img
+                              src={client?.logo_url}
+                              alt={`${client?.name} logo`}
+                            />
+                          </div>
+                        </TableCell>
+                        <TableCell>{client?.name}</TableCell>
+                        <TableCell>
+                          <Link
+                            href={`/company/${client.id}`}
+                            className="text-yellow-500 underline cursor-pointer"
+                          >
+                            View
+                          </Link>
+                        </TableCell>
+                      </TableRow>
+                    ))
+                  )}
                 </TableBody>
               </Table>
             </div>

@@ -38,15 +38,12 @@ export type ClientsType = {
   privileges: Array<Privileges>;
   tags: Array<{
     label: string;
-    type: string;
   }>;
   provider_types: Array<{
     label: string;
-    type: string;
   }>;
   service_provided: Array<{
     label: string;
-    type: string;
   }>;
   description: string;
   web_address: string;

@@ -1,7 +1,7 @@
 import * as Yup from "yup";
 
 export const schema = Yup.object().shape({
-  logo: Yup.mixed(),
+  logo: Yup.mixed().nullable(),
   name: Yup.string().required(),
   longitude: Yup.string(),
   latitude: Yup.string(),
@@ -10,19 +10,16 @@ export const schema = Yup.object().shape({
   service_provided: Yup.array().of(
     Yup.object().shape({
       label: Yup.string().required("This field is required."),
-      type: Yup.string().required("This field is required."),
     })
   ),
   tags: Yup.array().of(
     Yup.object().shape({
       label: Yup.string().required("This field is required."),
-      type: Yup.string().required("This field is required."),
     })
   ),
   provider_types: Yup.array().of(
     Yup.object().shape({
       label: Yup.string().required("This field is required."),
-      type: Yup.string().required("This field is required."),
     })
   ),
   provisioning_status: Yup.string(),

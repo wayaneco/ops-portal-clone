@@ -1,20 +1,50 @@
 "use client";
 
-import { TextInput, Button, Card } from "flowbite-react";
-import { ChangeEvent, LegacyRef, useContext, useRef } from "react";
+import { TextInput, Button, Card, Spinner, Toast } from "flowbite-react";
+import {
+  ChangeEvent,
+  LegacyRef,
+  ReactNode,
+  useContext,
+  useRef,
+  useState,
+  useTransition,
+  useEffect,
+} from "react";
 import { SidebarContext, SidebarContextType } from "../context";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
+import { useRouter } from "next/navigation";
 
 import { schema } from "../schema";
 import { AddClientForm } from "../components/form";
+import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { ClientsType } from "@/app/types";
+import { addCompany } from "@/app/actions/company/add-company";
+import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 
 type CompanyDetailType = {
   companyInfo?: ClientsType;
 };
 
+type ToastType = {
+  show: boolean;
+  message: string | ReactNode;
+  isError?: boolean;
+};
+
 const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [toastState, setToastState] = useState<ToastType>({
+    show: false,
+    message: "",
+    isError: false,
+  });
+  const [_, startTransition] = useTransition();
+
+  const router = useRouter();
+
+  const { session } = useSupabaseSessionContext();
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
   )!;
@@ -27,8 +57,8 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
       web_address: companyInfo?.web_address ?? "",
       longitude: companyInfo?.longitude ?? "",
       latitude: companyInfo?.latitude ?? "",
-      is_enabled: companyInfo?.is_enabled ?? false,
-      service_provided: companyInfo?.service_provided ?? [],
+      is_enabled: companyInfo?.is_enabled ?? true,
+      service_provided: companyInfo?.service_provided ?? [{ label: "Meals" }],
       tags: companyInfo?.tags ?? [],
       provider_types: companyInfo?.provider_types ?? [],
       provisioning_status: companyInfo?.provisioning_status ?? "DRAFT",
@@ -37,18 +67,74 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
     mode: "onChange",
   });
 
-  const onSubmit = (data: unknown) => {
-    console.log(data);
+  const clientName = methods.watch("name");
+
+  const onSubmit = (data: any) => {
+    setIsSubmitting(true);
+    startTransition(async () => {
+      try {
+        await addCompany({
+          logo: data?.logo as string,
+          name: data?.name,
+          web_address: data?.web_address,
+          longitude: data?.longitude,
+          latitude: data?.latitude,
+          is_enabled: data?.is_enabled,
+          provisioning_status: data?.provisioning_status,
+          service_provided: [],
+          tags: [],
+          provider_types: [],
+          staff_id: session?.user?.id,
+        });
+
+        setIsSubmitting(false);
+        setToastState({
+          show: true,
+          message: (
+            <div>
+              <strong>{clientName}</strong> is added successfully
+            </div>
+          ),
+        });
+        router.push("/company");
+      } catch (_) {
+        setIsSubmitting(false);
+        setToastState({
+          show: true,
+          message: <div>Field to add client.</div>,
+          isError: true,
+        });
+      }
+    });
   };
 
   const watchName = methods.watch("name");
   const watchWebAddress = methods.watch("web_address");
 
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (toastState.show) {
+      timeout = setTimeout(() => {
+        setToastState({ show: false, message: "", isError: false });
+      }, 5000);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [toastState.show]);
+
   return (
     <FormProvider {...methods}>
+      {isSubmitting && (
+        <div className="absolute bg-gray-200/40 cursor-not-allowed inset-0 top-20 z-20 flex items-center justify-center">
+          <Spinner color="primary" size="xl" />
+        </div>
+      )}
       <form onSubmit={methods.handleSubmit(onSubmit)}>
         <div className="absolute left-0 right-0 overflow-x-hidden">
-          <div className="relative z-50 bg-gray-50">
+          <div className="relative z-10 bg-gray-50">
             <div className="flex gap-x-4 items-center">
               <div className="w-64">
                 <Controller
@@ -74,7 +160,7 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
                       ) : (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={value}
+                          src={value as string}
                           alt="Tonis Kitchen"
                           className="w-auto h-20"
                         />
@@ -84,17 +170,16 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
                         type="file"
                         ref={inputRef as LegacyRef<HTMLInputElement>}
                         accept="image/**"
-                        onChange={(event: ChangeEvent<HTMLInputElement>) => {
+                        onChange={async (
+                          event: ChangeEvent<HTMLInputElement>
+                        ) => {
                           if (!event?.currentTarget?.files![0]) return;
 
-                          var file = event?.currentTarget?.files![0];
+                          const base64 = await convertFileToBase64(
+                            event.currentTarget?.files[0]
+                          );
 
-                          var reader = new FileReader();
-                          reader.onloadend = function () {
-                            onChange(reader.result);
-                          };
-
-                          reader.readAsDataURL(file);
+                          onChange(base64);
                         }}
                       />
                     </div>
@@ -127,6 +212,23 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
           </div>
         </div>
       </form>
+      {toastState.show && (
+        <Toast
+          className={`absolute right-5 top-5 z-[9999] ${
+            toastState?.isError ? "bg-red-600" : "bg-primary-500"
+          }`}
+        >
+          <div className="ml-3 text-sm font-normal text-white">
+            {toastState?.message}
+          </div>
+          <Toast.Toggle
+            className={toastState?.isError ? "bg-red-600" : "bg-primary-500"}
+            onClick={() =>
+              setToastState({ show: false, message: "", isError: false })
+            }
+          />
+        </Toast>
+      )}
     </FormProvider>
   );
 };
