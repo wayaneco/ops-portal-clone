@@ -151,7 +151,21 @@ export const ServiceProvided = () => {
                                             return;
                                           }
 
-                                          remove(index);
+                                          const clonedServiceProvided =
+                                            JSON.parse(
+                                              JSON.stringify(serviceProvided)
+                                            );
+
+                                          clonedServiceProvided.splice(
+                                            index,
+                                            1
+                                          );
+
+                                          reset({
+                                            ...getValues(),
+                                            service_provided:
+                                              clonedServiceProvided,
+                                          });
                                         }}
                                       >
                                         <svg
