@@ -28,7 +28,7 @@ export const addCompany = async (params: Hello) => {
 
   try {
     // Upload first the image
-    let filePath = "";
+    let filePath = params?.logo;
 
     const { data: client_id } = await supabase.rpc("add_clients", {
       description: "",
@@ -44,7 +44,7 @@ export const addCompany = async (params: Hello) => {
       zip_code: "",
     });
 
-    if (params.logo) {
+    if (params.logo && params?.logo?.includes("base64")) {
       const mimeType = getMimeType(params?.logo);
       const file = convertBase64toFile(params.logo!, params?.name);
 

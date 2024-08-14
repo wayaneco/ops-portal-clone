@@ -59,7 +59,7 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
       latitude: companyInfo?.latitude ?? "",
       is_enabled: companyInfo?.is_enabled ?? true,
       service_provided: companyInfo?.service_provided ?? [{ label: "Meals" }],
-      tags: companyInfo?.tags ?? [],
+      tags: [], // TODO: companyInfo?.tags should be a Array not an string
       provider_types: companyInfo?.provider_types ?? [],
       provisioning_status: companyInfo?.provisioning_status ?? "DRAFT",
     },
@@ -87,7 +87,6 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
           staff_id: session?.user?.id,
         });
 
-        setIsSubmitting(false);
         setToastState({
           show: true,
           message: (
@@ -96,7 +95,9 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
             </div>
           ),
         });
-        router.push("/company");
+        setTimeout(() => {
+          router.push("/company");
+        }, 3000);
       } catch (_) {
         setIsSubmitting(false);
         setToastState({

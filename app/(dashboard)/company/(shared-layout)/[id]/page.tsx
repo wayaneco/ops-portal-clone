@@ -1,3 +1,4 @@
+import { headers } from "next/headers";
 import CompanyDetail from "../components/company-detail";
 
 const Page = async function (props: { params: { id: string } }) {
@@ -5,9 +6,7 @@ const Page = async function (props: { params: { id: string } }) {
     `http://localhost:3000/api/company/${props?.params?.id}`,
     {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: headers(),
       next: {
         tags: ["company_details"],
         revalidate: 0,
