@@ -1,5 +1,5 @@
 import axios from "axios";
-import { Label, TextInput, Button } from "flowbite-react";
+import { Label, TextInput, Button, List } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import useFetchLogs from "./useFetchLogs";
@@ -10,7 +10,6 @@ export const WebAddress = () => {
   const [data, setData] = useState<any>();
   const [loading, setLoading] = useState<any>();
   const [start, setStart] = useState<boolean>();
-  const [name, setName] = useState<string>("client-200");
 
   const watchWebAddress = watch("web_address");
 
@@ -19,7 +18,7 @@ export const WebAddress = () => {
       const fetchData = async () => {
         try {
           const response = await axios.get<any>(
-            `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${name}&bucket_name=ee-provision-dev`
+            `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
           );
           setData(response.data);
           console.log(response.data);
@@ -47,7 +46,7 @@ export const WebAddress = () => {
 
       const intervalId = setInterval(() => {
         fetchData();
-      }, 20000); // 20 seconds
+      }, 16000); // 20 seconds
 
       // Clean up interval on component unmount
       return () => clearInterval(intervalId);
@@ -65,8 +64,8 @@ export const WebAddress = () => {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            name: `${name}-execution-aug-14-2024`,
-            input: `{"hostname": "${name}", "build_id": "${name}_${name}_v.1.0.0_dev"}`,
+            name: `${watchWebAddress}-execution-aug-14-2024`,
+            input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
           }),
         }
       );
@@ -118,6 +117,15 @@ export const WebAddress = () => {
             <strong>{`${watchWebAddress}.everesteffect.com`}</strong>
           </div>
         )}
+      </div>
+      <div className="p-4">
+        <h2 className="text-xl font-semibold mb-4">Log Content</h2>
+        <List>
+          <List.Item>Logs for the loggers</List.Item>
+          {data?.log_content.map((item: any, index: any) => (
+            <List.Item key={index}>{item.event}</List.Item>
+          ))}
+        </List>
       </div>
     </div>
   );
