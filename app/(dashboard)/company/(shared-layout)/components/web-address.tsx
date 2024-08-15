@@ -46,7 +46,7 @@ export const WebAddress = () => {
 
       const intervalId = setInterval(() => {
         fetchData();
-      }, 16000); // 20 seconds
+      }, 16000); // 16 seconds
 
       // Clean up interval on component unmount
       return () => clearInterval(intervalId);
@@ -107,26 +107,30 @@ export const WebAddress = () => {
           )}
         />
         <Button color="primary" onClick={provisionFunc}>
-          Provision sss
+          Provision
         </Button>
       </div>
       <div className="text-sm mt-2 ml-2 text-black">
         {watchWebAddress && (
           <div>
-            Your provision link:{" "}
+            Your provision link:
             <strong>{`${watchWebAddress}.everesteffect.com`}</strong>
           </div>
         )}
       </div>
-      <div className="p-4">
-        <h2 className="text-xl font-semibold mb-4">Log Content</h2>
-        <List>
-          <List.Item>Logs for the loggers</List.Item>
-          {data?.log_content.map((item: any, index: any) => (
-            <List.Item key={index}>{item.event}</List.Item>
-          ))}
-        </List>
-      </div>
+
+      {data && (
+        <div className="mt-16">
+          <h3 className="text-xl font-semibold mb-4 text-black">
+            Provision Log Content
+          </h3>
+          <List>
+            {data?.log_content.map((item: any, index: any) => (
+              <List.Item key={index}>{item.event}</List.Item>
+            ))}
+          </List>
+        </div>
+      )}
     </div>
   );
 };

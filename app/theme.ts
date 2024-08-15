@@ -19,7 +19,7 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
         base: "block w-full border border-primary-500 disabled:cursor-not-allowed disabled:opacity-50",
         colors: {
           primary:
-            "border-primary-500 bg-gray-50 text-gray-900 placeholder-gray-900 focus:border-primary-600 focus:ring-primary-600",
+            "border-primary-500 bg-gray-50 text-gray-900 focus:border-primary-600 focus:ring-primary-600",
         },
       },
     },
