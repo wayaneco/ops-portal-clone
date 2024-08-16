@@ -7,9 +7,7 @@ export const updateSession = async (request: NextRequest) => {
   try {
     // Create an unmodified response
     let response = NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
+      request,
     });
 
     const supabase = createServerClient(
@@ -17,44 +15,19 @@ export const updateSession = async (request: NextRequest) => {
       process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
       {
         cookies: {
-          get(name: string) {
-            return request.cookies.get(name)?.value;
+          getAll() {
+            return request.cookies.getAll();
           },
-          set(name: string, value: string, options: CookieOptions) {
-            // If the cookie is updated, update the cookies for the request and response
-            request.cookies.set({
-              name,
-              value,
-              ...options,
-            });
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value }) =>
+              request.cookies.set(name, value)
+            );
             response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
+              request,
             });
-            response.cookies.set({
-              name,
-              value,
-              ...options,
-            });
-          },
-          remove(name: string, options: CookieOptions) {
-            // If the cookie is removed, update the cookies for the request and response
-            request.cookies.set({
-              name,
-              value: "",
-              ...options,
-            });
-            response = NextResponse.next({
-              request: {
-                headers: request.headers,
-              },
-            });
-            response.cookies.set({
-              name,
-              value: "",
-              ...options,
-            });
+            cookiesToSet.forEach(({ name, value, options }) =>
+              response.cookies.set(name, value, options)
+            );
           },
         },
       }
@@ -65,7 +38,7 @@ export const updateSession = async (request: NextRequest) => {
     const {
       data: { user },
     } = await supabase.auth.getUser();
-    console.log(request.nextUrl.pathname);
+
     if (
       !user &&
       !request.nextUrl.pathname.startsWith("/login") &&
@@ -82,9 +55,7 @@ export const updateSession = async (request: NextRequest) => {
     // This is likely because you have not set up environment variables.
     // Check out http://localhost:3000 for Next Steps.
     return NextResponse.next({
-      request: {
-        headers: request.headers,
-      },
+      request,
     });
   }
 };

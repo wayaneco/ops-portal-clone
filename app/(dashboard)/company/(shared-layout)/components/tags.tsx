@@ -1,14 +1,14 @@
 "use client";
 
-import { TextInput, Button, Avatar, Modal, Radio, Label } from "flowbite-react";
-import { useState, useRef } from "react";
+import { TextInput, Button } from "flowbite-react";
+import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
 export const Tags = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const {
-    setValue,
     watch,
     control,
     reset,
@@ -19,7 +19,7 @@ export const Tags = () => {
 
   const tags = watch("tags");
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append } = useFieldArray({
     control,
     name: "tags",
   });
@@ -93,70 +93,12 @@ export const Tags = () => {
                                         placeholder="Enter tag"
                                         {...field}
                                       />
-                                      {(errors?.service_provided as any)?.[
-                                        index
-                                      ]?.label?.message && (
-                                        <small className="text-red-500 mt-1">
-                                          {
-                                            (errors?.service_provided as any)?.[
-                                              index
-                                            ]?.label?.message
-                                          }
-                                        </small>
-                                      )}
-                                    </div>
-                                  )}
-                                />
-                                <Controller
-                                  control={control}
-                                  name={`tags[${index}].type`}
-                                  render={({ field }) => (
-                                    <div className="flex flex-col">
-                                      <div className="flex gap-x-4 mt-3">
-                                        <div className="flex items-center gap-2">
-                                          <Radio
-                                            id={`count-${index}`}
-                                            value="count"
-                                            disabled={
-                                              !isEditing ||
-                                              fields?.length - 1 !== index
-                                            }
-                                            onChange={field?.onChange}
-                                            checked={field?.value === "count"}
-                                          />
-                                          <Label
-                                            htmlFor={`count-${index}`}
-                                            className="cursor-pointer"
-                                          >
-                                            Count
-                                          </Label>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <Radio
-                                            id={`string-${index}`}
-                                            value="string"
-                                            disabled={
-                                              !isEditing ||
-                                              fields?.length - 1 !== index
-                                            }
-                                            onChange={field?.onChange}
-                                            checked={field?.value === "string"}
-                                          />
-                                          <Label
-                                            htmlFor={`string-${index}`}
-                                            className="cursor-pointer"
-                                          >
-                                            String
-                                          </Label>
-                                        </div>
-                                      </div>
-
-                                      {(errors?.tags as any)?.[index]?.type
+                                      {(errors?.tags as any)?.[index]?.label
                                         ?.message && (
                                         <small className="text-red-500 mt-1">
                                           {
-                                            (errors?.tags as any)?.[index]?.type
-                                              ?.message
+                                            (errors?.tags as any)?.[index]
+                                              ?.label?.message
                                           }
                                         </small>
                                       )}
@@ -226,18 +168,12 @@ export const Tags = () => {
                                   <Button
                                     color="primary"
                                     onClick={() => {
-                                      const fieldType = watch(
-                                        `tags[${index}].type`
-                                      );
                                       const fieldLabel = watch(
                                         `tags[${index}].label`
                                       );
 
-                                      if (!fieldType || !fieldLabel) {
-                                        trigger([
-                                          `tags[${index}].label`,
-                                          `tags[${index}].type`,
-                                        ]);
+                                      if (!fieldLabel) {
+                                        trigger([`tags[${index}].label`]);
                                         return;
                                       }
 
@@ -270,7 +206,6 @@ export const Tags = () => {
             setIsEditing(true);
             append({
               label: "",
-              type: "",
             });
           }}
         >
