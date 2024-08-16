@@ -13,7 +13,9 @@ import {
   TableCell,
   Button,
 } from "flowbite-react";
+
 import { ClientsType } from "@/app/types";
+import ImagePlaceholder from "public/image-placeholder.jpg";
 
 type CompanyListTableProps = {
   data: Array<ClientsType>;
@@ -52,8 +54,11 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                 <TableHeadCell className="bg-primary-500 text-white sticky top-0 z-10">
                   Email
                 </TableHeadCell>
-                <TableHeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
-                  <span className="sr-only">View</span>
+                <TableHeadCell className="w-48 bg-primary-500 text-white sticky top-0 z-10 text-center">
+                  Provision Status
+                </TableHeadCell>
+                <TableHeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10 text-center">
+                  <div className="sr-only">View</div>
                 </TableHeadCell>
               </TableHead>
               {!clientList?.length ? (
@@ -69,13 +74,20 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                       <TableCell>
                         <div className="relative h-10 w-full">
                           <img
-                            src={client?.logo_url}
+                            src={
+                              client?.logo_url
+                                ? client?.logo_url
+                                : ImagePlaceholder
+                            }
                             alt={`${client?.name} logo`}
                             className="w-full h-full object-contain"
                           />
                         </div>
                       </TableCell>
                       <TableCell>{client?.name}</TableCell>
+                      <TableCell className="text-center font-bold">
+                        {client?.provisioning_status}
+                      </TableCell>
                       <TableCell>
                         <Link
                           href={`/company/${client.id}`}

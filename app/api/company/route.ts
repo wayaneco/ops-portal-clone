@@ -8,7 +8,7 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("clients")
-    .select("id, name, logo_url");
+    .select("id, name, logo_url, provisioning_status");
 
   if (error) {
     throw new Error(error.message);
