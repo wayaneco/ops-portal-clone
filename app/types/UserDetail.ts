@@ -43,7 +43,7 @@ export type ClientsType = {
   provider_types: Array<{
     label: string;
   }>;
-  service_provided: Array<{
+  service_provided_data: Array<{
     label: string;
   }>;
   description: string;
