@@ -25,5 +25,21 @@ export const schema = (contentType: ModalContentType) => {
         role_ids: Yup.array(Yup.string()).min(1),
       }),
     }),
+    ...(contentType === ModalContentType.EDIT_USER && {
+      edit_user: Yup.object().shape({
+        first_name: Yup.string(),
+        last_name: Yup.string(),
+        middle_name: Yup.string(),
+        preferred_name: Yup.string().required("This field is required."),
+        email: Yup.string(),
+        primary_phone: Yup.string(),
+        addr_line_1: Yup.string(),
+        addr_line_2: Yup.string(),
+        city: Yup.string(),
+        zip_code: Yup.string().required("This field is required."),
+        country: Yup.string(),
+        state_province_region: Yup.string(),
+      }),
+    }),
   });
 };

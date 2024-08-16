@@ -162,9 +162,22 @@ export function UserDetailForm(props: UserDetailFormType) {
             </div>
           </form>
         </div>
-        <div>
+        <div className="flex gap-x-2 h-fit">
           <Button
             color="primary"
+            className="h-fit"
+            onClick={() =>
+              handleOpenModal({
+                data,
+                modalContent: ModalContentType.EDIT_USER,
+              })
+            }
+          >
+            Edit User
+          </Button>
+          <Button
+            color="primary"
+            className="h-fit"
             onClick={() =>
               handleOpenModal({
                 data,

@@ -28,7 +28,7 @@ export const AddClient = () => {
   } = useFormContext();
   const { session } = useSupabaseSessionContext();
 
-  const { user, client } = watch("info");
+  const { user } = watch("info");
   const { client_id, role_ids } = watch("add_client");
   const clientListDropdown = watch("dropdowns.clientList");
   const roleListDropdown = watch("dropdowns.roleList");
@@ -117,7 +117,7 @@ export const AddClient = () => {
       closeDialog();
     } catch (error: any) {
       setIsSubmitting(false);
-      return setToast(<div>{error?.message}</div>, true);
+      setToast(<div>{error?.message}</div>, true);
     }
   };
 
@@ -163,71 +163,77 @@ export const AddClient = () => {
                 {(errors?.add_client as any)?.client_id?.message}
               </small>
             )}
-            {clientList?.map((client, key) => {
-              const isSelectedClient = client_id === client?.id;
-              const isAlreadyExisting = user?.clients?.some(
-                (xClient: ClientsType) => xClient?.id === client?.id
-              );
+            {!isLoading && !clientList?.length ? (
+              <div className="flex items-center justify-center border rounded-md border-gray-200 p-4 text-gray-900">
+                No data to display
+              </div>
+            ) : (
+              clientList?.map((client, key) => {
+                const isSelectedClient = client_id === client?.id;
+                const isAlreadyExisting = user?.clients?.some(
+                  (xClient: ClientsType) => xClient?.id === client?.id
+                );
 
-              return (
-                <div
-                  key={key}
-                  className={`px-4 py-3 rounded-md mb-2 border ${
-                    isSelectedClient
-                      ? "bg-primary-500 text-white"
-                      : "bg-white text-black"
-                  } ${
-                    isAlreadyExisting
-                      ? "!bg-gray-200 cursor-not-allowed"
-                      : "cursor-pointer"
-                  }`}
-                  onClick={() => {
-                    if (isAlreadyExisting) return;
+                return (
+                  <div
+                    key={key}
+                    className={`px-4 py-3 rounded-md mb-2 border ${
+                      isSelectedClient
+                        ? "bg-primary-500 text-white"
+                        : "bg-white text-black"
+                    } ${
+                      isAlreadyExisting
+                        ? "!bg-gray-200 cursor-not-allowed"
+                        : "cursor-pointer"
+                    }`}
+                    onClick={() => {
+                      if (isAlreadyExisting) return;
 
-                    if (isSelectedClient) {
-                      setValue("add_client.client_id", null);
+                      if (isSelectedClient) {
+                        setValue("add_client.client_id", null);
+                        setValue("add_client.role_ids", null);
+                        setClientList(clientListDropdown);
+                        setError("add_client.client_id", {
+                          message: "Please select a client to add.",
+                          type: "required",
+                        });
+                      } else {
+                        setValue("add_client.client_id", client?.id);
+                        setClientList([client]);
+                        clearErrors("add_client.client_id");
+                      }
+
+                      clearErrors("add_client.role_ids");
                       setValue("add_client.role_ids", null);
-                      setClientList(clientListDropdown);
-                      setError("add_client.client_id", {
-                        message: "Please select a client to add.",
-                        type: "required",
-                      });
-                    } else {
-                      setValue("add_client.client_id", client?.id);
-                      setClientList([client]);
-                      clearErrors("add_client.client_id");
-                    }
-
-                    clearErrors("add_client.role_ids");
-                    setValue("add_client.role_ids", null);
-                    setSearch("");
-                  }}
-                >
-                  <div className="flex items-center justify-between">
-                    <span>{client?.name}</span>
-                    {isSelectedClient && (
-                      <svg
-                        className="w-6 h-6 text-white"
-                        aria-hidden="true"
-                        xmlns="http://www.w3.org/2000/svg"
-                        width="24"
-                        height="24"
-                        fill="none"
-                        viewBox="0 0 24 24"
-                      >
-                        <path
-                          stroke="currentColor"
-                          stroke-linecap="round"
-                          stroke-linejoin="round"
-                          stroke-width="2"
-                          d="M5 11.917 9.724 16.5 19 7.5"
-                        />
-                      </svg>
-                    )}
+                      setSearch("");
+                    }}
+                  >
+                    <div className="flex items-center justify-between">
+                      <span>{client?.name}</span>
+                      {isSelectedClient && (
+                        <svg
+                          className="w-6 h-6 text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            stroke-linecap="round"
+                            stroke-linejoin="round"
+                            stroke-width="2"
+                            d="M5 11.917 9.724 16.5 19 7.5"
+                          />
+                        </svg>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })
+            )}
           </div>
           {client_id && (
             <Controller
@@ -265,6 +271,7 @@ export const AddClient = () => {
           <Button
             type="submit"
             color="primary"
+            disabled={!clientList?.length}
             className="w-[150px] mx-auto"
             onClick={handleSubmit}
           >

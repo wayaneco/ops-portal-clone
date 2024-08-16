@@ -4,6 +4,7 @@ import { AddClient } from "./add-client";
 import { EditClient } from "./edit-client";
 import { Passkey } from "./passkey";
 import { RevokeClient } from "./revoke-client";
+import { EditUser } from "./edit-user";
 
 export const UserModalForm = ({
   contentType,
@@ -25,6 +26,8 @@ export const UserModalForm = ({
     case ModalContentType.PASSKEY:
       component = <Passkey />;
       break;
+    case ModalContentType.EDIT_USER:
+      component = <EditUser />;
     default:
       break;
   }

@@ -1,19 +1,24 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Link from "next/link";
 
 import {
   TextInput,
   Table,
+  Button,
+  Card,
+  TableBody,
+  TableCell,
   TableHead,
   TableHeadCell,
-  TableBody,
   TableRow,
-  TableCell,
-  Button,
 } from "flowbite-react";
+
 import { ClientsType } from "@/app/types";
+import { useIsFirstRender } from "@/hooks/isFirstRender";
+import { TableSkeleton } from "@/app/components/Skeleton";
 
 type CompanyListTableProps = {
   data: Array<ClientsType>;
@@ -23,6 +28,11 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
   const { data = [] } = props;
   const [search, setSearch] = useState<string>("");
   const [clientList, setClientList] = useState<Array<ClientsType>>(data);
+  const isFirstRender = useIsFirstRender();
+
+  if (isFirstRender) {
+    return <TableSkeleton />;
+  }
 
   return (
     <>
@@ -44,18 +54,18 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
       <div className="mt-5">
         <div className="overflow-auto bg-gray-100 border border-gray-100">
           <div className="max-h-[calc(100vh-440px)] ">
-            <Table hoverable className="shadow-md ">
-              <TableHead>
-                <TableHeadCell className="w-32 text-center bg-primary-500 text-white sticky top-0 z-10">
+            <Table hoverable className="shadow-md">
+              <Table.Head>
+                <Table.HeadCell className="w-32 text-center bg-primary-500 text-white sticky top-0 z-10">
                   Logo
-                </TableHeadCell>
-                <TableHeadCell className="bg-primary-500 text-white sticky top-0 z-10">
+                </Table.HeadCell>
+                <Table.HeadCell className="bg-primary-500 text-white sticky top-0 z-10">
                   Email
-                </TableHeadCell>
-                <TableHeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
+                </Table.HeadCell>
+                <Table.HeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
                   <span className="sr-only">View</span>
-                </TableHeadCell>
-              </TableHead>
+                </Table.HeadCell>
+              </Table.Head>
               {!clientList?.length ? (
                 <div className="h-11 relative table-footer-group">
                   <div className="absolute inset-0 flex items-center justify-center w-full h-full">
@@ -63,10 +73,10 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                   </div>
                 </div>
               ) : (
-                <TableBody className="divide-y">
+                <Table.Body className="divide-y">
                   {clientList?.map((client: ClientsType) => (
-                    <TableRow key={client?.id} className="bg-white">
-                      <TableCell>
+                    <Table.Row key={client?.id} className="bg-white">
+                      <Table.Cell>
                         <div className="relative h-10 w-full">
                           <img
                             src={client?.logo_url}
@@ -74,19 +84,19 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                             className="w-full h-full object-contain"
                           />
                         </div>
-                      </TableCell>
-                      <TableCell>{client?.name}</TableCell>
-                      <TableCell>
+                      </Table.Cell>
+                      <Table.Cell>{client?.name}</Table.Cell>
+                      <Table.Cell>
                         <Link
                           href={`/company/${client.id}`}
                           className="text-yellow-500 underline cursor-pointer"
                         >
                           View
                         </Link>
-                      </TableCell>
-                    </TableRow>
+                      </Table.Cell>
+                    </Table.Row>
                   ))}
-                </TableBody>
+                </Table.Body>
               )}
             </Table>
           </div>

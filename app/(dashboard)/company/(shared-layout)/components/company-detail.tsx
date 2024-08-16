@@ -20,7 +20,7 @@ import { schema } from "../schema";
 import { AddClientForm } from "../components/form";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { ClientsType } from "@/app/types";
-import { addCompany } from "@/app/actions/company/add-company";
+import { upsertCompanyDetails } from "@/app/actions/company/upsert-company";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 
 type CompanyDetailType = {
@@ -73,19 +73,25 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
     setIsSubmitting(true);
     startTransition(async () => {
       try {
-        await addCompany({
-          logo: data?.logo as string,
-          name: data?.name,
-          web_address: data?.web_address,
-          longitude: data?.longitude,
-          latitude: data?.latitude,
-          is_enabled: data?.is_enabled,
-          provisioning_status: data?.provisioning_status,
-          service_provided: [],
-          tags: [],
-          provider_types: [],
-          staff_id: session?.user?.id,
-        });
+        await upsertCompanyDetails(
+          {
+            logo: data?.logo as string,
+            name: data?.name,
+            web_address: data?.web_address,
+            longitude: data?.longitude,
+            latitude: data?.latitude,
+            is_enabled: data?.is_enabled,
+            provisioning_status: data?.provisioning_status,
+            service_provided: data?.service_provided,
+            tags: data?.tags,
+            provider_types: data?.provider_types,
+            staff_id: session?.user?.id,
+            client_id: companyInfo?.id,
+          },
+          {
+            update: !!companyInfo,
+          }
+        );
 
         setToastState({
           show: true,

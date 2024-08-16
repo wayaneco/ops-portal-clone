@@ -26,11 +26,10 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
   },
   checkbox: {
     root: {
-      base: "h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700",
-
+      base: "h-4 w-4 rounded border border-gray-300 bg-gray-100 focus:ring-2 dark:border-gray-600 dark:bg-gray-700 disabled:bg-gray-200 disabled:cursor-not-allowed",
       color: {
         primary:
-          "text-primary-500 focus:ring-primary-600 dark:ring-offset-gray-800 dark:focus:ring-primary-600",
+          "text-primary-500 focus:ring-primary-600 dark:ring-offset-gray-800 dark:focus:ring-primary-600 disabled:text-red-500",
       },
     },
   },
@@ -67,7 +66,17 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
       },
     },
   },
-  modal: {},
+  modal: {
+    header: {
+      base: "flex items-start justify-between rounded-t border-b p-5 bg-primary-500 dark:border-gray-600",
+      popup: "border-b-0 p-2",
+      title: "text-xl font-medium text-white",
+      close: {
+        base: "ml-auto inline-flex items-center rounded-lg bg-transparent p-1.5 text-sm text-white",
+        icon: "h-5 w-5",
+      },
+    },
+  },
   footer: {},
   navbar: {},
 };

@@ -14,6 +14,7 @@ export type UserDetailType = {
   preferred_name: string;
   birth_date: string;
   primary_phone: string;
+  zip_code: string;
   secondary_phone: string;
   photo_url: string;
   clients: Array<ClientsType>;

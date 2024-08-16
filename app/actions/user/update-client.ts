@@ -1,7 +1,6 @@
 "use server";
 
 import { revalidatePath, revalidateTag } from "next/cache";
-import { NextResponse } from "next/server";
 import { createClient } from "utils/supabase/server";
 
 export async function updateUserRoles(params: {
@@ -20,11 +19,12 @@ export async function updateUserRoles(params: {
     staff_id: params.staff_id,
   });
 
-  revalidateTag("user_details");
-  revalidatePath("(dashboard)/user/[id]", "layout");
   if (error) {
     throw new Error("Error updating user roles.");
   }
+
+  revalidateTag("user_details");
+  revalidatePath("(dashboard)/user/[id]", "layout");
 
   return data;
 }
