@@ -5,6 +5,7 @@ import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "utils/supabase/server";
 
 type UpdateUserInfoType = {
+  photo_url: string;
   first_name: string;
   last_name: string;
   middle_name: string;

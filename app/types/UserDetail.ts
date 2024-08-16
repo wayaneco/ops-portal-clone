@@ -45,6 +45,7 @@ export type ClientsType = {
   }>;
   service_provided_data: Array<{
     label: string;
+    type?: string;
   }>;
   description: string;
   web_address: string;

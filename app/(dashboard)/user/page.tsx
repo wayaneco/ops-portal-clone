@@ -7,6 +7,9 @@ export default async function Page() {
   const response = await fetch("http://localhost:3000/api/user", {
     method: "GET",
     headers: headers(),
+    next: {
+      tags: ["user_list"],
+    },
     cache: "no-cache",
   });
 

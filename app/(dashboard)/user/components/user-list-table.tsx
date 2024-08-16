@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Link from "next/link";
 
 import {
@@ -13,27 +13,64 @@ import {
   TableRow,
   TableCell,
   Badge,
+  Modal,
+  Toast,
 } from "flowbite-react";
 
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import { UserDetailType, ClientsType } from "@/app/types";
 import { TableSkeleton } from "@/app/components/Skeleton";
 
+import { AddUser } from "./add-user";
+
 type UserListTableProps = {
   data: Array<UserDetailType>;
+};
+
+export type ToastStateType = {
+  show: boolean;
+  message: string | ReactNode;
+  isError?: boolean;
 };
 
 export const UserListTable = (props: UserListTableProps) => {
   const { data = [] } = props;
 
   const [search, setSearch] = useState<string>("");
+  const [toastState, setToastState] = useState<ToastStateType>({
+    show: false,
+    message: "",
+    isError: false,
+  });
+  const [showModal, setShowModal] = useState<boolean>(false);
   const [userList, setUserList] = useState<Array<UserDetailType>>(data);
 
   const isFirstRender = useIsFirstRender();
 
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (toastState.show) {
+      timeout = setTimeout(() => {
+        handleResetToast();
+      }, 5000);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [toastState.show]);
+
   if (isFirstRender) {
     return <TableSkeleton />;
   }
+
+  const handleResetToast = () =>
+    setToastState({
+      show: false,
+      message: "",
+      isError: false,
+    });
 
   return (
     <>
@@ -113,8 +150,34 @@ export const UserListTable = (props: UserListTableProps) => {
         </Table>
       </div>
       <div className="mt-5">
-        <Button color="primary">Add user</Button>
+        <Button
+          type="button"
+          color="primary"
+          onClick={() => setShowModal(true)}
+        >
+          Add user
+        </Button>
       </div>
+      {showModal && (
+        <Modal show={showModal} onClose={() => setShowModal(false)}>
+          <AddUser close={() => setShowModal(false)} setToast={setToastState} />
+        </Modal>
+      )}
+      {toastState.show && (
+        <Toast
+          className={`absolute right-5 top-5 z-[9999] ${
+            toastState?.isError ? "bg-red-600" : "bg-primary-500"
+          }`}
+        >
+          <div className="ml-3 text-sm font-normal text-white">
+            {toastState?.message}
+          </div>
+          <Toast.Toggle
+            className={toastState?.isError ? "bg-red-600" : "bg-primary-500"}
+            onClick={handleResetToast}
+          />
+        </Toast>
+      )}
     </>
   );
 };
