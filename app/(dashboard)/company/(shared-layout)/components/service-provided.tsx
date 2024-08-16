@@ -116,6 +116,23 @@ export const ServiceProvided = () => {
                                       </div>
                                     )}
                                   />
+                                  <Controller
+                                    control={control}
+                                    name={`service_provided[${index}].type`}
+                                    defaultValue="count"
+                                    render={({ field }) => (
+                                      <div className="w-full hidden">
+                                        <TextInput
+                                          color="primary"
+                                          disabled={
+                                            !isEditing ||
+                                            fields?.length - 1 !== index
+                                          }
+                                          {...field}
+                                        />
+                                      </div>
+                                    )}
+                                  />
                                   {!isEditing && (
                                     <div className="mt-2.5 flex">
                                       <div
@@ -234,6 +251,7 @@ export const ServiceProvided = () => {
             setIsEditing(true);
             append({
               label: "",
+              type: "count",
             });
           }}
         >

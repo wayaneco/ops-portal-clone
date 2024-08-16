@@ -58,7 +58,9 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
       longitude: companyInfo?.longitude ?? "",
       latitude: companyInfo?.latitude ?? "",
       is_enabled: companyInfo?.is_enabled ?? true,
-      service_provided: companyInfo?.service_provided ?? [{ label: "Meals" }],
+      service_provided: companyInfo?.service_provided ?? [
+        { label: "Meals", type: "count" },
+      ],
       tags: [], // TODO: companyInfo?.tags should be a Array not an string
       provider_types: companyInfo?.provider_types ?? [],
       provisioning_status: companyInfo?.provisioning_status ?? "DRAFT",

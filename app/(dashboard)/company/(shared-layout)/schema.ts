@@ -10,6 +10,7 @@ export const schema = Yup.object().shape({
   service_provided: Yup.array().of(
     Yup.object().shape({
       label: Yup.string().required("This field is required."),
+      type: Yup.string(),
     })
   ),
   tags: Yup.array().of(
