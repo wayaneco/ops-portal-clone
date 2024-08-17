@@ -95,7 +95,7 @@ export const AddClient = () => {
       });
 
       const clientName = clientListDropdown?.find(
-        (client: ClientsType) => client?.id === client_id
+        (client: ClientsType) => client?.client_id === client_id
       )?.name;
 
       const roleNameList = roleListDropdown
@@ -169,9 +169,10 @@ export const AddClient = () => {
               </div>
             ) : (
               clientList?.map((client, key) => {
-                const isSelectedClient = client_id === client?.id;
+                const isSelectedClient = client_id === client?.client_id;
                 const isAlreadyExisting = user?.clients?.some(
-                  (xClient: ClientsType) => xClient?.id === client?.id
+                  (xClient: ClientsType) =>
+                    xClient?.client_id === client?.client_id
                 );
 
                 return (
@@ -198,7 +199,7 @@ export const AddClient = () => {
                           type: "required",
                         });
                       } else {
-                        setValue("add_client.client_id", client?.id);
+                        setValue("add_client.client_id", client?.client_id);
                         setClientList([client]);
                         clearErrors("add_client.client_id");
                       }

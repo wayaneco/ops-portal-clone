@@ -75,7 +75,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
               ) : (
                 <Table.Body className="divide-y">
                   {clientList?.map((client: ClientsType) => (
-                    <Table.Row key={client?.id} className="bg-white">
+                    <Table.Row key={client?.client_id} className="bg-white">
                       <Table.Cell>
                         <div className="relative h-10 w-full">
                           <img
@@ -88,7 +88,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                       <Table.Cell>{client?.name}</Table.Cell>
                       <Table.Cell>
                         <Link
-                          href={`/company/${client.id}`}
+                          href={`/company/${client.client_id}`}
                           className="text-yellow-500 underline cursor-pointer"
                         >
                           View

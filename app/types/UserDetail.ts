@@ -28,7 +28,7 @@ export enum Privileges {
 }
 
 export type ClientsType = {
-  id: string;
+  client_id: string;
   name: string;
   latitude: string;
   logo_url: string;
