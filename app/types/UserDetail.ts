@@ -50,4 +50,5 @@ export type ClientsType = {
   description: string;
   web_address: string;
   provisioning_status: string;
+  created_at?: string;
 };

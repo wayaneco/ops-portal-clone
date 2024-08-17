@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import moment from "moment";
 
 import {
   TextInput,
@@ -60,7 +61,10 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                   Logo
                 </Table.HeadCell>
                 <Table.HeadCell className="bg-primary-500 text-white sticky top-0 z-10">
-                  Email
+                  Name
+                </Table.HeadCell>
+                <Table.HeadCell className="bg-primary-500 text-white sticky top-0 z-10">
+                  Created At
                 </Table.HeadCell>
                 <Table.HeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
                   <span className="sr-only">View</span>
@@ -86,6 +90,9 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                         </div>
                       </Table.Cell>
                       <Table.Cell>{client?.name}</Table.Cell>
+                      <Table.Cell>
+                        {moment(client.created_at).format("MM-DD-YYYY hh:mm")}
+                      </Table.Cell>
                       <Table.Cell>
                         <Link
                           href={`/company/${client.client_id}`}
