@@ -36,40 +36,45 @@ export const upsertCompanyDetails = async (
   try {
     let filePath = params?.logo;
 
-    const { data: client_id, error } = await supabase.rpc(
-      update ? "update_clients" : "add_clients",
-      update
+    const upsertClientParams = update
         ? {
-            p_description: params?.description ?? "",
-            p_id: params?.client_id,
-            p_is_enabled: params?.is_enabled,
-            p_latitude: params?.latitude ?? "",
-            p_logo_url: filePath,
-            p_longitude: params?.longitude ?? "",
-            p_name: params?.name,
-            p_provider_type: params?.provider_types,
-            p_services_provided_list: params?.service_provided,
-            p_staff_id: params?.staff_id,
-            p_tags: params?.tags,
-            p_time_zone: params?.time_zone ?? "",
-            p_web_address: params?.web_address,
-            p_zip_code: params?.zip_code ?? "",
-          }
-        : {
-            name: params?.name,
-            staff_id: params?.staff_id,
-            description: params?.description ?? "",
-            time_zone: params?.time_zone ?? "",
-            logo_url: filePath,
-            longitude: params.longitude ?? "",
-            latitude: params?.latitude ?? "",
-            is_enabled: params?.is_enabled,
-            zip_code: params?.zip_code ?? "",
-            tags: params?.tags,
-            web_address: params?.web_address,
-            p_services_provided_list: params?.service_provided,
-          }
+          p_description: params?.description ?? "",
+          p_id: params?.client_id,
+          p_is_enabled: params?.is_enabled,
+          p_latitude: params?.latitude ?? "",
+          p_logo_url: filePath,
+          p_longitude: params?.longitude ?? "",
+          p_name: params?.name,
+          p_provider_type: params?.provider_types,
+          p_services_provided_list: params?.service_provided,
+          p_staff_id: params?.staff_id,
+          p_tags: params?.tags,
+          p_time_zone: params?.time_zone ?? "",
+          p_web_address: params?.web_address,
+          p_zip_code: params?.zip_code ?? "",
+        } : {
+          description: params?.description ?? "",
+          is_enabled: params?.is_enabled,
+          latitude: params?.latitude ?? "",
+          logo_url: filePath,
+          longitude: params?.longitude ?? "",
+          name: params?.name,
+          p_services_provided_list: params?.service_provided,
+          provider_type: params?.provider_types,
+          staff_id: params?.staff_id,
+          tags: params?.tags,
+          time_zone: params?.time_zone ?? "",
+          web_address: params?.web_address,
+          zip_code: params?.zip_code ?? "",
+        }
+
+    const { data: client_id, error: error_update_clients } = await supabase.rpc(
+      update ? "update_clients" : "add_clients", upsertClientParams
     );
+
+    if(error_update_clients) {
+      throw error_update_clients;
+    }
 
     if (params.logo && params?.logo?.includes("base64")) {
       const mimeType = getMimeType(params?.logo);
@@ -98,6 +103,7 @@ export const upsertCompanyDetails = async (
 
     return update_data;
   } catch (error) {
+    console.log(error, 'error here');
     return error;
   }
 };

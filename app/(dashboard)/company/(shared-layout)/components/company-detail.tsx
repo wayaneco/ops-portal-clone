@@ -88,7 +88,7 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
             tags: data?.tags,
             provider_types: data?.provider_types,
             staff_id: session?.user?.id,
-            client_id: companyInfo?.id,
+            client_id: companyInfo?.client_id,
           },
           {
             update: !!companyInfo,
