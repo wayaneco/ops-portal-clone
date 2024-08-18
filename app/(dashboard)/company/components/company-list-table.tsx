@@ -29,6 +29,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
   const { data = [] } = props;
   const [search, setSearch] = useState<string>("");
   const [clientList, setClientList] = useState<Array<ClientsType>>(data);
+
   const isFirstRender = useIsFirstRender();
 
   if (isFirstRender) {
@@ -63,7 +64,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                 <Table.HeadCell className="bg-primary-500 text-white sticky top-0 z-10">
                   Name
                 </Table.HeadCell>
-                <Table.HeadCell className="bg-primary-500 text-white sticky top-0 z-10">
+                <Table.HeadCell className="w-60 bg-primary-500 text-white sticky top-0 z-10">
                   Created At
                 </Table.HeadCell>
                 <Table.HeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
@@ -91,7 +92,9 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                       </Table.Cell>
                       <Table.Cell>{client?.name}</Table.Cell>
                       <Table.Cell>
-                        {moment(client.created_at).format("MM-DD-YYYY hh:mm")}
+                        {moment(client.created_at).format(
+                          "MMMM D, yyyy hh:mm A"
+                        )}
                       </Table.Cell>
                       <Table.Cell>
                         <Link
