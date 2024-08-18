@@ -21,6 +21,8 @@ import { ClientsType } from "@/app/types";
 import { useIsFirstRender } from "@/hooks/isFirstRender";
 import { TableSkeleton } from "@/app/components/Skeleton";
 
+import * as ImagePlaceholder from "public/image-placeholder.jpg";
+
 type CompanyListTableProps = {
   data: Array<ClientsType>;
 };
@@ -35,6 +37,8 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
   if (isFirstRender) {
     return <TableSkeleton />;
   }
+
+  console.log(ImagePlaceholder);
 
   return (
     <>
@@ -64,7 +68,10 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                 <Table.HeadCell className="bg-primary-500 text-white sticky top-0 z-10">
                   Name
                 </Table.HeadCell>
-                <Table.HeadCell className="w-60 bg-primary-500 text-white sticky top-0 z-10">
+                <TableHeadCell className="w-48 bg-primary-500 text-white sticky top-0 z-10 text-center">
+                  Provision Status
+                </TableHeadCell>
+                <Table.HeadCell className="w-60 bg-primary-500 text-white sticky top-0 z-10 text-center">
                   Created At
                 </Table.HeadCell>
                 <Table.HeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
@@ -84,13 +91,20 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                       <Table.Cell>
                         <div className="relative h-10 w-full">
                           <img
-                            src={client?.logo_url}
+                            src={
+                              !!client?.logo_url
+                                ? client?.logo_url
+                                : ImagePlaceholder.default.src
+                            }
                             alt={`${client?.name} logo`}
                             className="w-full h-full object-contain"
                           />
                         </div>
                       </Table.Cell>
                       <Table.Cell>{client?.name}</Table.Cell>
+                      <TableCell className="text-center font-bold">
+                        {client?.provisioning_status}
+                      </TableCell>
                       <Table.Cell>
                         {moment(client.created_at).format(
                           "MMMM D, yyyy hh:mm A"

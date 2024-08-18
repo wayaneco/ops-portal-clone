@@ -8,8 +8,8 @@ export async function GET() {
 
   const { data, error } = await supabase
     .from("clients")
-    .select("id, name, logo_url, created_at")
-    .order('created_at', {ascending: false});
+    .select("id, name, logo_url, provisioning_status, created_at")
+    .order("created_at", { ascending: false });
 
   if (error) {
     throw new Error(error.message);
