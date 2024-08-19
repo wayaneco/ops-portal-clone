@@ -4,6 +4,7 @@ we need to make this component client rendered as well*/
 
 //Map component Component from library
 import { GoogleMap, Marker } from "@react-google-maps/api";
+import { TextInput, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
@@ -67,7 +68,17 @@ const MapComponent = () => {
   }, []);
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative ">
+      <div className="absolute w-96 top-2 left-1 z-10">
+        <div className="flex items-center">
+          <TextInput
+            className="mr-2"
+            placeholder="Enter address"
+            color="primary"
+          />
+          <Button color="primary">Search</Button>
+        </div>
+      </div>
       <GoogleMap
         mapContainerStyle={defaultMapContainerStyle}
         center={newMarkerPosition}

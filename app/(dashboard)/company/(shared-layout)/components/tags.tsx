@@ -27,7 +27,7 @@ export const Tags = () => {
   return (
     <div>
       <div>
-        <div className="overflow-y-auto border border-primary-500">
+        <div className="overflow-y-auto rounded-md border border-gray-200">
           <div className="max-h-[calc(100vh-550px)]">
             <div className="bg-white">
               <DragDropContext
@@ -61,7 +61,9 @@ export const Tags = () => {
                     >
                       {!fields?.length ? (
                         <div className="p-6">
-                          <div className="text-center">No Data</div>
+                          <div className="text-center text-gray-600">
+                            No Data
+                          </div>
                         </div>
                       ) : (
                         fields.map((_, index: number) => (

@@ -44,7 +44,12 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
   const [pathname, setPathname] = useState("webAddress");
 
   return (
-    <SidebarContext.Provider value={{ pathname, setPathname }}>
+    <SidebarContext.Provider
+      value={{
+        pathname,
+        setPathname,
+      }}
+    >
       <div className="h-[calc(100vh-100px)]">
         <div className="flex w-full h-full ">
           <Sidebar className="pt-[80px] relative z-10">

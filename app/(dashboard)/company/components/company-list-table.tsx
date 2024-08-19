@@ -38,8 +38,6 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
     return <TableSkeleton />;
   }
 
-  console.log(ImagePlaceholder);
-
   return (
     <>
       <TextInput
@@ -112,7 +110,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                       </Table.Cell>
                       <Table.Cell>
                         <Link
-                          href={`/company/${client.client_id}`}
+                          href={`/company/${client?.id}`}
                           className="text-yellow-500 underline cursor-pointer"
                         >
                           View

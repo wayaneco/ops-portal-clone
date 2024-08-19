@@ -13,12 +13,12 @@ export const Passkey = () => {
             Send passkey email invitation to <strong>{user?.email}</strong>?
           </div>
         </div>
-        <div className="mt-10 ">
-          <Button color="primary" className="w-[150px] mx-auto">
-            Confirm
-          </Button>
-        </div>
       </Modal.Body>
+      <Modal.Footer>
+        <Button color="primary" className="w-[150px] mx-auto">
+          Confirm
+        </Button>
+      </Modal.Footer>
     </>
   );
 };

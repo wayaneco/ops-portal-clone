@@ -171,8 +171,7 @@ export const AddClient = () => {
               clientList?.map((client, key) => {
                 const isSelectedClient = client_id === client?.client_id;
                 const isAlreadyExisting = user?.clients?.some(
-                  (xClient: ClientsType) =>
-                    xClient?.client_id === client?.client_id
+                  (xClient: ClientsType) => xClient?.id === client?.id
                 );
 
                 return (
@@ -268,18 +267,18 @@ export const AddClient = () => {
             />
           )}
         </div>
-        <div className="mt-10">
-          <Button
-            type="submit"
-            color="primary"
-            disabled={!clientList?.length}
-            className="w-[150px] mx-auto"
-            onClick={handleSubmit}
-          >
-            {isSubmitting ? "Adding client..." : "Add client"}
-          </Button>
-        </div>
       </Modal.Body>
+      <Modal.Footer>
+        <Button
+          type="submit"
+          color="primary"
+          disabled={!clientList?.length}
+          className="w-[150px] mx-auto"
+          onClick={handleSubmit}
+        >
+          {isSubmitting ? "Adding client..." : "Add client"}
+        </Button>
+      </Modal.Footer>
     </>
   );
 };

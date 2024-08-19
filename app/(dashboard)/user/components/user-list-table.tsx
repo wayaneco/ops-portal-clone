@@ -61,9 +61,7 @@ export const UserListTable = (props: UserListTableProps) => {
     };
   }, [toastState.show]);
 
-  if (isFirstRender) {
-    return <TableSkeleton />;
-  }
+  if (isFirstRender) return <TableSkeleton />;
 
   const handleResetToast = () =>
     setToastState({

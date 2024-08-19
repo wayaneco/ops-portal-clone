@@ -1,6 +1,8 @@
 "use client";
 
-import { TextInput, Button, Card, Spinner, Toast } from "flowbite-react";
+import axios from "axios";
+
+import { TextInput, Button, Spinner, Toast } from "flowbite-react";
 import {
   ChangeEvent,
   LegacyRef,
@@ -10,6 +12,7 @@ import {
   useState,
   useTransition,
   useEffect,
+  createContext,
 } from "react";
 import { SidebarContext, SidebarContextType } from "../context";
 import { Controller, FormProvider, useForm } from "react-hook-form";
@@ -22,6 +25,7 @@ import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSess
 import { ClientsType } from "@/app/types";
 import { upsertCompanyDetails } from "@/app/actions/company/upsert-company";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
+import { createClient } from "@/utils/supabase/client";
 
 type CompanyDetailType = {
   companyInfo?: ClientsType;
@@ -33,8 +37,38 @@ type ToastType = {
   isError?: boolean;
 };
 
+type ProvisionLoggingContextType = {
+  logs: Array<{ event: string }>;
+  handleProvision: () => any;
+  isProvisioning: boolean;
+  isCompleted: boolean;
+};
+
+export const ProvisionLoggingContext = createContext<
+  ProvisionLoggingContextType | undefined
+>(undefined);
+
+export const useProvisionLoggingContext = () => {
+  const context = useContext<ProvisionLoggingContextType | undefined>(
+    ProvisionLoggingContext
+  )!;
+
+  if (!context) {
+    throw new Error();
+  }
+
+  return context;
+};
+
 const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
+  const supabase = createClient();
+
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [startLogging, setStartLogging] = useState<boolean>(false);
+  const [logs, setLogs] = useState<ProvisionLoggingContextType["logs"]>([]);
+  const [isCompleted, setIsCompleted] = useState(
+    companyInfo?.provisioning_status === "COMPLETED"
+  );
   const [toastState, setToastState] = useState<ToastType>({
     show: false,
     message: "",
@@ -64,12 +98,19 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
       tags: [], // TODO: companyInfo?.tags should be a Array not an string
       provider_types: companyInfo?.provider_types ?? [],
       provisioning_status: companyInfo?.provisioning_status ?? "DRAFT",
+      isUpdate: !!companyInfo,
+      isWebAddressValid: !!companyInfo,
     },
     resolver: yupResolver(schema),
     mode: "onChange",
   });
 
-  const clientName = methods.watch("name");
+  const watchName = methods.watch("name");
+  const watchWebAddress = methods.watch("web_address");
+  const watchIsWebAddressValid = methods.watch("isWebAddressValid");
+
+  const isSubmitButtonDisabled =
+    startLogging || !watchIsWebAddressValid || !watchName || !watchWebAddress;
 
   const onSubmit = (data: any) => {
     setIsSubmitting(true);
@@ -99,7 +140,7 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
           show: true,
           message: (
             <div>
-              <strong>{clientName}</strong> is added successfully
+              <strong>{watchName}</strong> is added successfully
             </div>
           ),
         });
@@ -117,8 +158,50 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
     });
   };
 
-  const watchName = methods.watch("name");
-  const watchWebAddress = methods.watch("web_address");
+  const handleProvision = async () => {
+    try {
+      const response = await fetch(
+        "https://api-portal-dev.everesteffect.com/provision",
+        {
+          method: "POST",
+          mode: "no-cors", // Set to 'no-cors' to disable CORS handling
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            name: `${watchWebAddress}-execution-aug-14-2024`,
+            input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
+          }),
+        }
+      );
+
+      const { data, error } = await supabase
+        .from("clients")
+        .update({
+          provisioning_status: "IN PROGRESS",
+        })
+        .eq("id", companyInfo?.client_id);
+
+      if (error) {
+        throw new Error(error.message);
+      }
+
+      setStartLogging(true);
+      return {
+        ...response,
+        data,
+      };
+    } catch (err) {
+      // await supabase
+      //   .from("clients")
+      //   .update({
+      //     provisioning_status: "FAILED",
+      //   })
+      //   .eq("id", companyInfo?.client_id);
+
+      return err;
+    }
+  };
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -134,111 +217,195 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
     };
   }, [toastState.show]);
 
+  useEffect(() => {
+    if (startLogging) {
+      const fetchData = async () => {
+        try {
+          const { data } = await axios.get<any>(
+            `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
+          );
+
+          setLogs(data?.log_content);
+
+          if (
+            data?.log_content?.some((entry: any) =>
+              entry.event.includes("Clean up")
+            )
+          ) {
+            const response = await supabase
+              .from("clients")
+              .update({
+                provisioning_status: "COMPLETED",
+              })
+              .eq("id", companyInfo?.client_id);
+
+            if (response?.error) {
+              throw new Error(response?.error?.message);
+            }
+            setIsCompleted(true);
+            setStartLogging(false);
+          }
+        } catch (err) {
+          console.log(err);
+          setStartLogging(false);
+        }
+      };
+
+      fetchData(); // Initial fetch
+
+      const intervalId = setInterval(() => {
+        fetchData();
+      }, 16000); // 16 seconds
+
+      // Clean up interval on component unmount
+      return () => clearInterval(intervalId);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [startLogging]);
+
+  useEffect(() => {
+    const getLogs = async () => {
+      const { data } = await axios.get<any>(
+        `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
+      );
+
+      if (companyInfo?.provisioning_status === "IN PROGRESS") {
+        await supabase
+          .from("clients")
+          .update({
+            provisioning_status: "COMPLETED",
+          })
+          .eq("id", companyInfo?.client_id);
+      }
+
+      setLogs(data?.log_content);
+    };
+
+    if (companyInfo?.provisioning_status === "IN PROGRESS") {
+      setStartLogging(true);
+    } else if (companyInfo?.provisioning_status === "COMPLETED") {
+      getLogs();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [companyInfo?.provisioning_status]);
+
   return (
-    <FormProvider {...methods}>
-      {isSubmitting && (
-        <div className="absolute bg-gray-200/40 cursor-not-allowed inset-0 top-20 z-20 flex items-center justify-center">
-          <Spinner color="primary" size="xl" />
-        </div>
-      )}
-      <form onSubmit={methods.handleSubmit(onSubmit)}>
-        <div className="absolute left-0 right-0 overflow-x-hidden">
-          <div className="relative z-10 bg-gray-50">
-            <div className="flex gap-x-4 items-center">
-              <div className="w-64">
+    <ProvisionLoggingContext.Provider
+      value={{
+        logs,
+        handleProvision,
+        isProvisioning: startLogging,
+        isCompleted,
+      }}
+    >
+      <FormProvider {...methods}>
+        {isSubmitting && (
+          <div className="absolute bg-gray-200/40 cursor-not-allowed inset-0 top-20 z-20 flex items-center justify-center">
+            <Spinner color="primary" size="xl" />
+          </div>
+        )}
+        <form onSubmit={methods.handleSubmit(onSubmit)}>
+          <div className="absolute left-0 right-0 overflow-x-hidden">
+            <div className="relative z-10 bg-gray-50">
+              <div className="flex gap-x-4 items-center">
+                <div className="w-64">
+                  <Controller
+                    control={methods.control}
+                    name="logo"
+                    render={({ field: { value, onChange } }) => (
+                      <div
+                        className="flex items-center justify-center cursor-pointer"
+                        onClick={() =>
+                          !startLogging && inputRef.current?.click()
+                        }
+                      >
+                        {!value ? (
+                          <div className="flex items-center justify-center w-40 h-20 bg-gray-300 rounded  dark:bg-gray-700">
+                            <svg
+                              className="w-10 h-10 text-gray-200 dark:text-gray-600"
+                              aria-hidden="true"
+                              xmlns="http://www.w3.org/2000/svg"
+                              fill="currentColor"
+                              viewBox="0 0 20 18"
+                            >
+                              <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z" />
+                            </svg>
+                          </div>
+                        ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
+                          <img
+                            src={value as string}
+                            alt="Tonis Kitchen"
+                            className="w-auto h-20"
+                          />
+                        )}
+                        <input
+                          className="hidden"
+                          type="file"
+                          ref={inputRef as LegacyRef<HTMLInputElement>}
+                          accept="image/**"
+                          onChange={async (
+                            event: ChangeEvent<HTMLInputElement>
+                          ) => {
+                            if (!event?.currentTarget?.files![0]) return;
+
+                            const base64 = await convertFileToBase64(
+                              event.currentTarget?.files[0]
+                            );
+
+                            onChange(base64);
+                          }}
+                        />
+                      </div>
+                    )}
+                  />
+                </div>
                 <Controller
                   control={methods.control}
-                  name="logo"
-                  render={({ field: { value, onChange } }) => (
-                    <div
-                      className="flex items-center justify-center cursor-pointer"
-                      onClick={() => inputRef.current?.click()}
-                    >
-                      {!value ? (
-                        <div className="flex items-center justify-center w-40 h-20 bg-gray-300 rounded  dark:bg-gray-700">
-                          <svg
-                            className="w-10 h-10 text-gray-200 dark:text-gray-600"
-                            aria-hidden="true"
-                            xmlns="http://www.w3.org/2000/svg"
-                            fill="currentColor"
-                            viewBox="0 0 20 18"
-                          >
-                            <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z" />
-                          </svg>
-                        </div>
-                      ) : (
-                        // eslint-disable-next-line @next/next/no-img-element
-                        <img
-                          src={value as string}
-                          alt="Tonis Kitchen"
-                          className="w-auto h-20"
-                        />
-                      )}
-                      <input
-                        className="hidden"
-                        type="file"
-                        ref={inputRef as LegacyRef<HTMLInputElement>}
-                        accept="image/**"
-                        onChange={async (
-                          event: ChangeEvent<HTMLInputElement>
-                        ) => {
-                          if (!event?.currentTarget?.files![0]) return;
-
-                          const base64 = await convertFileToBase64(
-                            event.currentTarget?.files[0]
-                          );
-
-                          onChange(base64);
-                        }}
-                      />
-                    </div>
+                  name="name"
+                  render={({ field }) => (
+                    <TextInput
+                      color="primary"
+                      placeholder="Add client name"
+                      className="w-[450px]"
+                      disabled={startLogging}
+                      {...field}
+                    />
                   )}
                 />
+                <Button
+                  type="submit"
+                  color="primary"
+                  disabled={isSubmitButtonDisabled}
+                >
+                  {companyInfo ? "Update Company" : "Add Company"}
+                </Button>
               </div>
-              <Controller
-                control={methods.control}
-                name="name"
-                render={({ field }) => (
-                  <TextInput
-                    color="primary"
-                    placeholder="Add client name"
-                    className="w-[450px]"
-                    {...field}
-                  />
-                )}
-              />
-              <Button
-                type="submit"
-                color="primary"
-                disabled={!watchName || !watchWebAddress}
-              >
-                {companyInfo ? "Update Company" : "Add Company"}
-              </Button>
+            </div>
+            <div className="h-full w-full pl-64">
+              <AddClientForm routeName={pathname} />
             </div>
           </div>
-          <div className="h-full w-full pl-64">
-            <AddClientForm routeName={pathname} />
-          </div>
-        </div>
-      </form>
-      {toastState.show && (
-        <Toast
-          className={`absolute right-5 top-5 z-[9999] ${
-            toastState?.isError ? "bg-red-600" : "bg-primary-500"
-          }`}
-        >
-          <div className="ml-3 text-sm font-normal text-white">
-            {toastState?.message}
-          </div>
-          <Toast.Toggle
-            className={toastState?.isError ? "bg-red-600" : "bg-primary-500"}
-            onClick={() =>
-              setToastState({ show: false, message: "", isError: false })
-            }
-          />
-        </Toast>
-      )}
-    </FormProvider>
+        </form>
+        {toastState.show && (
+          <Toast
+            className={`absolute right-5 top-5 z-[9999] ${
+              toastState?.isError ? "bg-red-600" : "bg-primary-500"
+            }`}
+          >
+            <div className="ml-3 text-sm font-normal text-white">
+              {toastState?.message}
+            </div>
+            <Toast.Toggle
+              className={toastState?.isError ? "bg-red-600" : "bg-primary-500"}
+              onClick={() =>
+                setToastState({ show: false, message: "", isError: false })
+              }
+            />
+          </Toast>
+        )}
+      </FormProvider>
+    </ProvisionLoggingContext.Provider>
   );
 };
 

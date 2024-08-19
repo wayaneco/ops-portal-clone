@@ -1,7 +1,7 @@
 "use client";
 
-import { TextInput, Button, Avatar, Modal, Radio, Label } from "flowbite-react";
-import { useState, useRef } from "react";
+import { TextInput, Button, Radio, Label } from "flowbite-react";
+import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
@@ -27,7 +27,7 @@ export const ProviderType = () => {
   return (
     <div>
       <div>
-        <div className="overflow-y-auto border border-primary-500">
+        <div className="overflow-y-auto rounded-md border border-gray-200">
           <div className="max-h-[calc(100vh-550px)]">
             <div className="bg-white">
               <DragDropContext
@@ -63,7 +63,9 @@ export const ProviderType = () => {
                     >
                       {!fields?.length ? (
                         <div className="p-6">
-                          <div className="text-center">No Data</div>
+                          <div className="text-center text-gray-600">
+                            No Data
+                          </div>
                         </div>
                       ) : (
                         fields.map((_, index: number) => (

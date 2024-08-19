@@ -190,16 +190,16 @@ export const EditClient = () => {
             })
           )}
         </div>
-        <div className="mt-10 ">
-          <Button
-            color="primary"
-            className="w-[150px] mx-auto"
-            onClick={handleSubmit}
-          >
-            Save
-          </Button>
-        </div>
       </Modal.Body>
+      <Modal.Footer>
+        <Button
+          color="primary"
+          className="w-[150px] mx-auto"
+          onClick={handleSubmit}
+        >
+          Save
+        </Button>
+      </Modal.Footer>
     </>
   );
 };

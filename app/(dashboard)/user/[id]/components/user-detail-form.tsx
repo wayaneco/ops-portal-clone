@@ -2,6 +2,7 @@
 
 import Image from "next/image";
 import * as React from "react";
+import Link from "next/link";
 import { UserDetailType, ClientsType } from "@/app/types/UserDetail";
 import {
   Button,
@@ -11,10 +12,13 @@ import {
   Table,
   Badge,
   Toast,
+  Card,
 } from "flowbite-react";
-import { UserDetailModal } from "./client-modal";
 
+import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
+import { useIsFirstRender } from "@/app/hooks/isFirstRender";
+import { SkeletonWithUserImage } from "@/app/components/Skeleton";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -57,6 +61,8 @@ export const useUserDetailFormContext = () => {
 
 export function UserDetailForm(props: UserDetailFormType) {
   const { data } = props;
+
+  const isFirstRender = useIsFirstRender();
 
   const [toast, setToast] = React.useState<ToastType>({
     show: false,
@@ -120,6 +126,8 @@ export function UserDetailForm(props: UserDetailFormType) {
     };
   }, [toast.show]);
 
+  if (isFirstRender) return <SkeletonWithUserImage />;
+
   return (
     <UserDetailFormContext.Provider
       value={{
@@ -129,167 +137,174 @@ export function UserDetailForm(props: UserDetailFormType) {
         closeDialog: handleResetModal,
       }}
     >
-      <div className="flex">
-        <Avatar
-          img={(avatarProps: AvatarImageProps) => (
-            <div className="h-56 w-52">
-              <Image
-                {...avatarProps}
-                src="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                alt={`User Profile`}
-                fill
-              />
+      <Link href="/user">
+        <Button color="primary">BACK</Button>
+      </Link>
+      <div className="mt-5">
+        <Card>
+          <div className="flex">
+            <Avatar
+              img={(avatarProps: AvatarImageProps) => (
+                <div className="h-56 w-52">
+                  <Image
+                    {...avatarProps}
+                    src="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
+                    alt={`User Profile`}
+                    fill
+                  />
+                </div>
+              )}
+            />
+            <div className="flex-1 mx-10">
+              <form>
+                <div className="flex flex-col gap-y-2">
+                  <TextInput
+                    value={`${data?.first_name || ""} ${
+                      data?.middle_name || ""
+                    } ${data?.last_name || ""}`}
+                    disabled
+                  />
+                  <TextInput value={data?.email} disabled />
+                  <TextInput value={data?.primary_phone} disabled />
+                  <TextInput
+                    value={`${data?.addr_line_1 || ""} ${
+                      data?.addr_line_2 || ""
+                    } ${data?.city || ""} ${data?.state_province_region || ""}`}
+                    disabled
+                  />
+                </div>
+              </form>
             </div>
-          )}
-        />
-        <div className="flex-1 mx-10">
-          <form>
-            <div className="flex flex-col gap-y-2">
-              <TextInput
-                value={`${data?.first_name || ""} ${data?.middle_name || ""} ${
-                  data?.last_name || ""
-                }`}
-                disabled
-              />
-              <TextInput value={data?.email} disabled />
-              <TextInput value={data?.primary_phone} disabled />
-              <TextInput
-                value={`${data?.addr_line_1 || ""} ${data?.addr_line_2 || ""} ${
-                  data?.city || ""
-                } ${data?.state_province_region || ""}`}
-                disabled
-              />
+            <div className="flex gap-x-2 h-fit">
+              <Button
+                color="primary"
+                className="h-fit"
+                onClick={() =>
+                  handleOpenModal({
+                    data,
+                    modalContent: ModalContentType.EDIT_USER,
+                  })
+                }
+              >
+                Edit User
+              </Button>
+              <Button
+                color="primary"
+                className="h-fit"
+                onClick={() =>
+                  handleOpenModal({
+                    data,
+                    modalContent: ModalContentType.PASSKEY,
+                  })
+                }
+              >
+                Reissue Passkey
+              </Button>
             </div>
-          </form>
-        </div>
-        <div className="flex gap-x-2 h-fit">
-          <Button
-            color="primary"
-            className="h-fit"
-            onClick={() =>
-              handleOpenModal({
-                data,
-                modalContent: ModalContentType.EDIT_USER,
-              })
-            }
-          >
-            Edit User
-          </Button>
-          <Button
-            color="primary"
-            className="h-fit"
-            onClick={() =>
-              handleOpenModal({
-                data,
-                modalContent: ModalContentType.PASSKEY,
-              })
-            }
-          >
-            Reissue Passkey
-          </Button>
-        </div>
-      </div>
-      <div className="mt-10">
-        <div className="overflow-x-auto">
-          <Table hoverable>
-            <Table.Head>
-              <Table.HeadCell className="bg-primary-500 text-white">
-                Clients
-              </Table.HeadCell>
-              <Table.HeadCell className="bg-primary-500 text-white">
-                Privileges
-              </Table.HeadCell>
-              <Table.HeadCell className="w-40 text-center bg-primary-500 text-white">
-                Action
-              </Table.HeadCell>
-            </Table.Head>
-
-            <Table.Body className="divide-y">
-              {data?.clients?.map((client: ClientsType, idx) => (
-                <Table.Row key={idx}>
-                  <Table.Cell>{client.name}</Table.Cell>
-                  <Table.Cell>
-                    <div className="flex gap-2">
-                      {client.privileges?.map((privilege, i) => (
-                        <Badge key={i} className="w-fit" color="primary">
-                          {privilege}
-                        </Badge>
-                      ))}
-                    </div>
-                  </Table.Cell>
-                  <Table.Cell>
-                    <div className="flex gap-x-2">
-                      <Button
-                        color="primary"
-                        type="button"
-                        onClick={() => {
-                          handleOpenModal({
-                            data: data,
-                            client,
-                            modalContent: ModalContentType.EDIT,
-                          });
-                        }}
-                      >
-                        Edit
-                      </Button>
-                      <Button
-                        color="primary"
-                        type="button"
-                        onClick={() => {
-                          handleOpenModal({
-                            data,
-                            client,
-                            modalContent: ModalContentType.REVOKE,
-                          });
-                        }}
-                      >
-                        Revoke
-                      </Button>
-                    </div>
-                  </Table.Cell>
-                </Table.Row>
-              ))}
-            </Table.Body>
-          </Table>
-        </div>
-        <div className="mt-10">
-          <Button
-            color="primary"
-            onClick={() =>
-              handleOpenModal({
-                data,
-                modalContent: ModalContentType.ADD,
-              })
-            }
-          >
-            Add new
-          </Button>
-        </div>
-      </div>
-      {toast.show && (
-        <Toast
-          className={`absolute right-5 top-5 z-[9999] ${
-            toast?.error ? "bg-red-600" : "bg-primary-500"
-          }`}
-        >
-          <div className="ml-3 text-sm font-normal text-white">
-            {toast?.message}
           </div>
-          <Toast.Toggle
-            className={toast?.error ? "bg-red-600" : "bg-primary-500"}
-            onClick={handleResetToast}
-          />
-        </Toast>
-      )}
-      {modalOptions?.show && (
-        <UserDetailModal
-          modalContent={modalOptions.modalContent}
-          show={modalOptions.show}
-          onClose={handleResetModal}
-          data={modalOptions.data}
-          client={modalOptions.client}
-        />
-      )}
+          <div className="mt-10">
+            <div className="overflow-x-auto rounded-md border border-gray-100">
+              <Table hoverable>
+                <Table.Head>
+                  <Table.HeadCell className="bg-primary-500 text-white">
+                    Clients
+                  </Table.HeadCell>
+                  <Table.HeadCell className="bg-primary-500 text-white">
+                    Privileges
+                  </Table.HeadCell>
+                  <Table.HeadCell className="w-40 text-center bg-primary-500 text-white">
+                    Action
+                  </Table.HeadCell>
+                </Table.Head>
+
+                <Table.Body className="divide-y">
+                  {data?.clients?.map((client: ClientsType, idx) => (
+                    <Table.Row key={idx}>
+                      <Table.Cell>{client.name}</Table.Cell>
+                      <Table.Cell>
+                        <div className="flex gap-2">
+                          {client.privileges?.map((privilege, i) => (
+                            <Badge key={i} className="w-fit" color="primary">
+                              {privilege}
+                            </Badge>
+                          ))}
+                        </div>
+                      </Table.Cell>
+                      <Table.Cell>
+                        <div className="flex gap-x-2">
+                          <Button
+                            color="primary"
+                            type="button"
+                            onClick={() => {
+                              handleOpenModal({
+                                data: data,
+                                client,
+                                modalContent: ModalContentType.EDIT,
+                              });
+                            }}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            color="primary"
+                            type="button"
+                            onClick={() => {
+                              handleOpenModal({
+                                data,
+                                client,
+                                modalContent: ModalContentType.REVOKE,
+                              });
+                            }}
+                          >
+                            Revoke
+                          </Button>
+                        </div>
+                      </Table.Cell>
+                    </Table.Row>
+                  ))}
+                </Table.Body>
+              </Table>
+            </div>
+            <div className="mt-10">
+              <Button
+                color="primary"
+                onClick={() =>
+                  handleOpenModal({
+                    data,
+                    modalContent: ModalContentType.ADD,
+                  })
+                }
+              >
+                Add new
+              </Button>
+            </div>
+          </div>
+          {toast.show && (
+            <Toast
+              className={`absolute right-5 top-5 z-[9999] ${
+                toast?.error ? "bg-red-600" : "bg-primary-500"
+              }`}
+            >
+              <div className="ml-3 text-sm font-normal text-white">
+                {toast?.message}
+              </div>
+              <Toast.Toggle
+                className={toast?.error ? "bg-red-600" : "bg-primary-500"}
+                onClick={handleResetToast}
+              />
+            </Toast>
+          )}
+          {modalOptions?.show && (
+            <UserDetailModal
+              modalContent={modalOptions.modalContent}
+              show={modalOptions.show}
+              onClose={handleResetModal}
+              data={modalOptions.data}
+              client={modalOptions.client}
+            />
+          )}
+        </Card>
+      </div>
     </UserDetailFormContext.Provider>
   );
 }
