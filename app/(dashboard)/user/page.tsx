@@ -20,7 +20,7 @@ export default async function Page() {
   const usersList = await response.json();
 
   return (
-    <div className="py-16">
+    <div className="pt-16 pb-12">
       <Card>
         <UserListTable data={usersList} />
       </Card>

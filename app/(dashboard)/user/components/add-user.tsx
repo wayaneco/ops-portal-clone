@@ -65,15 +65,14 @@ export const AddUser = (props: AddUserProps) => {
 
     if (!isFieldsValid) return;
     setIsSubmitting(true);
-
     try {
-      const response: any = await addUser({
+      const response: { isError: boolean; error: string } = await addUser({
         ...(getValues() as UserDetailType),
         staff_id: session?.user?.id,
         birth_date: "2024-08-13",
       });
 
-      if (response.isError) throw new Error(response?.message);
+      if (response.isError) throw new Error(response?.error);
 
       setIsSubmitting(false);
       setToast({ show: true, message: <div>User is added successfully.</div> });

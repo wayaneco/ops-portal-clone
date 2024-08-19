@@ -216,53 +216,60 @@ export function UserDetailForm(props: UserDetailFormType) {
                     Action
                   </Table.HeadCell>
                 </Table.Head>
-
-                <Table.Body className="divide-y">
-                  {data?.clients?.map((client: ClientsType, idx) => (
-                    <Table.Row key={idx}>
-                      <Table.Cell>{client.name}</Table.Cell>
-                      <Table.Cell>
-                        <div className="flex gap-2">
-                          {client.privileges?.map((privilege, i) => (
-                            <Badge key={i} className="w-fit" color="primary">
-                              {privilege}
-                            </Badge>
-                          ))}
-                        </div>
-                      </Table.Cell>
-                      <Table.Cell>
-                        <div className="flex gap-x-2">
-                          <Button
-                            color="primary"
-                            type="button"
-                            onClick={() => {
-                              handleOpenModal({
-                                data: data,
-                                client,
-                                modalContent: ModalContentType.EDIT,
-                              });
-                            }}
-                          >
-                            Edit
-                          </Button>
-                          <Button
-                            color="primary"
-                            type="button"
-                            onClick={() => {
-                              handleOpenModal({
-                                data,
-                                client,
-                                modalContent: ModalContentType.REVOKE,
-                              });
-                            }}
-                          >
-                            Revoke
-                          </Button>
-                        </div>
-                      </Table.Cell>
-                    </Table.Row>
-                  ))}
-                </Table.Body>
+                {!data?.clients?.length ? (
+                  <div className="h-11 relative table-footer-group">
+                    <div className="absolute inset-0 flex items-center justify-center w-full h-full">
+                      <div>No data found</div>
+                    </div>
+                  </div>
+                ) : (
+                  <Table.Body className="divide-y">
+                    {data?.clients?.map((client: ClientsType, idx) => (
+                      <Table.Row key={idx}>
+                        <Table.Cell>{client.name}</Table.Cell>
+                        <Table.Cell>
+                          <div className="flex gap-2">
+                            {client.privileges?.map((privilege, i) => (
+                              <Badge key={i} className="w-fit" color="primary">
+                                {privilege}
+                              </Badge>
+                            ))}
+                          </div>
+                        </Table.Cell>
+                        <Table.Cell>
+                          <div className="flex gap-x-2">
+                            <Button
+                              color="primary"
+                              type="button"
+                              onClick={() => {
+                                handleOpenModal({
+                                  data: data,
+                                  client,
+                                  modalContent: ModalContentType.EDIT,
+                                });
+                              }}
+                            >
+                              Edit
+                            </Button>
+                            <Button
+                              color="primary"
+                              type="button"
+                              onClick={() => {
+                                handleOpenModal({
+                                  data,
+                                  client,
+                                  modalContent: ModalContentType.REVOKE,
+                                });
+                              }}
+                            >
+                              Revoke
+                            </Button>
+                          </div>
+                        </Table.Cell>
+                      </Table.Row>
+                    ))}
+                  </Table.Body>
+                )}
               </Table>
             </div>
             <div className="mt-10">
@@ -281,7 +288,7 @@ export function UserDetailForm(props: UserDetailFormType) {
           </div>
           {toast.show && (
             <Toast
-              className={`absolute right-5 top-5 z-[9999] ${
+              className={`fixed right-5 top-5 z-[9999] ${
                 toast?.error ? "bg-red-600" : "bg-primary-500"
               }`}
             >

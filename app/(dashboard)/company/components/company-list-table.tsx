@@ -57,7 +57,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
       />
       <div className="mt-5">
         <div className="overflow-auto bg-gray-100 border border-gray-100">
-          <div className="max-h-[calc(100vh-440px)] ">
+          <div className="max-h-[calc(100vh-440px)]">
             <Table hoverable className="shadow-md">
               <Table.Head>
                 <Table.HeadCell className="w-32 text-center bg-primary-500 text-white sticky top-0 z-10">

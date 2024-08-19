@@ -77,9 +77,6 @@ export async function addUser(params: UpdateUserInfoType) {
       email_confirm: true,
     });
 
-    console.log("Auth User: ", authUser);
-    console.log("Auth Error: ", error_create_user?.message);
-
     if (error_create_user) throw new Error(error_create_user.message);
 
     if (authUser) {
@@ -101,10 +98,7 @@ export async function addUser(params: UpdateUserInfoType) {
         zip_code: params?.zip_code,
       };
 
-      const { data, error } = await supabase.rpc("add_admin_user", payload);
-
-      console.log("Add Admin User: ", data);
-      console.log("Add Admin User Error: ", error);
+      const { error } = await supabase.rpc("add_admin_user", payload);
 
       if (error) throw new Error(error.message);
 
@@ -123,9 +117,6 @@ export async function addUser(params: UpdateUserInfoType) {
             upsert: true,
           });
 
-        console.log("File Data: ", file_data);
-        console.log("File Error: ", file_error);
-
         photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
       }
 
@@ -138,16 +129,15 @@ export async function addUser(params: UpdateUserInfoType) {
           .eq("user_id", authUser?.id);
 
       if (update_photo_error) throw new Error(update_photo_error?.message);
-
-      console.log("Update Profile: ", update_photo_data);
-      console.log("Update Profile Error: ", update_photo_error);
     }
 
     revalidateTag("user_list");
     revalidatePath("(dashboard)/user", "page");
 
-    console.log(params);
-    return params;
+    return {
+      isError: false,
+      error: null,
+    };
   } catch (error) {
     return JSON.parse(
       JSON.stringify({
