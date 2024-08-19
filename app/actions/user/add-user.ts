@@ -6,7 +6,11 @@ import { revalidatePath, revalidateTag } from "next/cache";
 
 import { createClient } from "utils/supabase/server";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
-import { BASE_URL, DEFAULT_PASSWORD, SUPABASE_SERVICE_ROLE_KEY } from '../../constant';
+import {
+  BASE_URL,
+  DEFAULT_PASSWORD,
+  SUPABASE_SERVICE_ROLE_KEY,
+} from "../../constant";
 
 type UpdateUserInfoType = {
   photo_url: string;
@@ -31,32 +35,54 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 export async function addUser(params: UpdateUserInfoType) {
   try {
     const supabase = createClient();
-    const supabaseAdmin = createAdminClient(BASE_URL, SUPABASE_SERVICE_ROLE_KEY)
+    const supabaseAdmin = createAdminClient(
+      BASE_URL,
+      SUPABASE_SERVICE_ROLE_KEY,
+      {
+        auth: {
+          detectSessionInUrl: true,
+          persistSession: true,
+          autoRefreshToken: true,
+        },
+      }
+    );
 
     let photoUrl = params?.photo_url;
     const password = DEFAULT_PASSWORD;
 
     let generatedEmail: any;
 
-    if(!params.email) {
-      const { data: publicEmail, error: error_generate_email } = await supabase.rpc("generate_email").single();
+    if (!params.email) {
+      const { data: publicEmail, error: error_generate_email } = await supabase
+        .rpc("generate_email")
+        .single();
+
+      console.log("Public Email: ", publicEmail);
+      console.log("Public Email Error: ", error_generate_email);
       generatedEmail = publicEmail;
-      
-      if(error_generate_email) {
-        console.log(error_generate_email, 'error_generate_email');
+
+      if (error_generate_email) {
+        console.log(error_generate_email, "error_generate_email");
         throw new Error(error_generate_email.message);
       }
     }
 
-
     // Create auth user
-    const {data: {user: authUser}, error: error_create_user} = await supabaseAdmin.auth.admin.createUser({
-      email: params.email ? params.email : generatedEmail,
+    const {
+      data: { user: authUser },
+      error: error_create_user,
+    } = await supabaseAdmin.auth.admin.createUser({
+      email: params?.email ? params?.email : generatedEmail,
       password,
-      email_confirm: true
+      email_confirm: true,
     });
 
-    if(authUser) {
+    console.log("Auth User: ", authUser);
+    console.log("Auth Error: ", error_create_user?.message);
+
+    if (error_create_user) throw new Error(error_create_user.message);
+
+    if (authUser) {
       const payload = {
         birth_date: params?.birth_date,
         city: params?.city,
@@ -74,50 +100,60 @@ export async function addUser(params: UpdateUserInfoType) {
         user_id: params?.staff_id,
         zip_code: params?.zip_code,
       };
-  
-      if(error_create_user) {
-        throw new Error(error_create_user.message);
-      } else {
-        const { data, error } = await supabase.rpc("add_admin_user", payload);
-    
-        if (error) throw new Error(error.message);
-    
-        if (params?.photo_url && params?.photo_url?.includes("base64")) {
-          const mimeType = getMimeType(params?.photo_url);
-          const file = convertBase64toFile(
-            params.photo_url!,
-            params?.preferred_name
-          );
-    
-          const [, type] = mimeType.split("/");
-    
-          const { data: file_data } = await supabase.storage
-            .from("avatars")
-            .upload(`public/${"user_id"}.${type}`, file as File, {
-              upsert: true,
-            });
-    
-          photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
-        }
-    
-        const { data: update_data } = await supabase
+
+      const { data, error } = await supabase.rpc("add_admin_user", payload);
+
+      console.log("Add Admin User: ", data);
+      console.log("Add Admin User Error: ", error);
+
+      if (error) throw new Error(error.message);
+
+      if (params?.photo_url && params?.photo_url?.includes("base64")) {
+        const mimeType = getMimeType(params?.photo_url);
+        const file = convertBase64toFile(
+          params.photo_url!,
+          params?.preferred_name
+        );
+
+        const [, type] = mimeType.split("/");
+
+        const { data: file_data, error: file_error } = await supabase.storage
+          .from("avatars")
+          .upload(`public/${authUser?.id}.${type}`, file as File, {
+            upsert: true,
+          });
+
+        console.log("File Data: ", file_data);
+        console.log("File Error: ", file_error);
+
+        photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
+      }
+
+      const { data: update_photo_data, error: update_photo_error } =
+        await supabase
           .from("profile_photos")
           .update({
             photo_url: photoUrl,
           })
-          .eq("user_id", "user_id");
-      }
+          .eq("user_id", authUser?.id);
+
+      if (update_photo_error) throw new Error(update_photo_error?.message);
+
+      console.log("Update Profile: ", update_photo_data);
+      console.log("Update Profile Error: ", update_photo_error);
     }
 
     revalidateTag("user_list");
     revalidatePath("(dashboard)/user", "page");
 
-    return new Promise((resolve) => {
-      setTimeout(() => {
-        resolve(params);
-      }, 5000);
-    });
+    console.log(params);
+    return params;
   } catch (error) {
-    return error;
+    return JSON.parse(
+      JSON.stringify({
+        isError: true,
+        error,
+      })
+    );
   }
 }

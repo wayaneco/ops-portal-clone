@@ -202,7 +202,7 @@ export const WebAddress = () => {
               <span className="text-yellow-500 underline mr-1">
                 {`${watchWebAddress.toLowerCase()}.everesteffect.com`}
               </span>
-              <span className="mr-1">is ready</span>
+              <span className="mr-1 text-gray-700">is ready</span>
               <Button
                 color="primary"
                 onClick={() =>

@@ -244,6 +244,8 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
             }
             setIsCompleted(true);
             setStartLogging(false);
+
+            clearInterval(intervalId);
           }
         } catch (err) {
           console.log(err);

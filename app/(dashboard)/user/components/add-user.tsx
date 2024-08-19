@@ -67,11 +67,13 @@ export const AddUser = (props: AddUserProps) => {
     setIsSubmitting(true);
 
     try {
-      const response = await addUser({
+      const response: any = await addUser({
         ...(getValues() as UserDetailType),
         staff_id: session?.user?.id,
         birth_date: "2024-08-13",
       });
+
+      if (response.isError) throw new Error(response?.message);
 
       setIsSubmitting(false);
       setToast({ show: true, message: <div>User is added successfully.</div> });
@@ -180,6 +182,7 @@ export const AddUser = (props: AddUserProps) => {
                               ></path>
                             </svg>
                           ) : (
+                            // eslint-disable-next-line @next/next/no-img-element
                             <img
                               src={value as string}
                               alt="Tonis Kitchen"
