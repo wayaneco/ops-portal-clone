@@ -1,84 +1,56 @@
-import axios from "axios";
-import { Label, TextInput, Button, List } from "flowbite-react";
-import { useEffect, useRef, useState } from "react";
+import { Label, TextInput, Button, List, Spinner } from "flowbite-react";
+import { useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import useFetchLogs from "./useFetchLogs";
+import { useDebouncedCallback } from "use-debounce";
+
+import { useProvisionLoggingContext } from "./company-detail";
+import { createClient } from "@/utils/supabase/client";
 
 export const WebAddress = () => {
+  const supabase = createClient();
+
   const inputRef = useRef();
-  const { control, watch } = useFormContext();
-  const [data, setData] = useState<any>();
-  const [loading, setLoading] = useState<any>();
-  const [start, setStart] = useState<boolean>();
+  const [status, setStatus] = useState({
+    isFetching: false,
+    isDone: false,
+  });
+  const [isWebAddressExist, setIsWebAddressExist] = useState<boolean>(false);
+  const { control, watch, setValue } = useFormContext();
+
+  const { logs, handleProvision, isProvisioning, isCompleted } =
+    useProvisionLoggingContext();
 
   const watchWebAddress = watch("web_address");
+  const isUpdate = watch("isUpdate");
 
-  useEffect(() => {
-    if (start) {
-      const fetchData = async () => {
-        try {
-          const response = await axios.get<any>(
-            `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
-          );
-          setData(response.data);
-          console.log(response.data);
-          console.log(
-            response.data.log_content.some((entry: any) =>
-              entry.event.includes("[3]")
-            )
-          );
+  const isProvisionButtonDisabled =
+    !isUpdate ||
+    isProvisioning ||
+    isCompleted ||
+    isWebAddressExist ||
+    status?.isFetching;
 
-          if (
-            response.data.log_content.some((entry: any) =>
-              entry.event.includes("Clean up")
-            )
-          ) {
-            setStart(false);
-          }
-          setLoading(false);
-        } catch (err) {
-          console.log(err);
-          setLoading(false);
-        }
-      };
+  const handleDebounce = useDebouncedCallback(async (value: string) => {
+    if (value) {
+      setStatus({
+        isFetching: true,
+        isDone: false,
+      });
+      const { data } = await supabase
+        .from("clients")
+        .select("name")
+        .ilike("name", value);
 
-      fetchData(); // Initial fetch
-
-      const intervalId = setInterval(() => {
-        fetchData();
-      }, 16000); // 16 seconds
-
-      // Clean up interval on component unmount
-      return () => clearInterval(intervalId);
-    }
-  }, [start]);
-
-  const provisionFunc = async () => {
-    try {
-      const res = await fetch(
-        "https://api-portal-dev.everesteffect.com/provision",
-        {
-          method: "POST",
-          mode: "no-cors", // Set to 'no-cors' to disable CORS handling
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: `${watchWebAddress}-execution-aug-14-2024`,
-            input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
-          }),
-        }
-      );
-
-      if (res) {
-        setStart(true);
+      if (data?.length) {
+        setIsWebAddressExist(true);
+        setValue("isWebAddressValid", false);
+      } else {
+        setValue("isWebAddressValid", true);
       }
 
-      console.log(res);
-    } catch (err) {
-      console.error(err);
+      setStatus({ isFetching: false, isDone: true });
     }
-  };
+  }, 1000); // 1 SECONDS
 
   return (
     <div>
@@ -95,41 +67,156 @@ export const WebAddress = () => {
               placeholder="domain.everesteffect.com"
               className="w-[450px] placeholder-shown:italic "
               value={value}
+              disabled={isProvisioning || isCompleted}
               onKeyPress={(e) => {
                 e.persist();
-
+                console.log(value);
                 if (!/^(\d|\w)+$/.test(e.key)) {
                   e.preventDefault();
                 }
               }}
-              onChange={onChange}
+              onChange={async (event) => {
+                setValue("isWebAddressValid", false);
+                setStatus({
+                  isFetching: true,
+                  isDone: false,
+                });
+                setIsWebAddressExist(false);
+
+                !event?.target?.value &&
+                  setStatus({
+                    isFetching: false,
+                    isDone: false,
+                  });
+                handleDebounce(event?.target?.value);
+                onChange(event?.target?.value);
+              }}
             />
           )}
         />
-        <Button color="primary" onClick={provisionFunc}>
-          Provision
+        <Button
+          color="primary"
+          disabled={isProvisionButtonDisabled}
+          onClick={handleProvision}
+        >
+          <span>{isProvisioning ? "Provisioning..." : "Provision"}</span>{" "}
+          {isProvisioning && <Spinner className="ml-2" />}
         </Button>
       </div>
       <div className="text-sm mt-2 ml-2 text-black">
-        {watchWebAddress && (
-          <div>
-            Your provision link:
-            <strong>{`${watchWebAddress}.everesteffect.com`}</strong>
+        {status.isDone && (
+          <>
+            {isWebAddressExist ? (
+              <div className="flex items-center">
+                <strong className="text-red-500">{watchWebAddress}</strong>
+                <span className="ml-1">is already taken.</span>
+                <svg
+                  className="ml-1 w-4 h-4 text-red-500 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeWidth="2"
+                    d="m6 6 12 12m3-6a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                  />
+                </svg>
+              </div>
+            ) : (
+              <div className="flex items-center">
+                <strong className="text-green-500">{`${watchWebAddress.toLowerCase()}.everesteffect.com`}</strong>{" "}
+                <span className="ml-1"> is available.</span>
+                <svg
+                  className="w-6 h-6 text-green-400 ml-1 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                  />
+                </svg>
+              </div>
+            )}
+          </>
+        )}
+        {status.isFetching && (
+          <div className="flex gap-x-3">
+            <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-[130px] mb-4 animate-pulse"></div>
+            <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-[80px] mb-4 animate-pulse"></div>
+            <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-[200px] mb-4 animate-pulse"></div>
           </div>
         )}
       </div>
 
-      {data && (
+      {!isCompleted && !!logs?.length ? (
         <div className="mt-16">
           <h3 className="text-xl font-semibold mb-4 text-black">
             Provision Log Content
           </h3>
           <List>
-            {data?.log_content.map((item: any, index: any) => (
-              <List.Item key={index}>{item.event}</List.Item>
+            {logs?.map((item: any, index: any) => (
+              <List.Item key={index} className="flex items-center">
+                {item.event}{" "}
+                <svg
+                  className="w-6 h-6 text-green-400 dark:text-white"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke="currentColor"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth="2"
+                    d="M5 11.917 9.724 16.5 19 7.5"
+                  />
+                </svg>
+              </List.Item>
             ))}
           </List>
         </div>
+      ) : (
+        isCompleted && (
+          <div className="mt-16">
+            <h3 className="text-lg font-semibold mb-4 text-black">
+              SUCCESSFULLY PROVISIONED
+            </h3>
+
+            <div className="flex items-center">
+              <span className="text-yellow-500 underline mr-1">
+                {`${watchWebAddress.toLowerCase()}.everesteffect.com`}
+              </span>
+              <span className="mr-1">is ready</span>
+              <Button
+                color="primary"
+                onClick={() =>
+                  window.open(
+                    `https://${watchWebAddress.toLowerCase()}.everesteffect.com`,
+                    "_blank"
+                  )
+                }
+              >
+                Visit
+              </Button>
+            </div>
+          </div>
+        )
       )}
     </div>
   );
