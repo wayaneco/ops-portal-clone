@@ -22,13 +22,37 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await createClient().auth.getSession();
+  const supabase = createClient();
+  const session = await supabase.auth.getSession();
+
+  const response = await fetch(
+    `http://localhost:3000/api/user/${session?.data?.session?.user?.id}`,
+    {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      next: {
+        tags: ["user_info"],
+        revalidate: 0,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user ${session?.data?.session?.user?.id}`);
+  }
+
+  const data = await response.json();
 
   return (
     <html lang="en">
       <CorbadoProvider>
         <Flowbite theme={{ theme: FlowbiteTheme }}>
-          <SupabaseSessionProvider session={session?.data?.session as Session}>
+          <SupabaseSessionProvider
+            userInfo={data}
+            session={session?.data?.session as Session}
+          >
             <body className={inter.className}>
               <main className="bg-gray-200">{children}</main>
             </body>
