@@ -12,7 +12,7 @@ import { useUserDetailFormContext } from "./user-detail-form";
 export const RevokeClient = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
-  const { session } = useSupabaseSessionContext();
+  const { user: userContext } = useSupabaseSessionContext();
   const { setToast, closeDialog } = useUserDetailFormContext();
   const { watch } = useFormContext();
 
@@ -46,7 +46,7 @@ export const RevokeClient = () => {
               await revokePrivilege({
                 user_id: user?.user_id,
                 client_id: client?.id,
-                staff_id: session?.user?.id,
+                staff_id: userContext?.id,
               });
 
               setToast(

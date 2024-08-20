@@ -1,18 +1,18 @@
 "use client";
 
 import { UserDetailType } from "@/app/types";
-import { Session } from "@supabase/supabase-js";
+import { Session, User } from "@supabase/supabase-js";
 import { createContext, PropsWithChildren, useContext } from "react";
 
 export type AuthContextType = {
-  getSession(): Session;
-  session: Session;
+  getSession(): User;
+  user: User;
   userInfo: UserDetailType;
 };
 
 type SupabaseSessionProviderProps = PropsWithChildren & {
   userInfo: UserDetailType;
-  session: Session;
+  user: User;
 };
 
 export const AuthContext = createContext<AuthContextType | undefined>(
@@ -20,12 +20,10 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 export function SupabaseSessionProvider(props: SupabaseSessionProviderProps) {
-  const { session, userInfo } = props;
+  const { user, userInfo } = props;
 
   return (
-    <AuthContext.Provider
-      value={{ getSession: () => session, session, userInfo }}
-    >
+    <AuthContext.Provider value={{ getSession: () => user, user, userInfo }}>
       {props?.children}
     </AuthContext.Provider>
   );
@@ -35,7 +33,9 @@ export const useSupabaseSessionContext = () => {
   const context = useContext<AuthContextType | undefined>(AuthContext!);
 
   if (!context) {
-    throw new Error("uWu");
+    throw new Error(
+      "useSupabaseSessionContext should be used within the SupabaseSessionContext provider!"
+    );
   }
 
   return context;

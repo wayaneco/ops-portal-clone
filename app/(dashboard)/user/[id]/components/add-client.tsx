@@ -26,7 +26,7 @@ export const AddClient = () => {
     clearErrors,
     formState: { errors },
   } = useFormContext();
-  const { session } = useSupabaseSessionContext();
+  const { user: userContext } = useSupabaseSessionContext();
 
   const { user } = watch("info");
   const { client_id, role_ids } = watch("add_client");
@@ -90,7 +90,7 @@ export const AddClient = () => {
       await updateUserRoles({
         client_id,
         user_id: user.user_id,
-        staff_id: session?.user?.id,
+        staff_id: userContext?.id,
         role_ids: role_ids?.map((role: { value: string }) => role?.value),
         is_primary_contact: false,
       });

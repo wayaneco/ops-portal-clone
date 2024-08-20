@@ -20,7 +20,7 @@ export const EditClient = () => {
     clearErrors,
     formState: { errors },
   } = useFormContext();
-  const { session } = useSupabaseSessionContext();
+  const { user: userContext } = useSupabaseSessionContext();
   const { setToast, closeDialog } = useUserDetailFormContext();
 
   const { user, client } = watch("info");
@@ -63,7 +63,7 @@ export const EditClient = () => {
         user_id: user?.user_id,
         client_id: client?.id,
         role_ids: roleIds,
-        staff_id: session?.user?.id,
+        staff_id: userContext?.id,
         is_primary_contact: roleIds?.includes(isPrimaryContactId),
       });
 

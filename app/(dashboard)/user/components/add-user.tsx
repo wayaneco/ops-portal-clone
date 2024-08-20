@@ -30,7 +30,7 @@ export const AddUser = (props: AddUserProps) => {
   const { close, setToast } = props;
   const inputRef = useRef<HTMLInputElement>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
-  const { session } = useSupabaseSessionContext();
+  const { user } = useSupabaseSessionContext();
 
   const methods = useForm({
     defaultValues: {
@@ -68,7 +68,7 @@ export const AddUser = (props: AddUserProps) => {
     try {
       const response: { isError: boolean; error: string } = await addUser({
         ...(getValues() as UserDetailType),
-        staff_id: session?.user?.id,
+        staff_id: user?.id,
         birth_date: "2024-08-13",
       });
 

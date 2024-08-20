@@ -84,7 +84,7 @@ const CompanyDetail = function ({
 
   const router = useRouter();
 
-  const { session } = useSupabaseSessionContext();
+  const { user } = useSupabaseSessionContext();
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
   )!;
@@ -135,7 +135,7 @@ const CompanyDetail = function ({
               service_provided: data?.service_provided,
               tags: data?.tags,
               provider_types: data?.provider_types,
-              staff_id: session?.user?.id,
+              staff_id: user?.id,
               client_id: companyInfo?.client_id,
             },
             {

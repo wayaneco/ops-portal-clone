@@ -18,7 +18,7 @@ export default function Navbar({
   const supabase = createClient();
   const pathname = usePathname();
 
-  const { session, userInfo } = useSupabaseSessionContext();
+  const { user, userInfo } = useSupabaseSessionContext();
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
   const REGEX_USER_PAGE = new RegExp(/^\/user?(\/\w)?.+/);
@@ -85,7 +85,7 @@ export default function Navbar({
           Logout
         </FBNavbar.Link>
       </FBNavbar.Collapse>
-      {session ? (
+      {user ? (
         <div className="flex items-center gap-x-4">
           {generateFieldForActiveClient(userInfo)}
           <Button

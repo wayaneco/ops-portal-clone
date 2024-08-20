@@ -8,7 +8,13 @@ import { SupabaseSessionProvider } from "@/components/Context/SupabaseSessionPro
 
 import "./globals.css";
 import { createClient } from "@/utils/supabase/server";
-import { AuthSession, Session, UserResponse } from "@supabase/supabase-js";
+import {
+  AuthSession,
+  Session,
+  User,
+  UserResponse,
+} from "@supabase/supabase-js";
+import { UserClientContextProvider } from "./components/Context/UserClientContext";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -23,10 +29,10 @@ export default async function RootLayout({
   children: React.ReactNode;
 }>) {
   const supabase = createClient();
-  const session = await supabase.auth.getSession();
+  const { data: userData } = await supabase.auth.getUser();
 
   const response = await fetch(
-    `http://localhost:3000/api/user/${session?.data?.session?.user?.id}`,
+    `http://localhost:3000/api/user/${userData?.user?.id}`,
     {
       method: "GET",
       headers: {
@@ -40,7 +46,7 @@ export default async function RootLayout({
   );
 
   if (!response.ok) {
-    throw new Error(`Failed to fetch user ${session?.data?.session?.user?.id}`);
+    throw new Error(`Failed to fetch user ${userData?.user?.id}`);
   }
 
   const data = await response.json();
@@ -51,11 +57,13 @@ export default async function RootLayout({
         <Flowbite theme={{ theme: FlowbiteTheme }}>
           <SupabaseSessionProvider
             userInfo={data}
-            session={session?.data?.session as Session}
+            user={userData?.user as User}
           >
-            <body className={inter.className}>
-              <main className="bg-gray-200">{children}</main>
-            </body>
+            <UserClientContextProvider>
+              <body className={inter.className}>
+                <main className="bg-gray-200">{children}</main>
+              </body>
+            </UserClientContextProvider>
           </SupabaseSessionProvider>
         </Flowbite>
       </CorbadoProvider>
