@@ -6,7 +6,8 @@ export async function GET() {
 
   const { data } = await supabase
     .from("users_data_view")
-    .select(`user_id, first_name, middle_name, last_name, email, clients`);
+    .select(`user_id, first_name, middle_name, last_name, email, clients`)
+    .order("created_at", { ascending: false });
 
   return NextResponse.json(data);
 }

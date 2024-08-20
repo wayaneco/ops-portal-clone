@@ -9,7 +9,7 @@ export default async function Page() {
     headers: headers(),
     next: {
       tags: ["user_list"],
-      revalidate: 1,
+      revalidate: 200,
     },
     cache: "no-cache",
   });
@@ -20,7 +20,8 @@ export default async function Page() {
 
   const usersList = await response.json();
 
-  console.log(usersList);
+  console.log({ usersList });
+
   return (
     <div className="pt-16 pb-12">
       <Card>

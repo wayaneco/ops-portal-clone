@@ -117,7 +117,7 @@ const generateFieldForActiveClient = (userInfo: UserDetailType) => {
   switch (true) {
     case userInfo?.clients?.length > 1:
       component = (
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-2 text-black">
           <strong>{userInfo?.email}</strong>
           <div className="">in behalf of</div>
           <Select color="primary" value={userInfo?.clients?.[0]?.id}>
@@ -132,7 +132,7 @@ const generateFieldForActiveClient = (userInfo: UserDetailType) => {
       break;
     case userInfo?.clients?.length === 1:
       component = (
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-2 text-black">
           <strong>{userInfo?.email}</strong>
           <div className="">in behalf of</div>
           <strong>{userInfo?.clients[0].name}</strong>
@@ -141,7 +141,7 @@ const generateFieldForActiveClient = (userInfo: UserDetailType) => {
       break;
     default:
       component = (
-        <div className="flex items-center gap-x-2">
+        <div className="flex items-center gap-x-2 text-black">
           <div className="">Welcome,</div>
           <strong>{userInfo?.email}</strong>
         </div>

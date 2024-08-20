@@ -1,3 +1,4 @@
+/* eslint-disable react/display-name */
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
@@ -46,6 +47,12 @@ export const UserListTable = (props: UserListTableProps) => {
   const [userList, setUserList] = useState<Array<UserDetailType>>(data);
 
   const isFirstRender = useIsFirstRender();
+
+  useEffect(() => {
+    if (data) {
+      setUserList(data);
+    }
+  }, [data]);
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;

@@ -70,7 +70,6 @@ export const WebAddress = () => {
               disabled={isProvisioning || isCompleted}
               onKeyPress={(e) => {
                 e.persist();
-                console.log(value);
                 if (!/^(\d|\w)+$/.test(e.key)) {
                   e.preventDefault();
                 }

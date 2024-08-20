@@ -6,9 +6,9 @@ const SUPABASE_URL: string = process.env["NEXT_PUBLIC_SUPABASE_URL"]
   : "";
 
 const SUPABASE_SERVICE_ROLE_KEY: string = process.env[
-  "SUPABASE_SERVICE_ROLE_KEY"
+  "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY"
 ]
-  ? process.env["SUPABASE_SERVICE_ROLE_KEY"]
+  ? process.env["NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY"]
   : "";
 
 const DEFAULT_PASSWORD = "r9S+ClRu-lwech&s?ewI";
