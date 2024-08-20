@@ -92,6 +92,7 @@ export const AddClient = () => {
         user_id: user.user_id,
         staff_id: session?.user?.id,
         role_ids: role_ids?.map((role: { value: string }) => role?.value),
+        is_primary_contact: false,
       });
 
       const clientName = clientListDropdown?.find(

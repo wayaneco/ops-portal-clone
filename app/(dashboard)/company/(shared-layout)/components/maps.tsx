@@ -2,6 +2,7 @@
 we need to make this component client rendered as well*/
 "use client";
 
+import { NEXT_PUBLIC_GOOGLE_MAP_API } from "@/app/constant";
 //Map component Component from library
 import { GoogleMap, Marker } from "@react-google-maps/api";
 import { TextInput, Button } from "flowbite-react";
@@ -15,7 +16,7 @@ const defaultMapContainerStyle = {
 };
 
 //Default zoom level, can be adjusted
-const defaultMapZoom = 1;
+const defaultMapZoom = 10;
 
 //Map options
 const defaultMapOptions = {
@@ -38,6 +39,7 @@ const MapComponent = () => {
     lat: watchLatitude,
     lng: watchLongitude,
   });
+  const [addressSearch, setAddressSearch] = useState<string>("");
 
   const onMarkerDragEnd = (event: {
     latLng: { lat: () => any; lng: () => any };
@@ -50,19 +52,36 @@ const MapComponent = () => {
     setValue("longitude", newLng);
   };
 
+  const searchLocation = async (address: string) => {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        address
+      )}&key=${NEXT_PUBLIC_GOOGLE_MAP_API}`
+    );
+    const data = await response.json();
+
+    if (data.results.length > 0) {
+      const location = data.results[0].geometry.location;
+      setNewMarkerPosition(location);
+    } else {
+      throw new Error("Location not found");
+    }
+  };
+
   useEffect(() => {
     if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
+      // navigator.geolocation.getCurrentPosition((position) => {
+      //   const { latitude, longitude } = position.coords;
 
-        setNewMarkerPosition({
-          lat: latitude,
-          lng: longitude,
-        });
-
-        setValue("latitude", latitude);
-        setValue("longitude", longitude);
+      // new york default location
+      setNewMarkerPosition({
+        lat: 40.7128,
+        lng: 74.006,
       });
+
+      setValue("latitude", 40.7128);
+      setValue("longitude", 74.006);
+      //   });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -75,8 +94,18 @@ const MapComponent = () => {
             className="mr-2"
             placeholder="Enter address"
             color="primary"
+            onChange={(evt) => {
+              setAddressSearch(evt.target.value);
+            }}
           />
-          <Button color="primary">Search</Button>
+          <Button
+            color="primary"
+            onClick={(_evt: any) => {
+              searchLocation(addressSearch);
+            }}
+          >
+            Search
+          </Button>
         </div>
       </div>
       <GoogleMap
