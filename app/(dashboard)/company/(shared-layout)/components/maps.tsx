@@ -36,8 +36,8 @@ const MapComponent = () => {
     lat: number;
     lng: number;
   }>({
-    lat: watchLatitude,
-    lng: watchLongitude,
+    lat: watchLatitude ?? 40.7128,
+    lng: watchLongitude ?? 74.006,
   });
   const [addressSearch, setAddressSearch] = useState<string>("");
 
@@ -63,28 +63,12 @@ const MapComponent = () => {
     if (data.results.length > 0) {
       const location = data.results[0].geometry.location;
       setNewMarkerPosition(location);
+      setValue("latitude", location.lat);
+      setValue("longitude", location.lng);
     } else {
       throw new Error("Location not found");
     }
   };
-
-  useEffect(() => {
-    if (navigator.geolocation) {
-      // navigator.geolocation.getCurrentPosition((position) => {
-      //   const { latitude, longitude } = position.coords;
-
-      // new york default location
-      setNewMarkerPosition({
-        lat: 40.7128,
-        lng: 74.006,
-      });
-
-      setValue("latitude", 40.7128);
-      setValue("longitude", 74.006);
-      //   });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   return (
     <div className="w-full relative ">

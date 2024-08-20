@@ -170,7 +170,7 @@ export const AddClient = () => {
               </div>
             ) : (
               clientList?.map((client, key) => {
-                const isSelectedClient = client_id === client?.client_id;
+                const isSelectedClient = client_id === client?.id;
                 const isAlreadyExisting = user?.clients?.some(
                   (xClient: ClientsType) => xClient?.id === client?.id
                 );
@@ -199,7 +199,7 @@ export const AddClient = () => {
                           type: "required",
                         });
                       } else {
-                        setValue("add_client.client_id", client?.client_id);
+                        setValue("add_client.client_id", client?.id);
                         setClientList([client]);
                         clearErrors("add_client.client_id");
                       }
