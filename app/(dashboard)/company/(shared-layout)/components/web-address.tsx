@@ -163,12 +163,77 @@ export const WebAddress = () => {
       <div className="mt-10">
         <div className="overflow-auto max-h-[calc(100vh-470px)]">
           <div className="flex flex-col">
-            {!!logs?.length && (
+            {(!!logs?.length || isProvisioning) && (
               <>
                 <h3 className="text-xl font-semibold mb-4 text-black">
                   Provision Log Content
                 </h3>
                 <List>
+                  {isProvisioning && !logs?.length && (
+                    <>
+                      <List.Item className="flex items-center">
+                        [1] Attempt to get the CodeBuild project information{" "}
+                        <svg
+                          className="w-6 h-6 text-green-400 dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 11.917 9.724 16.5 19 7.5"
+                          />
+                        </svg>
+                      </List.Item>
+                      <List.Item className="flex items-center">
+                        [2] Check Project ee-provision-dev exists{" "}
+                        <svg
+                          className="w-6 h-6 text-green-400 dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 11.917 9.724 16.5 19 7.5"
+                          />
+                        </svg>
+                      </List.Item>
+                      <List.Item className="flex items-center">
+                        [3] Start CodeBuild project with environment variables{" "}
+                        <svg
+                          className="w-6 h-6 text-green-400 dark:text-white"
+                          aria-hidden="true"
+                          xmlns="http://www.w3.org/2000/svg"
+                          width="24"
+                          height="24"
+                          fill="none"
+                          viewBox="0 0 24 24"
+                        >
+                          <path
+                            stroke="currentColor"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            strokeWidth="2"
+                            d="M5 11.917 9.724 16.5 19 7.5"
+                          />
+                        </svg>
+                      </List.Item>
+                    </>
+                  )}
+
                   {logs?.map((item: any, index: any) => (
                     <List.Item key={index} className="flex items-center">
                       {item.event}{" "}
@@ -191,6 +256,15 @@ export const WebAddress = () => {
                       </svg>
                     </List.Item>
                   ))}
+
+                  {logs?.length < 7 && (
+                    <div className="flex items-center gap-x-5">
+                      {/* <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-56 animate-pulse" />
+                    <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-32 animate-pulse" />
+                    <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-40 animate-pulse" /> */}
+                      <Spinner color="primary" />
+                    </div>
+                  )}
                 </List>
               </>
             )}

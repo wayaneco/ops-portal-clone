@@ -99,7 +99,7 @@ export const upsertCompanyDetails = async (
       .update({
         logo_url: filePath,
       })
-      .eq("id", client_id);
+      .eq("id", client_id || params?.client_id);
 
     revalidateTag("company_list");
     revalidatePath("(dashboard)/company", "page");

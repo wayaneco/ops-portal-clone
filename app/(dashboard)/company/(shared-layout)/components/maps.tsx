@@ -30,14 +30,15 @@ const defaultMapOptions = {
 const MapComponent = () => {
   const { setValue, watch } = useFormContext();
 
-  const watchLatitude = watch("latitude");
-  const watchLongitude = watch("longitude");
+  const watchLatitude = watch("latitude") || "";
+  const watchLongitude = watch("longitude") || "";
+
   const [newMarkerPosition, setNewMarkerPosition] = useState<{
     lat: number;
     lng: number;
   }>({
-    lat: watchLatitude ?? 40.7128,
-    lng: watchLongitude ?? 74.006,
+    lat: Number(watchLatitude) || 40.7128,
+    lng: Number(watchLongitude) || 74.006,
   });
   const [addressSearch, setAddressSearch] = useState<string>("");
 

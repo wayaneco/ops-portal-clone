@@ -160,7 +160,13 @@ const CompanyDetail = function ({
         setIsSubmitting(false);
         setToastState({
           show: true,
-          message: <div>Field to add client.</div>,
+          message: (
+            <div>
+              {!!companyInfo
+                ? "Field to update client."
+                : "Field to add client."}
+            </div>
+          ),
           isError: true,
         });
       }
@@ -217,7 +223,7 @@ const CompanyDetail = function ({
     if (showConfetti) {
       timeout = setTimeout(() => {
         setShowConfetti(false);
-      }, 5000);
+      }, 10000);
     }
 
     return () => {
