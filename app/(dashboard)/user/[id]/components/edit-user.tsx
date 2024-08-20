@@ -156,6 +156,7 @@ export const EditUser = () => {
                             ></path>
                           </svg>
                         ) : (
+                          // eslint-disable-next-line @next/next/no-img-element
                           <img
                             src={value as string}
                             alt="Tonis Kitchen"

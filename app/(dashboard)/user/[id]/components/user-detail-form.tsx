@@ -143,18 +143,31 @@ export function UserDetailForm(props: UserDetailFormType) {
       <div className="mt-5">
         <Card>
           <div className="flex">
-            <Avatar
-              img={(avatarProps: AvatarImageProps) => (
-                <div className="h-56 w-52">
-                  <Image
-                    {...avatarProps}
-                    src="https://mrwallpaper.com/images/hd/cool-profile-pictures-panda-man-gsl2ntkjj3hrk84s.jpg"
-                    alt={`User Profile`}
-                    fill
+            <div className="w-56 h-64">
+              <div className="relative border h-full w-full overflow-hidden rounded-md bg-gray-100 group">
+                {data?.photo_url ? (
+                  // eslint-disable-next-line @next/next/no-img-element
+                  <img
+                    src={data?.photo_url}
+                    alt="Tonis Kitchen"
+                    className="w-full h-full object-cover"
                   />
-                </div>
-              )}
-            />
+                ) : (
+                  <svg
+                    className="absolute inset-0 w-full h-full  text-gray-400"
+                    fill="currentColor"
+                    viewBox="0 0 20 20"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
+                      clip-rule="evenodd"
+                    ></path>
+                  </svg>
+                )}
+              </div>
+            </div>
             <div className="flex-1 mx-10">
               <form>
                 <div className="flex flex-col gap-y-2">

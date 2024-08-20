@@ -63,6 +63,10 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
     root: {
       color: {
         primary: "bg-primary-500 text-white",
+        gray: "bg-gray-200 text-gray-600",
+        "in progress": "bg-yellow-400 text-gray-200",
+        completed: "bg-primary-500 text-white",
+        draft: "bg-gray-200 text-gray-600",
       },
     },
   },

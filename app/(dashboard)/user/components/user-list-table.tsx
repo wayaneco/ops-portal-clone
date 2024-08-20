@@ -2,7 +2,7 @@
 "use client";
 
 import { ReactNode, useEffect, useState } from "react";
-import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 import {
   TextInput,
@@ -36,6 +36,7 @@ export type ToastStateType = {
 
 export const UserListTable = (props: UserListTableProps) => {
   const { data = [] } = props;
+  const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
   const [toastState, setToastState] = useState<ToastStateType>({
@@ -112,9 +113,6 @@ export const UserListTable = (props: UserListTableProps) => {
               <TableHeadCell className="bg-primary-500 text-white sticky top-0 z-10">
                 Clients
               </TableHeadCell>
-              <TableHeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
-                <span className="sr-only">View</span>
-              </TableHeadCell>
             </TableHead>
             {!userList?.length ? (
               <div className="h-11 relative table-footer-group">
@@ -124,32 +122,28 @@ export const UserListTable = (props: UserListTableProps) => {
               </div>
             ) : (
               <TableBody className="divide-y">
-                {userList?.map((item: UserDetailType) => (
-                  <TableRow key={item?.user_id} className="bg-white">
-                    <TableCell>{`${item.first_name || ""} ${
-                      item.middle_name || ""
-                    } ${item.last_name || ""}`}</TableCell>
-                    <TableCell>{item?.email}</TableCell>
+                {userList?.map((user: UserDetailType) => (
+                  <TableRow
+                    key={user?.user_id}
+                    className="bg-white cursor-pointer"
+                    onClick={() => router.push(`/user/${user?.user_id}`)}
+                  >
+                    <TableCell>{`${user.first_name || ""} ${
+                      user.middle_name || ""
+                    } ${user.last_name || ""}`}</TableCell>
+                    <TableCell>{user?.email}</TableCell>
                     <TableCell>
                       <div className="flex gap-2 flex-wrap">
-                        {item?.clients?.map(
+                        {user?.clients?.map(
                           (client: ClientsType, i: number) => {
                             return (
-                              <Badge key={i} className="w-fit" color="primary">
+                              <Badge key={i} className="w-fit" color="gray">
                                 {client?.name}
                               </Badge>
                             );
                           }
                         )}
                       </div>
-                    </TableCell>
-                    <TableCell>
-                      <Link
-                        href={`/user/${item.user_id}`}
-                        className="text-yellow-500 underline cursor-pointer"
-                      >
-                        View
-                      </Link>
                     </TableCell>
                   </TableRow>
                 ))}

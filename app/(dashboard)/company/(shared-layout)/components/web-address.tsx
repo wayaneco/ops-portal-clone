@@ -53,7 +53,7 @@ export const WebAddress = () => {
   }, 1000); // 1 SECONDS
 
   return (
-    <div>
+    <>
       <Label className="mb-2 block">Host Name</Label>
       <div className="flex gap-x-4">
         <Controller
@@ -160,63 +160,69 @@ export const WebAddress = () => {
         )}
       </div>
 
-      {!isCompleted && !!logs?.length ? (
-        <div className="mt-16">
-          <h3 className="text-xl font-semibold mb-4 text-black">
-            Provision Log Content
-          </h3>
-          <List>
-            {logs?.map((item: any, index: any) => (
-              <List.Item key={index} className="flex items-center">
-                {item.event}{" "}
-                <svg
-                  className="w-6 h-6 text-green-400 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M5 11.917 9.724 16.5 19 7.5"
-                  />
-                </svg>
-              </List.Item>
-            ))}
-          </List>
-        </div>
-      ) : (
-        isCompleted && (
-          <div className="mt-16">
-            <h3 className="text-lg font-semibold mb-4 text-black">
-              SUCCESSFULLY PROVISIONED
-            </h3>
+      <div className="mt-10">
+        <div className="overflow-auto max-h-[calc(100vh-470px)]">
+          <div className="flex flex-col">
+            {!!logs?.length && (
+              <>
+                <h3 className="text-xl font-semibold mb-4 text-black">
+                  Provision Log Content
+                </h3>
+                <List>
+                  {logs?.map((item: any, index: any) => (
+                    <List.Item key={index} className="flex items-center">
+                      {item.event}{" "}
+                      <svg
+                        className="w-6 h-6 text-green-400 dark:text-white"
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="none"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          stroke="currentColor"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                          strokeWidth="2"
+                          d="M5 11.917 9.724 16.5 19 7.5"
+                        />
+                      </svg>
+                    </List.Item>
+                  ))}
+                </List>
+              </>
+            )}
+            {isCompleted && (
+              <div className="mt-10">
+                <h3 className="text-xl font-semibold mb-4 text-black">
+                  SUCCESSFULLY PROVISIONED
+                </h3>
 
-            <div className="flex items-center">
-              <span className="text-yellow-500 underline mr-1">
-                {`${watchWebAddress.toLowerCase()}.everesteffect.com`}
-              </span>
-              <span className="mr-1 text-gray-700">is ready</span>
-              <Button
-                color="primary"
-                onClick={() =>
-                  window.open(
-                    `https://${watchWebAddress.toLowerCase()}.everesteffect.com`,
-                    "_blank"
-                  )
-                }
-              >
-                Visit
-              </Button>
-            </div>
+                <div className="flex items-center">
+                  <strong
+                    className="text-primary-500 underline mr-1 cursor-pointer"
+                    onClick={() =>
+                      window.open(
+                        `https://${watchWebAddress.toLowerCase()}.everesteffect.com`,
+                        "_blank"
+                      )
+                    }
+                  >
+                    {`https://${watchWebAddress.toLowerCase()}.everesteffect.com`}
+                  </strong>
+                  <span className="mr-1 text-gray-700">is provisioned.</span>
+                </div>
+                <div className="mt-4">
+                  <strong>Note:</strong> DNS propagation takes 24-48 hours to be
+                  completed.
+                </div>
+              </div>
+            )}
           </div>
-        )
-      )}
-    </div>
+        </div>
+      </div>
+    </>
   );
 };

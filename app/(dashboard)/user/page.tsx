@@ -20,8 +20,6 @@ export default async function Page() {
 
   const usersList = await response.json();
 
-  console.log({ usersList });
-
   return (
     <div className="pt-16 pb-12">
       <Card>

@@ -1,9 +1,10 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Link from "next/link";
 import moment from "moment";
+import { useRouter } from "next/navigation";
 
 import {
   TextInput,
@@ -15,6 +16,7 @@ import {
   TableHead,
   TableHeadCell,
   TableRow,
+  Badge,
 } from "flowbite-react";
 
 import { ClientsType } from "@/app/types";
@@ -29,6 +31,8 @@ type CompanyListTableProps = {
 
 export const CompanyListTable = (props: CompanyListTableProps) => {
   const { data = [] } = props;
+  const router = useRouter();
+
   const [search, setSearch] = useState<string>("");
   const [clientList, setClientList] = useState<Array<ClientsType>>(data);
 
@@ -72,9 +76,6 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                 <Table.HeadCell className="w-60 bg-primary-500 text-white sticky top-0 z-10 text-center">
                   Created At
                 </Table.HeadCell>
-                <Table.HeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
-                  <span className="sr-only">View</span>
-                </Table.HeadCell>
               </Table.Head>
               {!clientList?.length ? (
                 <div className="h-11 relative table-footer-group">
@@ -85,7 +86,11 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
               ) : (
                 <Table.Body className="divide-y">
                   {clientList?.map((client: ClientsType) => (
-                    <Table.Row key={client?.client_id} className="bg-white">
+                    <Table.Row
+                      key={client?.client_id}
+                      className="bg-white cursor-pointer"
+                      onClick={() => router.push(`/company/${client?.id}`)}
+                    >
                       <Table.Cell>
                         <div className="relative h-10 w-full">
                           <img
@@ -101,20 +106,17 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                       </Table.Cell>
                       <Table.Cell>{client?.name}</Table.Cell>
                       <TableCell className="text-center font-bold">
-                        {client?.provisioning_status}
+                        <Badge
+                          className="w-fit mx-auto"
+                          color={client?.provisioning_status.toLowerCase()}
+                        >
+                          {client?.provisioning_status}
+                        </Badge>
                       </TableCell>
                       <Table.Cell>
                         {moment(client.created_at).format(
                           "MMMM D, yyyy hh:mm A"
                         )}
-                      </Table.Cell>
-                      <Table.Cell>
-                        <Link
-                          href={`/company/${client?.id}`}
-                          className="text-yellow-500 underline cursor-pointer"
-                        >
-                          View
-                        </Link>
                       </Table.Cell>
                     </Table.Row>
                   ))}

@@ -3,7 +3,12 @@
 import { TextInput, Button, Radio, Label } from "flowbite-react";
 import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import {
+  Controller,
+  FieldValues,
+  useFieldArray,
+  useFormContext,
+} from "react-hook-form";
 
 export const ProviderType = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
@@ -97,70 +102,14 @@ export const ProviderType = () => {
                                         placeholder="Enter tag"
                                         {...field}
                                       />
-                                      {(errors?.provider_types as any)?.[index]
-                                        ?.label?.message && (
+                                      {(
+                                        errors?.provider_types as FieldValues
+                                      )?.[index]?.label?.message && (
                                         <small className="text-red-500 mt-1">
                                           {
-                                            (errors?.provider_types as any)?.[
-                                              index
-                                            ]?.label?.message
-                                          }
-                                        </small>
-                                      )}
-                                    </div>
-                                  )}
-                                />
-                                <Controller
-                                  control={control}
-                                  name={`provider_types[${index}].type`}
-                                  render={({ field }) => (
-                                    <div className="flex flex-col">
-                                      <div className="flex gap-x-4 mt-3">
-                                        <div className="flex items-center gap-2">
-                                          <Radio
-                                            id={`count-${index}`}
-                                            value="count"
-                                            disabled={
-                                              !isEditing ||
-                                              fields?.length - 1 !== index
-                                            }
-                                            onChange={field?.onChange}
-                                            checked={field?.value === "count"}
-                                          />
-                                          <Label
-                                            htmlFor={`count-${index}`}
-                                            className="cursor-pointer"
-                                          >
-                                            Count
-                                          </Label>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                          <Radio
-                                            id={`string-${index}`}
-                                            value="string"
-                                            disabled={
-                                              !isEditing ||
-                                              fields?.length - 1 !== index
-                                            }
-                                            onChange={field?.onChange}
-                                            checked={field?.value === "string"}
-                                          />
-                                          <Label
-                                            htmlFor={`string-${index}`}
-                                            className="cursor-pointer"
-                                          >
-                                            String
-                                          </Label>
-                                        </div>
-                                      </div>
-
-                                      {(errors?.provider_types as any)?.[index]
-                                        ?.type?.message && (
-                                        <small className="text-red-500 mt-1">
-                                          {
-                                            (errors?.provider_types as any)?.[
-                                              index
-                                            ]?.type?.message
+                                            (
+                                              errors?.provider_types as FieldValues
+                                            )?.[index]?.label?.message
                                           }
                                         </small>
                                       )}
@@ -202,7 +151,7 @@ export const ProviderType = () => {
 
                                         reset({
                                           ...getValues(),
-                                          provider_typees: clonedProviderTypes,
+                                          provider_types: clonedProviderTypes,
                                         });
                                       }}
                                     >
@@ -230,17 +179,13 @@ export const ProviderType = () => {
                                   <Button
                                     color="primary"
                                     onClick={() => {
-                                      const fieldType = watch(
-                                        `provider_types[${index}].type`
-                                      );
                                       const fieldLabel = watch(
                                         `provider_types[${index}].label`
                                       );
 
-                                      if (!fieldType || !fieldLabel) {
+                                      if (!fieldLabel) {
                                         trigger([
                                           `provider_types[${index}].label`,
-                                          `provider_types[${index}].type`,
                                         ]);
                                         return;
                                       }
@@ -274,7 +219,6 @@ export const ProviderType = () => {
             setIsEditing(true);
             append({
               label: "",
-              type: "",
             });
           }}
         >

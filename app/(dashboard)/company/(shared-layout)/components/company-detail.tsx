@@ -14,6 +14,7 @@ import {
   useEffect,
   createContext,
 } from "react";
+import Confetti from "react-confetti";
 import { SidebarContext, SidebarContextType } from "../context";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
@@ -28,6 +29,7 @@ import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { createClient } from "@/utils/supabase/client";
 
 type CompanyDetailType = {
+  initialLogs?: Array<{ event: string }>;
   companyInfo?: ClientsType;
 };
 
@@ -60,12 +62,16 @@ export const useProvisionLoggingContext = () => {
   return context;
 };
 
-const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
+const CompanyDetail = function ({
+  companyInfo,
+  initialLogs = [],
+}: CompanyDetailType) {
   const supabase = createClient();
-
+  const [showConfetti, setShowConfetti] = useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [startLogging, setStartLogging] = useState<boolean>(false);
-  const [logs, setLogs] = useState<ProvisionLoggingContextType["logs"]>([]);
+  const [logs, setLogs] =
+    useState<ProvisionLoggingContextType["logs"]>(initialLogs);
   const [isCompleted, setIsCompleted] = useState(
     companyInfo?.provisioning_status === "COMPLETED"
   );
@@ -208,6 +214,19 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
+    if (showConfetti) {
+      timeout = setTimeout(() => {
+        setShowConfetti(false);
+      }, 5000);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [showConfetti]);
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
 
     if (toastState.show) {
       timeout = setTimeout(() => {
@@ -247,7 +266,7 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
             }
             setIsCompleted(true);
             setStartLogging(false);
-
+            setShowConfetti(true);
             clearInterval(intervalId);
           }
         } catch (err) {
@@ -408,6 +427,13 @@ const CompanyDetail = function ({ companyInfo }: CompanyDetailType) {
               }
             />
           </Toast>
+        )}
+        {showConfetti && (
+          <Confetti
+            className="fixed inset-0 !z-10"
+            height={window && window?.innerHeight}
+            width={window && window?.innerWidth}
+          />
         )}
       </FormProvider>
     </ProvisionLoggingContext.Provider>
