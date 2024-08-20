@@ -55,11 +55,16 @@ export const EditClient = () => {
         ?.filter((role: RoleType) => role_ids?.includes(role?.name))
         .map((role: RoleType) => role?.id);
 
+      const isPrimaryContactId = roleList?.find(
+        (role: RoleType) => role?.name === "Primary Contact"
+      );
+
       await updateUserRoles({
         user_id: user?.user_id,
         client_id: client?.id,
         role_ids: roleIds,
         staff_id: session?.user?.id,
+        is_primary_contact: roleIds?.includes(isPrimaryContactId),
       });
 
       setToast(
@@ -121,9 +126,7 @@ export const EditClient = () => {
 
                         const isDisabled =
                           isPrimaryContact &&
-                          (user?.primary_phone ||
-                            user?.email ||
-                            user?.addr_line_1);
+                          (user?.primary_phone || user?.email);
 
                         return (
                           <>
@@ -180,9 +183,8 @@ export const EditClient = () => {
                   </div>
                   {isPrimaryContact && (
                     <small className="text-red-500">
-                      You need to update the user <strong>Email</strong>,{" "}
-                      <strong>Phone Number</strong> and <strong>Address</strong>
-                      .
+                      You need to update the user <strong>Email</strong> and{" "}
+                      <strong>Phone Number</strong>.
                     </small>
                   )}
                 </>

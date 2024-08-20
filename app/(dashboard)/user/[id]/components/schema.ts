@@ -27,13 +27,7 @@ export const schema = (contentType: ModalContentType) => {
     }),
     ...(contentType === ModalContentType.EDIT_USER && {
       edit_user: Yup.object().shape({
-        photo_url: Yup.lazy((value) => {
-          if (value === null) {
-            return Yup.string().required("This field is required.");
-          }
-
-          return Yup.mixed().required("This field is required.").nullable();
-        }),
+        photo_url: Yup.mixed(),
         first_name: Yup.string(),
         last_name: Yup.string(),
         middle_name: Yup.string(),

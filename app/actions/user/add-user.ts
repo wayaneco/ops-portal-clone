@@ -10,7 +10,7 @@ import {
   BASE_URL,
   DEFAULT_PASSWORD,
   SUPABASE_SERVICE_ROLE_KEY,
-} from "../../constant";
+} from "@/constant/index";
 
 type UpdateUserInfoType = {
   photo_url: string;

@@ -46,7 +46,7 @@ export function UserDetailModal(props: UserDetailModal) {
         role_ids: client?.privileges?.map((role: string) => role),
       },
       edit_user: {
-        photo_url: null,
+        photo_url: "",
         first_name: user?.first_name ?? "",
         last_name: user?.last_name ?? "",
         middle_name: user?.middle_name ?? "",

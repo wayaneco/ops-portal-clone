@@ -37,7 +37,7 @@ export const upsertCompanyDetails = async (
     let filePath = params?.logo;
 
     const upsertClientParams = update
-        ? {
+      ? {
           p_description: params?.description ?? "",
           p_id: params?.client_id,
           p_is_enabled: params?.is_enabled,
@@ -52,7 +52,8 @@ export const upsertCompanyDetails = async (
           p_time_zone: params?.time_zone ?? "",
           p_web_address: params?.web_address,
           p_zip_code: params?.zip_code ?? "",
-        } : {
+        }
+      : {
           description: params?.description ?? "",
           is_enabled: params?.is_enabled,
           latitude: params?.latitude ?? "",
@@ -66,15 +67,14 @@ export const upsertCompanyDetails = async (
           time_zone: params?.time_zone ?? "",
           web_address: params?.web_address,
           zip_code: params?.zip_code ?? "",
-        }
+        };
 
     const { data: client_id, error: error_update_clients } = await supabase.rpc(
-      update ? "update_clients" : "add_clients", upsertClientParams
+      update ? "update_clients" : "add_clients",
+      upsertClientParams
     );
 
-    if(error_update_clients) {
-      throw error_update_clients;
-    }
+    if (error_update_clients) throw new Error(error_update_clients?.message);
 
     if (params.logo && params?.logo?.includes("base64")) {
       const mimeType = getMimeType(params?.logo);
@@ -82,16 +82,19 @@ export const upsertCompanyDetails = async (
 
       const [, type] = mimeType.split("/");
 
-      const { data: file_data } = await supabase.storage
-        .from("client_logos")
-        .upload(`public/${client_id}.${type}`, file as File, {
-          upsert: true,
-        });
+      const { data: file_data, error: error_upload_file } =
+        await supabase.storage
+          .from("client_logos")
+          .upload(`public/${client_id}.${type}`, file as File, {
+            upsert: true,
+          });
+
+      if (error_upload_file) throw new Error(error_upload_file?.message);
 
       filePath = `${supabaseUrl}/storage/v1/object/public/client_logos/${file_data?.path}`;
     }
 
-    const { data: update_data } = await supabase
+    const { error: error_logo } = await supabase
       .from("clients")
       .update({
         logo_url: filePath,
@@ -101,9 +104,20 @@ export const upsertCompanyDetails = async (
     revalidateTag("company_list");
     revalidatePath("(dashboard)/company", "page");
 
-    return update_data;
+    if (error_logo) throw new Error(error_logo?.message);
+
+    return JSON.parse(
+      JSON.stringify({
+        isError: false,
+        message: "Success",
+      })
+    );
   } catch (error) {
-    console.log(error, 'error here');
-    return error;
+    return JSON.parse(
+      JSON.stringify({
+        isError: true,
+        message: error,
+      })
+    );
   }
 };

@@ -19,11 +19,15 @@ export const EditUser = () => {
 
   const {
     control,
+    watch,
     getValues,
     formState: { errors },
     trigger,
   } = useFormContext();
   const { setToast, closeDialog } = useUserDetailFormContext();
+
+  const { user } = watch("info");
+  const watchUserEmail = watch("edit_user.email");
 
   const handleSubmit = async () => {
     const isFieldsValid = await trigger("edit_user");
@@ -32,8 +36,16 @@ export const EditUser = () => {
 
     try {
       setIsSubmitting(true);
+      const isEmailChanged = watchUserEmail !== user?.email;
 
-      const response = await updateUserInfo({ ...getValues("edit_user") });
+      const response: { isError: boolean; message: string } =
+        await updateUserInfo({
+          ...getValues("edit_user"),
+          user_id: user?.user_id,
+          isEmailChanged,
+        });
+
+      if (response.isError) throw new Error(response?.message);
 
       setToast(<div>User updated successfully!</div>);
       closeDialog();
