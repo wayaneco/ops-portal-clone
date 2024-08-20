@@ -159,7 +159,6 @@ export const WebAddress = () => {
           </div>
         )}
       </div>
-
       <div className="mt-10">
         <div className="overflow-auto max-h-[calc(100vh-470px)]">
           <div className="flex flex-col">
@@ -258,10 +257,10 @@ export const WebAddress = () => {
                   ))}
 
                   {logs?.length < 7 && (
-                    <div className="flex items-center gap-x-5">
+                    <div className="flex items-center gap-x-5 h-10">
                       {/* <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-56 animate-pulse" />
-                    <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-32 animate-pulse" />
-                    <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-40 animate-pulse" /> */}
+                         <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-32 animate-pulse" />
+                         <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-40 animate-pulse" /> */}
                       <Spinner color="primary" />
                     </div>
                   )}

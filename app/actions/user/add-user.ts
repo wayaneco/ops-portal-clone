@@ -76,7 +76,7 @@ export async function addUser(params: UpdateUserInfoType) {
           line_1: params?.addr_line_1,
           line_2: params?.addr_line_2,
           middle_name: params?.middle_name,
-          p_client_id: "31b80006-af4c-450b-b2bd-bdbfff3da141",
+          p_client_id: "26486d72-fcaf-462b-a5e0-d61e8c2a7818",
           p_role_id: "db920553-b3a6-4d18-82a1-e31cec57b8a0",
           p_user_id: authUser.id,
           preferred_name: params?.preferred_name,

@@ -439,6 +439,7 @@ const CompanyDetail = function ({
             className="fixed inset-0 !z-10"
             height={window && window?.innerHeight}
             width={window && window?.innerWidth}
+            tweenDuration={10000}
           />
         )}
       </FormProvider>
