@@ -47,7 +47,7 @@ export async function addUser(params: UpdateUserInfoType) {
       }
     );
 
-    let photoUrl = params?.photo_url;
+    let photoUrl = params?.photo_url ? params.photo_url : '';
     const password = DEFAULT_PASSWORD;
 
     let generatedEmail: any;
@@ -57,12 +57,9 @@ export async function addUser(params: UpdateUserInfoType) {
         .rpc("generate_email")
         .single();
 
-      console.log("Public Email: ", publicEmail);
-      console.log("Public Email Error: ", error_generate_email);
       generatedEmail = publicEmail;
 
       if (error_generate_email) {
-        console.log(error_generate_email, "error_generate_email");
         throw new Error(error_generate_email.message);
       }
     }
@@ -77,68 +74,80 @@ export async function addUser(params: UpdateUserInfoType) {
       email_confirm: true,
     });
 
-    if (error_create_user) throw new Error(error_create_user.message);
+    if (error_create_user) {
+       throw new Error(error_create_user.message);
+    } else {
 
-    if (authUser) {
-      const payload = {
-        birth_date: params?.birth_date,
-        city: params?.city,
-        first_name: params?.first_name,
-        last_name: params?.last_name,
-        line_1: params?.addr_line_1,
-        line_2: params?.addr_line_2,
-        middle_name: params?.middle_name,
-        preferred_name: params?.preferred_name,
-        primary_email: params?.email,
-        primary_phone: params?.primary_phone,
-        profile_url: "",
-        staff_id: authUser.id,
-        state_province_region: params?.state_province_region,
-        user_id: params?.staff_id,
-        zip_code: params?.zip_code,
-      };
+      if (authUser) {
+        const payload = {
+          birth_date: params?.birth_date,
+          city: params?.city,
+          first_name: params?.first_name,
+          last_name: params?.last_name,
+          line_1: params?.addr_line_1,
+          line_2: params?.addr_line_2,
+          middle_name: params?.middle_name,
+          p_client_id: '31b80006-af4c-450b-b2bd-bdbfff3da141',
+          p_role_id: 'db920553-b3a6-4d18-82a1-e31cec57b8a0',
+          p_user_id: authUser.id,
+          preferred_name: params?.preferred_name,
+          primary_email: params?.email,
+          primary_phone: params?.primary_phone,
+          profile_url: "",
+          staff_id: params?.staff_id,
+          state_province_region: params?.state_province_region,
+          zip_code: params?.zip_code,
+        };
 
-      const { error } = await supabase.rpc("add_admin_user", payload);
+        const { data: data_add_admin_user, error } = await supabase.rpc("add_admin_user", payload);
 
-      if (error) throw new Error(error.message);
+        if (error) {
+          console.log(error, 'error daw')
+          throw new Error(error.message);
+        } else {
+          console.log(data_add_admin_user, 'data_add_admin_user');
 
-      if (params?.photo_url && params?.photo_url?.includes("base64")) {
-        const mimeType = getMimeType(params?.photo_url);
-        const file = convertBase64toFile(
-          params.photo_url!,
-          params?.preferred_name
-        );
-
-        const [, type] = mimeType.split("/");
-
-        const { data: file_data, error: file_error } = await supabase.storage
-          .from("avatars")
-          .upload(`public/${authUser?.id}.${type}`, file as File, {
-            upsert: true,
-          });
-
-        photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
+          // if (params?.photo_url && params?.photo_url?.includes("base64")) {
+          //   const mimeType = getMimeType(params?.photo_url);
+          //   const file = convertBase64toFile(
+          //     params.photo_url!,
+          //     params?.preferred_name
+          //   );
+    
+          //   const [, type] = mimeType.split("/");
+    
+          //   const { data: file_data, error: file_error } = await supabase.storage
+          //     .from("avatars")
+          //     .upload(`public/${authUser?.id}.${type}`, file as File, {
+          //       upsert: true,
+          //     });
+    
+          //   photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
+          // }
+    
+          // const { data: update_photo_data, error: update_photo_error } =
+          //   await supabase
+          //     .from("profile_photos")
+          //     .update({
+          //       photo_url: photoUrl,
+          //     })
+          //     .eq("user_id", authUser?.id);
+    
+          // if (update_photo_error) throw new Error(update_photo_error?.message);
+        }
+  
       }
-
-      const { data: update_photo_data, error: update_photo_error } =
-        await supabase
-          .from("profile_photos")
-          .update({
-            photo_url: photoUrl,
-          })
-          .eq("user_id", authUser?.id);
-
-      if (update_photo_error) throw new Error(update_photo_error?.message);
+  
+      revalidateTag("user_list");
+      revalidatePath("(dashboard)/user", "page");
     }
-
-    revalidateTag("user_list");
-    revalidatePath("(dashboard)/user", "page");
 
     return {
       isError: false,
       error: null,
     };
   } catch (error) {
+    console.log(error, 'error here')
     return JSON.parse(
       JSON.stringify({
         isError: true,
