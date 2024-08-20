@@ -1,14 +1,17 @@
 "use client";
 
+import { UserDetailType } from "@/app/types";
 import { Session } from "@supabase/supabase-js";
 import { createContext, PropsWithChildren, useContext } from "react";
 
 export type AuthContextType = {
   getSession(): Session;
   session: Session;
+  userInfo: UserDetailType;
 };
 
 type SupabaseSessionProviderProps = PropsWithChildren & {
+  userInfo: UserDetailType;
   session: Session;
 };
 
@@ -17,9 +20,11 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 export function SupabaseSessionProvider(props: SupabaseSessionProviderProps) {
+  const { session, userInfo } = props;
+
   return (
     <AuthContext.Provider
-      value={{ getSession: () => props?.session, session: props?.session }}
+      value={{ getSession: () => session, session, userInfo }}
     >
       {props?.children}
     </AuthContext.Provider>
