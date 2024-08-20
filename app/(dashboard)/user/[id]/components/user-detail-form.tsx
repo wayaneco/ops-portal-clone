@@ -19,6 +19,8 @@ import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import { SkeletonWithUserImage } from "@/app/components/Skeleton";
+import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -75,6 +77,11 @@ export function UserDetailForm(props: UserDetailFormType) {
     data: null,
     client: null,
   });
+
+  const { selectedClient } = useUserClientProviderContext();
+  const { user: currentLoggedInUser } = useSupabaseSessionContext();
+
+  const isSelfServing = data?.user_id === currentLoggedInUser?.id;
 
   const handleOpenModal = ({
     data,
@@ -250,34 +257,40 @@ export function UserDetailForm(props: UserDetailFormType) {
                           </div>
                         </Table.Cell>
                         <Table.Cell>
-                          <div className="flex gap-x-2">
-                            <Button
-                              color="primary"
-                              type="button"
-                              onClick={() => {
-                                handleOpenModal({
-                                  data: data,
-                                  client,
-                                  modalContent: ModalContentType.EDIT,
-                                });
-                              }}
-                            >
-                              Edit
-                            </Button>
-                            <Button
-                              color="primary"
-                              type="button"
-                              onClick={() => {
-                                handleOpenModal({
-                                  data,
-                                  client,
-                                  modalContent: ModalContentType.REVOKE,
-                                });
-                              }}
-                            >
-                              Revoke
-                            </Button>
-                          </div>
+                          {isSelfServing &&
+                            selectedClient === client?.id &&
+                            client?.privileges?.some((priv) =>
+                              ["Network Admin", "Company Admin"].includes(priv)
+                            ) && (
+                              <div className="flex gap-x-2">
+                                <Button
+                                  color="primary"
+                                  type="button"
+                                  onClick={() => {
+                                    handleOpenModal({
+                                      data: data,
+                                      client,
+                                      modalContent: ModalContentType.EDIT,
+                                    });
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                                <Button
+                                  color="primary"
+                                  type="button"
+                                  onClick={() => {
+                                    handleOpenModal({
+                                      data,
+                                      client,
+                                      modalContent: ModalContentType.REVOKE,
+                                    });
+                                  }}
+                                >
+                                  Revoke
+                                </Button>
+                              </div>
+                            )}
                         </Table.Cell>
                       </Table.Row>
                     ))}

@@ -28,6 +28,7 @@ type UpdateUserInfoType = {
   country: string;
   state_province_region: string;
   staff_id: string;
+  client_id: string;
 };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -76,8 +77,8 @@ export async function addUser(params: UpdateUserInfoType) {
           line_1: params?.addr_line_1,
           line_2: params?.addr_line_2,
           middle_name: params?.middle_name,
-          p_client_id: "26486d72-fcaf-462b-a5e0-d61e8c2a7818",
-          p_role_id: "db920553-b3a6-4d18-82a1-e31cec57b8a0",
+          p_client_id: params?.client_id,
+          p_role_id: "db920553-b3a6-4d18-82a1-e31cec57b8a0", // DEFAULT TO AGENT: AGENT_ID
           p_user_id: authUser.id,
           preferred_name: params?.preferred_name,
           primary_email: params?.email,

@@ -126,7 +126,7 @@ export const EditClient = () => {
 
                         const isDisabled =
                           isPrimaryContact &&
-                          (user?.primary_phone || user?.email);
+                          (!user?.primary_phone || !user?.email);
 
                         return (
                           <>
@@ -176,17 +176,18 @@ export const EditClient = () => {
                             >
                               {role?.name}
                             </Label>
+                            {isPrimaryContact && isDisabled && (
+                              <small className="text-red-500">
+                                You need to update the user{" "}
+                                <strong>Email</strong> and{" "}
+                                <strong>Phone Number</strong>.
+                              </small>
+                            )}
                           </>
                         );
                       }}
                     />
                   </div>
-                  {isPrimaryContact && (
-                    <small className="text-red-500">
-                      You need to update the user <strong>Email</strong> and{" "}
-                      <strong>Phone Number</strong>.
-                    </small>
-                  )}
                 </>
               );
             })

@@ -20,6 +20,7 @@ import { UserDetailType } from "@/app/types";
 
 import { ToastStateType } from "./user-list-table";
 import { schema } from "./schema";
+import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 
 type AddUserProps = {
   close: () => void;
@@ -31,6 +32,7 @@ export const AddUser = (props: AddUserProps) => {
   const inputRef = useRef<HTMLInputElement>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { user } = useSupabaseSessionContext();
+  const { selectedClient } = useUserClientProviderContext();
 
   const methods = useForm({
     defaultValues: {
@@ -69,6 +71,7 @@ export const AddUser = (props: AddUserProps) => {
       const response: { isError: boolean; error: string } = await addUser({
         ...(getValues() as UserDetailType),
         staff_id: user?.id,
+        client_id: selectedClient,
         birth_date: "2024-08-13",
       });
 

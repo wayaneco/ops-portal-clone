@@ -6,12 +6,15 @@ import {
   PropsWithChildren,
   SetStateAction,
   useContext,
+  useEffect,
   useState,
 } from "react";
+import { useSupabaseSessionContext } from "../SupabaseSessionProvider";
 
 type UserClientContextType = {
-  selectedClient: any; // FOR NOW ANY
-  changeClient: Dispatch<SetStateAction<any>>; // FOR NOW ANY
+  selectedClient: string;
+  changeClient: Dispatch<SetStateAction<any>>;
+  currentPrivilege: Array<string>;
 };
 
 const UserClientContext = createContext<UserClientContextType | undefined>(
@@ -19,17 +22,48 @@ const UserClientContext = createContext<UserClientContextType | undefined>(
 );
 
 export const UserClientContextProvider = (
-  props: Omit<UserClientContextType, "selectedClient" | "changeClient"> &
+  props: Omit<
+    UserClientContextType,
+    "selectedClient" | "changeClient" | "currentPrivilege"
+  > &
     PropsWithChildren
 ) => {
   const { children } = props;
-  const [client, setClient] = useState();
+  const { userInfo } = useSupabaseSessionContext();
+
+  const [selectedClient, setSelectedClient] = useState<string>(() =>
+    userInfo?.clients?.length ? (userInfo?.clients?.[0]?.id as string) : ""
+  ); // DEFAULT VALUE WILL BE THE FIRST IN LIST
+  const [currentPrivilege, setCurrentPrivilege] = useState<Array<string>>(
+    () => {
+      const findClient = userInfo?.clients?.find(
+        (client) => client?.id === selectedClient
+      );
+
+      if (findClient) {
+        return findClient?.privileges;
+      }
+
+      return [];
+    }
+  );
+
+  useEffect(() => {
+    if (selectedClient) {
+      const findClient = userInfo?.clients?.find(
+        (client) => client?.id === selectedClient
+      );
+
+      if (findClient) setCurrentPrivilege(findClient?.privileges);
+    }
+  }, [selectedClient]);
 
   return (
     <UserClientContext.Provider
       value={{
-        selectedClient: client,
-        changeClient: setClient,
+        selectedClient,
+        currentPrivilege,
+        changeClient: (value: string) => setSelectedClient(value as string),
       }}
     >
       {children}

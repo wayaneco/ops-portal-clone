@@ -23,6 +23,8 @@ import { UserDetailType, ClientsType } from "@/app/types";
 import { TableSkeleton } from "@/app/components/Skeleton";
 
 import { AddUser } from "./add-user";
+import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
+import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 
 type UserListTableProps = {
   data: Array<UserDetailType>;
@@ -46,6 +48,8 @@ export const UserListTable = (props: UserListTableProps) => {
   });
   const [showModal, setShowModal] = useState<boolean>(false);
   const [userList, setUserList] = useState<Array<UserDetailType>>(data);
+
+  const { currentPrivilege } = useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
 
@@ -152,15 +156,20 @@ export const UserListTable = (props: UserListTableProps) => {
           </Table>
         </div>
       </div>
-      <div className="mt-5">
-        <Button
-          type="button"
-          color="primary"
-          onClick={() => setShowModal(true)}
-        >
-          Add user
-        </Button>
-      </div>
+      {currentPrivilege?.some((priv) =>
+        ["Network Admin", "Company Admin"].includes(priv)
+      ) && (
+        <div className="mt-5">
+          <Button
+            type="button"
+            color="primary"
+            onClick={() => setShowModal(true)}
+          >
+            Add user
+          </Button>
+        </div>
+      )}
+
       {showModal && (
         <Modal show={showModal} onClose={() => setShowModal(false)}>
           <AddUser close={() => setShowModal(false)} setToast={setToastState} />

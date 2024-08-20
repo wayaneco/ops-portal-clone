@@ -9,6 +9,7 @@ import { usePathname } from "next/navigation";
 import { useSupabaseSessionContext } from "../Context/SupabaseSessionProvider";
 import { createClient } from "@/utils/supabase/client";
 import { ClientsType, UserDetailType } from "@/app/types";
+import { useUserClientProviderContext } from "../Context/UserClientContext";
 
 export default function Navbar({
   privileges,
@@ -87,7 +88,7 @@ export default function Navbar({
       </FBNavbar.Collapse>
       {user ? (
         <div className="flex items-center gap-x-4">
-          {generateFieldForActiveClient(userInfo)}
+          {generateFieldForActiveClient()}
           <Button
             color="white"
             type="button"
@@ -111,7 +112,9 @@ export default function Navbar({
   );
 }
 
-const generateFieldForActiveClient = (userInfo: UserDetailType) => {
+const generateFieldForActiveClient = () => {
+  const { userInfo } = useSupabaseSessionContext();
+  const { changeClient, selectedClient } = useUserClientProviderContext();
   let component;
 
   switch (true) {
@@ -120,7 +123,14 @@ const generateFieldForActiveClient = (userInfo: UserDetailType) => {
         <div className="flex items-center gap-x-2 text-gray-600">
           <strong>{userInfo?.email}</strong>
           <div className="">in behalf of</div>
-          <Select color="primary" value={userInfo?.clients?.[0]?.id}>
+          <Select
+            color="primary"
+            className="w-36"
+            value={selectedClient}
+            onChange={(event) => {
+              changeClient(event?.target?.value);
+            }}
+          >
             {userInfo?.clients?.map((client: ClientsType, index: number) => (
               <option key={index} value={client?.id}>
                 {client?.name}
