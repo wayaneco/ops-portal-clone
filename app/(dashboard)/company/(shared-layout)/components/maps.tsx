@@ -22,7 +22,7 @@ const defaultMapZoom = 10;
 const defaultMapOptions = {
   zoomControl: true,
   gestureHandling: "auto",
-  mapTypeId: "satellite",
+  mapTypeId: "roadmap",
   maxZoom: 18, // Set the maximum zoom level
   minZoom: 3, // Set the minimum zoom level
 };
