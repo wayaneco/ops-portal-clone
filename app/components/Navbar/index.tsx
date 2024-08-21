@@ -10,6 +10,9 @@ import { useSupabaseSessionContext } from "../Context/SupabaseSessionProvider";
 import { createClient } from "@/utils/supabase/client";
 import { ClientsType, UserDetailType } from "@/app/types";
 import { useUserClientProviderContext } from "../Context/UserClientContext";
+import { useState } from "react";
+import { useEffect } from "react";
+import { ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 export default function Navbar({
   privileges,
@@ -18,6 +21,9 @@ export default function Navbar({
 }): ReactNode {
   const supabase = createClient();
   const pathname = usePathname();
+
+  const [isUserANetworkAdmin, setIsUserANetworkAdmin] =
+    useState<boolean>(false);
 
   const { user, userInfo } = useSupabaseSessionContext();
 
@@ -59,6 +65,96 @@ export default function Navbar({
     }
     return component;
   };
+
+  const checkUserRole = async () => {
+    const { data, error } = await supabase.rpc("has_admin_role", {
+      p_role_name: ROLE_NETWORK_ADMIN,
+      p_user_id: userInfo.user_id,
+    });
+
+    if (error) {
+    } else {
+      setIsUserANetworkAdmin(data);
+    }
+  };
+
+  const getAllClients = async () => {
+    const { data } = await supabase
+      .from("clients")
+      .select(
+        `
+        id, 
+        name
+      `
+      )
+      .order("name", { ascending: true });
+
+    return data;
+  };
+
+  const generateFieldForActiveClient = () => {
+    const { userInfo } = useSupabaseSessionContext();
+    const { changeClient, selectedClient } = useUserClientProviderContext();
+    let component;
+
+    let clientList: any = [];
+
+    if (isUserANetworkAdmin) {
+      clientList = getAllClients();
+    } else {
+      clientList = userInfo?.clients;
+    }
+
+    switch (true) {
+      case clientList.length > 1:
+        component = (
+          <div className="flex items-center gap-x-2 text-gray-600">
+            <strong>{userInfo?.email}</strong>
+            <div className="">in behalf of</div>
+            <Select
+              color="primary"
+              className="w-36"
+              value={selectedClient}
+              onChange={(event) => {
+                changeClient(event?.target?.value);
+              }}
+            >
+              {clientList?.map((client: ClientsType, index: number) => (
+                <option key={index} value={client?.id}>
+                  {client?.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+        );
+        break;
+      case clientList.length === 1:
+        component = (
+          <div className="flex items-center gap-x-2 text-gray-600">
+            <strong>{userInfo?.email}</strong>
+            <div className="">in behalf of</div>
+            <strong>{userInfo?.clients[0].name}</strong>
+          </div>
+        );
+        break;
+      default:
+        component = (
+          <div className="flex items-center gap-x-2 text-gray-600">
+            <div className="">Welcome,</div>
+            <strong>{userInfo?.email}</strong>
+          </div>
+        );
+        break;
+    }
+
+    return component;
+  };
+
+  useEffect(() => {
+    if (userInfo.user_id) {
+      checkUserRole();
+    }
+  }, [userInfo]);
 
   return (
     <FBNavbar
@@ -111,53 +207,3 @@ export default function Navbar({
     </FBNavbar>
   );
 }
-
-const generateFieldForActiveClient = () => {
-  const { userInfo } = useSupabaseSessionContext();
-  const { changeClient, selectedClient } = useUserClientProviderContext();
-  let component;
-
-  switch (true) {
-    case userInfo?.clients?.length > 1:
-      component = (
-        <div className="flex items-center gap-x-2 text-gray-600">
-          <strong>{userInfo?.email}</strong>
-          <div className="">in behalf of</div>
-          <Select
-            color="primary"
-            className="w-36"
-            value={selectedClient}
-            onChange={(event) => {
-              changeClient(event?.target?.value);
-            }}
-          >
-            {userInfo?.clients?.map((client: ClientsType, index: number) => (
-              <option key={index} value={client?.id}>
-                {client?.name}
-              </option>
-            ))}
-          </Select>
-        </div>
-      );
-      break;
-    case userInfo?.clients?.length === 1:
-      component = (
-        <div className="flex items-center gap-x-2 text-gray-600">
-          <strong>{userInfo?.email}</strong>
-          <div className="">in behalf of</div>
-          <strong>{userInfo?.clients[0].name}</strong>
-        </div>
-      );
-      break;
-    default:
-      component = (
-        <div className="flex items-center gap-x-2 text-gray-600">
-          <div className="">Welcome,</div>
-          <strong>{userInfo?.email}</strong>
-        </div>
-      );
-      break;
-  }
-
-  return component;
-};

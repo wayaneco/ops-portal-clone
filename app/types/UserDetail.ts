@@ -14,7 +14,6 @@ export type UserDetailType = {
   preferred_name: string;
   birth_date: string;
   primary_phone: string;
-  zip_code: string;
   secondary_phone: string;
   photo_url: string;
   clients: Array<ClientsType>;
@@ -28,8 +27,7 @@ export enum Privileges {
 }
 
 export type ClientsType = {
-  id?: string;
-  client_id: string;
+  id: string;
   name: string;
   latitude: string;
   logo_url: string;
@@ -37,19 +35,17 @@ export type ClientsType = {
   longitude: string;
   time_zone: string;
   is_enabled: boolean;
-  privileges: Array<Privileges>;
+  privileges?: Array<Privileges>;
   tags: Array<{
     label: string;
   }>;
   provider_types: Array<{
     label: string;
   }>;
-  service_provided_data: Array<{
+  service_provided: Array<{
     label: string;
-    type?: string;
   }>;
   description: string;
   web_address: string;
   provisioning_status: string;
-  created_at?: string;
 };
