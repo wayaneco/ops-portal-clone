@@ -32,6 +32,7 @@ export const schema = (contentType: ModalContentType) => {
         last_name: Yup.string(),
         middle_name: Yup.string(),
         preferred_name: Yup.string(),
+        birth_date: Yup.string(),
         email: Yup.string().email().required("This field is required."),
         primary_phone: Yup.string().required("This field is required."),
         addr_line_1: Yup.string(),

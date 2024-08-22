@@ -1,6 +1,6 @@
 "use client";
 
-import { ReactNode } from "react";
+import React, { ReactNode } from "react";
 import { Button, Navbar as FBNavbar, Select } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -12,7 +12,11 @@ import { ClientsType } from "@/app/types";
 import { useUserClientProviderContext } from "../Context/UserClientContext";
 import { useState } from "react";
 import { useEffect } from "react";
-import { ROLE_NETWORK_ADMIN } from "@/app/constant";
+import {
+  ROLE_NETWORK_ADMIN,
+  ROLE_COMPANY_ADMIN,
+  ROLE_AGENT,
+} from "@/app/constant";
 
 export default function Navbar({
   privileges,
@@ -24,83 +28,75 @@ export default function Navbar({
 
   const [isUserANetworkAdmin, setIsUserANetworkAdmin] =
     useState<boolean>(false);
-  const [allClientList, setAllClientList] = useState<
-    Array<{ id: string; name: string }>
-  >([]);
+  const [isDoneFetching, setIsDoneFetching] = useState<boolean>(false);
 
   const { user, userInfo } = useSupabaseSessionContext();
+  const { changeClient, clientLists, selectedClient, currentPrivilege } =
+    useUserClientProviderContext();
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
   const REGEX_USER_PAGE = new RegExp(/^\/user?(\/\w)?.+/);
 
-  const dynamicLinks = (privileges: string) => {
-    let component;
-    switch (privileges) {
-      default:
-        component = (
-          <>
-            <FBNavbar.Link
-              href="/user"
-              className={`text-base md:text-lg ${
-                REGEX_USER_PAGE.test(pathname) && "text-primary-500"
-              }`}
-            >
-              User
-            </FBNavbar.Link>
-            <FBNavbar.Link
-              href="/company"
-              className={`text-base md:text-lg ${
-                REGEX_COMPANY_PAGE.test(pathname) && "text-primary-500"
-              }`}
-            >
-              Company
-            </FBNavbar.Link>
-            <FBNavbar.Link
-              href="/kiosk"
-              className={`text-base md:text-lg ${
-                pathname === "/kiosk" && "text-primary-500"
-              }`}
-            >
-              Kiosk
-            </FBNavbar.Link>
-          </>
-        );
-    }
-    return component;
+  const MenuList = ({ currentPrivilege }: { currentPrivilege: Array<any> }) => {
+    const isEnable = (expectedPrivilege: Array<any>) => {
+      return currentPrivilege?.some((current) =>
+        expectedPrivilege?.includes(current)
+      );
+    };
+    return (
+      <>
+        {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
+          <FBNavbar.Link
+            href="/user"
+            className={`text-base md:text-lg ${
+              REGEX_USER_PAGE.test(pathname) && "text-primary-500"
+            }`}
+          >
+            User
+          </FBNavbar.Link>
+        )}
+        {isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) && (
+          <FBNavbar.Link
+            href="/company"
+            className={`text-base md:text-lg ${
+              REGEX_COMPANY_PAGE.test(pathname) && "text-primary-500"
+            }`}
+          >
+            Company
+          </FBNavbar.Link>
+        )}
+        {isEnable([ROLE_AGENT]) && (
+          <FBNavbar.Link
+            href="/kiosk"
+            className={`text-base md:text-lg ${
+              pathname === "/kiosk" && "text-primary-500"
+            }`}
+          >
+            Kiosk
+          </FBNavbar.Link>
+        )}
+      </>
+    );
   };
 
   const checkUserRole = async () => {
-    const { data = false, error } = await supabase.rpc("has_admin_role", {
+    const { data = false } = await supabase.rpc("has_admin_role", {
       p_role_name: ROLE_NETWORK_ADMIN,
       p_user_id: userInfo.user_id,
     });
 
-    setIsUserANetworkAdmin(data);
-  };
-
-  const getAllClients = async () => {
-    const { data = [] } = await supabase
-      .from("clients")
-      .select(
-        `
-        id, 
-        name
-      `
-      )
-      .order("name", { ascending: true });
-
-    setAllClientList(data as Array<{ id: string; name: string }>);
+    return data;
   };
 
   const GenerateFieldForActiveClient = () => {
     const { userInfo } = useSupabaseSessionContext();
-    const { changeClient, selectedClient } = useUserClientProviderContext();
     let component;
 
     let clientList: any = [];
 
+    console.log(isUserANetworkAdmin);
     if (isUserANetworkAdmin) {
-      clientList = allClientList;
+      clientList = clientLists;
     } else {
       clientList = userInfo?.clients;
     }
@@ -151,9 +147,15 @@ export default function Navbar({
   };
 
   useEffect(() => {
+    const getAllData = async () => {
+      const isRoleAdmin = await checkUserRole();
+
+      setIsUserANetworkAdmin(isRoleAdmin);
+      setIsDoneFetching(true);
+    };
+
     if (userInfo.user_id) {
-      checkUserRole();
-      getAllClients();
+      getAllData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
@@ -176,7 +178,7 @@ export default function Navbar({
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        {dynamicLinks(privileges)}
+        {isDoneFetching && <MenuList currentPrivilege={currentPrivilege} />}
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"
@@ -184,28 +186,30 @@ export default function Navbar({
           Logout
         </FBNavbar.Link>
       </FBNavbar.Collapse>
-      {user ? (
-        <div className="flex items-center gap-x-4">
-          <GenerateFieldForActiveClient />
-          <Button
-            color="white"
-            type="button"
-            className="text-black hidden md:block"
-            onClick={() => {
-              supabase.auth.signOut();
-            }}
+      {isDoneFetching ? (
+        user ? (
+          <div className="flex items-center gap-x-4">
+            <GenerateFieldForActiveClient />
+            <Button
+              color="white"
+              type="button"
+              className="text-black hidden md:block"
+              onClick={() => {
+                supabase.auth.signOut();
+              }}
+            >
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="text-base text-black md:text-lg hidden md:block"
           >
-            Logout
-          </Button>
-        </div>
-      ) : (
-        <Link
-          href="/login"
-          className="text-base text-black md:text-lg hidden md:block"
-        >
-          Login
-        </Link>
-      )}
+            Login
+          </Link>
+        )
+      ) : null}
     </FBNavbar>
   );
 }

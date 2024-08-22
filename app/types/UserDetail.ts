@@ -37,6 +37,7 @@ export type ClientsType = {
   longitude: string;
   time_zone: string;
   is_enabled: boolean;
+  created_at: string;
   privileges?: Array<Privileges>;
   tags: Array<{
     label: string;

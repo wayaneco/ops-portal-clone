@@ -15,6 +15,7 @@ type UserClientContextType = {
   selectedClient: string;
   changeClient: Dispatch<SetStateAction<any>>;
   currentPrivilege: Array<string>;
+  clientLists: Array<{ id: string; name: string }>;
 };
 
 const UserClientContext = createContext<UserClientContextType | undefined>(
@@ -28,7 +29,7 @@ export const UserClientContextProvider = (
   > &
     PropsWithChildren
 ) => {
-  const { children } = props;
+  const { children, clientLists } = props;
   const { userInfo } = useSupabaseSessionContext();
 
   const [selectedClient, setSelectedClient] = useState<string>(() =>
@@ -41,7 +42,7 @@ export const UserClientContextProvider = (
       );
 
       if (findClient) {
-        return findClient?.privileges;
+        return findClient?.privileges as Array<string>;
       }
 
       return [];
@@ -54,7 +55,13 @@ export const UserClientContextProvider = (
         (client) => client?.id === selectedClient
       );
 
-      if (findClient) setCurrentPrivilege(findClient?.privileges);
+      console.log({ selectedClient, findClient });
+      if (findClient) {
+        setCurrentPrivilege(findClient?.privileges as Array<string>);
+        return;
+      }
+
+      // setCurrentPrivilege([]); // TODO: After clarification
     }
   }, [selectedClient]);
 
@@ -64,6 +71,7 @@ export const UserClientContextProvider = (
         selectedClient,
         currentPrivilege,
         changeClient: (value: string) => setSelectedClient(value as string),
+        clientLists,
       }}
     >
       {children}

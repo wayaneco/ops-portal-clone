@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 "use client";
 
-import { ReactNode, useEffect, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -16,6 +16,8 @@ import {
   Badge,
   Modal,
   Toast,
+  Checkbox,
+  Label,
 } from "flowbite-react";
 
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
@@ -25,6 +27,7 @@ import { TableSkeleton } from "@/app/components/Skeleton";
 import { AddUser } from "./add-user";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 type UserListTableProps = {
   data: Array<UserDetailType>;
@@ -41,23 +44,23 @@ export const UserListTable = (props: UserListTableProps) => {
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
+  const [isShowAllUsers, setIsShowAllUsers] = useState<boolean>(false);
   const [toastState, setToastState] = useState<ToastStateType>({
     show: false,
     message: "",
     isError: false,
   });
   const [showModal, setShowModal] = useState<boolean>(false);
-  const [userList, setUserList] = useState<Array<UserDetailType>>(data);
 
-  const { currentPrivilege } = useUserClientProviderContext();
+  const { currentPrivilege, selectedClient } = useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
 
-  useEffect(() => {
-    if (data) {
-      setUserList(data);
-    }
-  }, [data]);
+  // useEffect(() => {
+  //   if (data) {
+  //     setUserList(data);
+  //   }
+  // }, [data]);
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -80,6 +83,38 @@ export const UserListTable = (props: UserListTableProps) => {
       isError: false,
     });
 
+  const userList = useMemo(() => {
+    if (isShowAllUsers) {
+      if (search) {
+        return data?.filter((user: UserDetailType) =>
+          `${user?.first_name || ""} ${user?.middle_name || ""} ${
+            user?.last_name || ""
+          }`
+            ?.toLowerCase()
+            .includes(search.toLowerCase())
+        );
+      }
+
+      return data;
+    } else {
+      const filteredByClient = data?.filter((user) =>
+        user?.clients?.some((client) => client?.id === selectedClient)
+      );
+
+      if (search) {
+        return filteredByClient?.filter((user: UserDetailType) =>
+          `${user?.first_name || ""} ${user?.middle_name || ""} ${
+            user?.last_name || ""
+          }`
+            ?.toLowerCase()
+            .includes(search.toLowerCase())
+        );
+      }
+
+      return filteredByClient;
+    }
+  }, [data, search, selectedClient, isShowAllUsers]);
+
   if (isFirstRender) return <TableSkeleton />;
 
   return (
@@ -91,18 +126,26 @@ export const UserListTable = (props: UserListTableProps) => {
           className="w-[450px]"
           value={search}
           onChange={(event) => {
-            const filteredClients = data?.filter((user: UserDetailType) =>
-              `${user?.first_name || ""} ${user?.middle_name || ""} ${
-                user?.last_name || ""
-              }`
-                ?.toLowerCase()
-                .includes(event.target.value.toLowerCase())
-            );
-            setUserList(filteredClients);
             setSearch(event.target.value);
           }}
         />
-        <Button color="primary">Show All Users</Button>
+        <div className="flex items-center gap-2">
+          <Checkbox
+            id="showAllUsers"
+            checked={isShowAllUsers}
+            color="primary"
+            size={24}
+            className="cursor-pointer"
+            onChange={() => setIsShowAllUsers((prev) => !prev)}
+          />
+          <Label
+            htmlFor="showAllUsers"
+            color="primary"
+            className="flex cursor-pointer"
+          >
+            Show All Users
+          </Label>
+        </div>
       </div>
       <div className="mt-10 overflow-x-auto overflow-y-auto border border-gray-100">
         <div className="max-h-[calc(100vh-440px)]">
@@ -114,9 +157,11 @@ export const UserListTable = (props: UserListTableProps) => {
               <TableHeadCell className="bg-primary-500 text-white sticky top-0 z-10">
                 Email
               </TableHeadCell>
-              <TableHeadCell className="bg-primary-500 text-white sticky top-0 z-10">
-                Clients
-              </TableHeadCell>
+              {!isShowAllUsers && (
+                <TableHeadCell className="bg-primary-500 text-white sticky top-0 z-10">
+                  Clients
+                </TableHeadCell>
+              )}
             </TableHead>
             {!userList?.length ? (
               <div className="h-11 relative table-footer-group">
@@ -136,19 +181,21 @@ export const UserListTable = (props: UserListTableProps) => {
                       user.middle_name || ""
                     } ${user.last_name || ""}`}</TableCell>
                     <TableCell>{user?.email}</TableCell>
-                    <TableCell>
-                      <div className="flex gap-2 flex-wrap">
-                        {user?.clients?.map(
-                          (client: ClientsType, i: number) => {
-                            return (
-                              <Badge key={i} className="w-fit" color="gray">
-                                {client?.name}
-                              </Badge>
-                            );
-                          }
-                        )}
-                      </div>
-                    </TableCell>
+                    {!isShowAllUsers && (
+                      <TableCell>
+                        <div className="flex gap-2 flex-wrap">
+                          {user?.clients?.map(
+                            (client: ClientsType, i: number) => {
+                              return (
+                                <Badge key={i} className="w-fit" color="gray">
+                                  {client?.name}
+                                </Badge>
+                              );
+                            }
+                          )}
+                        </div>
+                      </TableCell>
+                    )}
                   </TableRow>
                 ))}
               </TableBody>
@@ -157,7 +204,7 @@ export const UserListTable = (props: UserListTableProps) => {
         </div>
       </div>
       {currentPrivilege?.some((priv) =>
-        ["Network Admin", "Company Admin"].includes(priv)
+        [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN].includes(priv)
       ) && (
         <div className="mt-5">
           <Button

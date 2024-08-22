@@ -13,15 +13,16 @@ import {
   Spinner,
 } from "flowbite-react";
 
-import { UserDetailModal } from "./client-modal";
-import { ModalContentType } from "../types";
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import { SkeletonWithUserImage } from "@/app/components/Skeleton";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { uploadFile } from "@/app/actions/user/upload-file";
-import moment from "moment";
+import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
+
+import { UserDetailModal } from "./client-modal";
+import { ModalContentType } from "../types";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -306,7 +307,9 @@ export function UserDetailForm(props: UserDetailFormType) {
                           {isSelfServing &&
                             selectedClient === client?.id &&
                             client?.privileges?.some((priv) =>
-                              ["Network Admin", "Company Admin"].includes(priv)
+                              [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN].includes(
+                                priv
+                              )
                             ) && (
                               <div className="flex gap-x-2">
                                 <Button

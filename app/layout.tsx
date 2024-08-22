@@ -15,6 +15,7 @@ import {
   UserResponse,
 } from "@supabase/supabase-js";
 import { UserClientContextProvider } from "./components/Context/UserClientContext";
+import { headers } from "next/headers";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -35,12 +36,10 @@ export default async function RootLayout({
     `http://localhost:3000/api/user/${userData?.user?.id}`,
     {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: headers(),
       next: {
         tags: ["user_info"],
-        revalidate: 0,
+        revalidate: 100,
       },
     }
   );
@@ -51,6 +50,11 @@ export default async function RootLayout({
 
   const data = await response.json();
 
+  const { data: clientLists = [] } = await supabase
+    .from("clients")
+    .select("id, name")
+    .order("name", { ascending: true });
+
   return (
     <html lang="en">
       <CorbadoProvider>
@@ -59,7 +63,7 @@ export default async function RootLayout({
             userInfo={data}
             user={userData?.user as User}
           >
-            <UserClientContextProvider>
+            <UserClientContextProvider clientLists={clientLists!}>
               <body className={inter.className}>
                 <main className="bg-gray-200">{children}</main>
               </body>

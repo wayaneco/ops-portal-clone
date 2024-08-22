@@ -1,5 +1,6 @@
 "use client";
 
+import moment from "moment";
 import { ChangeEvent, LegacyRef, useState, useRef } from "react";
 import {
   Controller,
@@ -7,7 +8,14 @@ import {
   FormProvider,
   useForm,
 } from "react-hook-form";
-import { Modal, TextInput, Spinner, Button, Label } from "flowbite-react";
+import {
+  Modal,
+  TextInput,
+  Spinner,
+  Button,
+  Label,
+  Datepicker,
+} from "flowbite-react";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -244,6 +252,26 @@ export const AddUser = (props: AddUserProps) => {
                       {(errors as FieldValues)?.preferred_name?.message}
                     </small>
                   )}
+                </div>
+              )}
+            />
+            <Controller
+              control={control}
+              name="birth_date"
+              render={({ field: { value, onChange } }) => (
+                <div>
+                  <Label className="text-xs">Date of Birth</Label>
+                  <Datepicker
+                    placeholder="Date of Birth"
+                    color="primary"
+                    onSelectedDateChanged={(date) =>
+                      onChange(moment(date).format("YYYY-MM-DD"))
+                    }
+                    maxDate={moment().toDate()}
+                    showTodayButton={false}
+                    showClearButton={false}
+                    value={value ? moment(value).format("MMMM DD, YYYY") : ""}
+                  />
                 </div>
               )}
             />

@@ -55,7 +55,6 @@ export async function addUser(params: UpdateUserInfoType) {
       if (error_generate_email) throw new Error(error_generate_email.message);
     }
 
-    // Create auth user
     const {
       data: { user: authUser },
       error: error_create_user,
@@ -69,23 +68,23 @@ export async function addUser(params: UpdateUserInfoType) {
     } else {
       if (authUser) {
         const payload = {
-          birth_date: params?.birth_date,
-          city: params?.city,
-          first_name: params?.first_name,
-          last_name: params?.last_name,
-          line_1: params?.addr_line_1,
-          line_2: params?.addr_line_2,
-          middle_name: params?.middle_name,
-          p_client_id: params?.client_id,
+          birth_date: params?.birth_date ?? "",
+          city: params?.city ?? "",
+          first_name: params?.first_name ?? "",
+          last_name: params?.last_name ?? "",
+          line_1: params?.addr_line_1 ?? "",
+          line_2: params?.addr_line_2 ?? "",
+          middle_name: params?.middle_name ?? "",
+          p_client_id: params?.client_id ?? "",
           p_role_id: "db920553-b3a6-4d18-82a1-e31cec57b8a0", // DEFAULT TO AGENT: AGENT_ID
-          p_user_id: authUser.id,
-          preferred_name: params?.preferred_name,
-          primary_email: params?.email,
-          primary_phone: params?.primary_phone,
+          p_user_id: authUser.id ?? "",
+          preferred_name: params?.preferred_name ?? "",
+          primary_email: params?.email ?? "",
+          primary_phone: params?.primary_phone ?? "",
           profile_url: "",
-          staff_id: params?.staff_id,
-          state_province_region: params?.state_province_region,
-          zip_code: params?.zip_code,
+          staff_id: params?.staff_id ?? "",
+          state_province_region: params?.state_province_region ?? "",
+          zip_code: params?.zip_code ?? "",
         };
 
         const { error } = await supabase.rpc("add_admin_user", payload);

@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import moment from "moment";
 import { useRouter } from "next/navigation";
@@ -34,9 +34,18 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
-  const [clientList, setClientList] = useState<Array<ClientsType>>(data);
 
   const isFirstRender = useIsFirstRender();
+
+  const clientList = useMemo(() => {
+    if (search) {
+      return data?.filter((client: ClientsType) =>
+        client?.name?.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    return data;
+  }, [data, search]);
 
   if (isFirstRender) {
     return <TableSkeleton />;
@@ -50,12 +59,6 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
         className="w-[450px]"
         value={search}
         onChange={(event) => {
-          const filteredClients = data?.filter((client: ClientsType) =>
-            client?.name
-              ?.toLowerCase()
-              .includes(event.target.value.toLowerCase())
-          );
-          setClientList(filteredClients);
           setSearch(event.target.value);
         }}
       />
