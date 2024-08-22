@@ -1,7 +1,6 @@
 "use server";
 
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
-import { getMimeType } from "@/utils/file/getMimeType";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import { createClient } from "utils/supabase/server";
@@ -89,31 +88,23 @@ export async function addUser(params: UpdateUserInfoType) {
           zip_code: params?.zip_code,
         };
 
-        const { data: data_add_admin_user, error } = await supabase.rpc(
-          "add_admin_user",
-          payload
-        );
+        const { error } = await supabase.rpc("add_admin_user", payload);
 
         if (error) {
           throw new Error(error.message);
         } else {
           if (params?.photo_url && params?.photo_url?.includes("base64")) {
-            const mimeType = getMimeType(params?.photo_url);
             const file = convertBase64toFile(
               params.photo_url!,
               params?.preferred_name
             );
 
-            const [, type] = mimeType.split("/");
-
             const { data: file_data, error: file_error } =
               await supabase.storage
                 .from("avatars")
-                .upload(`public/${authUser?.id}.${type}`, file as File, {
+                .upload(`public/${authUser?.id}`, file as File, {
                   upsert: true,
                 });
-
-            console.log("FILE ERROR:", file_error);
 
             if (file_error) throw new Error(file_error?.message);
 
@@ -140,7 +131,6 @@ export async function addUser(params: UpdateUserInfoType) {
       error: null,
     };
   } catch (error) {
-    console.log(error, "error here");
     return JSON.parse(
       JSON.stringify({
         isError: true,

@@ -33,6 +33,27 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
       },
     },
   },
+  select: {
+    field: {
+      select: {
+        colors: {
+          primary:
+            "outline-primary-500 border-primary-500 focus:ring-primary-500 focus:border-primary-500",
+        },
+      },
+    },
+  },
+  datepicker: {
+    views: {
+      days: {
+        items: {
+          item: {
+            selected: "bg-primary-500 text-white hover:bg-primary-600",
+          },
+        },
+      },
+    },
+  },
   sidebar: {
     root: {
       inner:

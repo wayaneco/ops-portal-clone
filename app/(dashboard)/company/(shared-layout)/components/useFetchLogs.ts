@@ -1,6 +1,6 @@
 // hooks/useFetchLogs.ts
-import { useState, useEffect } from 'react';
-import axios from 'axios';
+import { useState, useEffect } from "react";
+import axios from "axios";
 
 interface LogData {
   // Define the structure of your API response here
@@ -8,7 +8,7 @@ interface LogData {
   logs: string[];
 }
 
-const useFetchLogs = ({name}:{name:string}) => {
+const useFetchLogs = ({ name }: { name: string }) => {
   const [data, setData] = useState<any | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
@@ -16,11 +16,12 @@ const useFetchLogs = ({name}:{name:string}) => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(`https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${name}&bucket_name=ee-provision-dev`);
+        const response = await axios.get(
+          `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${name}&bucket_name=ee-provision-dev`
+        );
         setData(response.data);
         setLoading(false);
       } catch (err) {
-        console.log(err)
         setLoading(false);
       }
     };

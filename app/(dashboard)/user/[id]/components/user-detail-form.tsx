@@ -1,18 +1,16 @@
 "use client";
 
-import Image from "next/image";
 import * as React from "react";
 import Link from "next/link";
 import { UserDetailType, ClientsType } from "@/app/types/UserDetail";
 import {
   Button,
-  type AvatarImageProps,
-  Avatar,
   TextInput,
   Table,
   Badge,
   Toast,
   Card,
+  Spinner,
 } from "flowbite-react";
 
 import { UserDetailModal } from "./client-modal";
@@ -21,6 +19,9 @@ import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import { SkeletonWithUserImage } from "@/app/components/Skeleton";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
+import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
+import { uploadFile } from "@/app/actions/user/upload-file";
+import moment from "moment";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -64,8 +65,13 @@ export const useUserDetailFormContext = () => {
 export function UserDetailForm(props: UserDetailFormType) {
   const { data } = props;
 
+  const inputRef = React.useRef<HTMLInputElement>();
   const isFirstRender = useIsFirstRender();
 
+  const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
+  const [profilePhoto, setProfilePhoto] = React.useState<string>(
+    data?.photo_url
+  );
   const [toast, setToast] = React.useState<ToastType>({
     show: false,
     message: "",
@@ -152,10 +158,10 @@ export function UserDetailForm(props: UserDetailFormType) {
           <div className="flex">
             <div className="w-56 h-64">
               <div className="relative border h-full w-full overflow-hidden rounded-md bg-gray-100 group">
-                {data?.photo_url ? (
+                {profilePhoto ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={data?.photo_url}
+                    src={profilePhoto}
                     alt="Tonis Kitchen"
                     className="w-full h-full object-cover"
                   />
@@ -173,6 +179,46 @@ export function UserDetailForm(props: UserDetailFormType) {
                     ></path>
                   </svg>
                 )}
+                <Button
+                  type="button"
+                  color="primary"
+                  className="absolute py-2 px-3 w-4/5 bottom-2 ml-[50%] -translate-x-2/4 opacity-0 -z-10 transition-all group-hover:opacity-100 group-hover:z-10 [&>span]:p-0"
+                  onClick={() => inputRef.current?.click()}
+                >
+                  Change photo
+                </Button>
+                <input
+                  className="hidden"
+                  type="file"
+                  ref={inputRef as React.LegacyRef<HTMLInputElement>}
+                  accept="image/**"
+                  onChange={async (
+                    event: React.ChangeEvent<HTMLInputElement>
+                  ) => {
+                    if (!event?.currentTarget?.files![0]) return;
+                    try {
+                      setIsSubmitting(true);
+                      const base64 = await convertFileToBase64(
+                        event.currentTarget?.files[0]
+                      );
+
+                      const photo_url = await uploadFile({
+                        user_id: data?.user_id,
+                        base64_file: base64 as string,
+                      });
+
+                      setProfilePhoto(photo_url as string);
+                      setToast({
+                        show: true,
+                        message: "Update photo successfully",
+                        error: false,
+                      });
+                      setIsSubmitting(false);
+                    } catch (err) {
+                      setIsSubmitting(false);
+                    }
+                  }}
+                />
               </div>
             </div>
             <div className="flex-1 mx-10">
@@ -312,6 +358,13 @@ export function UserDetailForm(props: UserDetailFormType) {
               </Button>
             </div>
           </div>
+          {isSubmitting && (
+            <div className="absolute inset-0 z-50">
+              <div className="flex justify-center items-center h-full bg-gray-200/40 cursor-not-allowed">
+                <Spinner color="primary" />
+              </div>
+            </div>
+          )}
           {toast.show && (
             <Toast
               className={`fixed right-5 top-5 z-[9999] ${

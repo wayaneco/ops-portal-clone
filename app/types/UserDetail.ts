@@ -16,6 +16,7 @@ export type UserDetailType = {
   primary_phone: string;
   secondary_phone: string;
   photo_url: string;
+  zip_code: string;
   clients: Array<ClientsType>;
 };
 
@@ -28,6 +29,7 @@ export enum Privileges {
 
 export type ClientsType = {
   id: string;
+  client_id?: string;
   name: string;
   latitude: string;
   logo_url: string;
@@ -43,6 +45,11 @@ export type ClientsType = {
     label: string;
   }>;
   service_provided: Array<{
+    // TODO:
+    label: string;
+  }>;
+  service_provided_data: Array<{
+    // TODO:
     label: string;
   }>;
   description: string;

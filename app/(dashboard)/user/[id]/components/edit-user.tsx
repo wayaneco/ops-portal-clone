@@ -7,14 +7,15 @@ import {
   Select,
   Button,
   Label,
+  Datepicker,
 } from "flowbite-react";
 
 import { useUserDetailFormContext } from "./user-detail-form";
 import { updateUserInfo } from "@/app/actions/user/update-user";
-import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
+import moment from "moment";
+import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 
 export const EditUser = () => {
-  const inputRef = useRef<HTMLInputElement>();
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
   const {
@@ -25,6 +26,7 @@ export const EditUser = () => {
     trigger,
   } = useFormContext();
   const { setToast, closeDialog } = useUserDetailFormContext();
+  const { userInfo } = useSupabaseSessionContext();
 
   const { user } = watch("info");
   const watchUserEmail = watch("edit_user.email");
@@ -42,6 +44,8 @@ export const EditUser = () => {
         await updateUserInfo({
           ...getValues("edit_user"),
           user_id: user?.user_id,
+          photo_url: user?.photo_url,
+          staff_id: userInfo?.user_id,
           isEmailChanged,
         });
 
@@ -54,6 +58,7 @@ export const EditUser = () => {
       setToast(<div>{error?.message}</div>, true);
     }
   };
+
   return (
     <>
       <Modal.Header>Update User</Modal.Header>
@@ -67,7 +72,7 @@ export const EditUser = () => {
         )}
         <div className="flex flex-col gap-y-2">
           <div className="flex gap-2">
-            <div className="flex flex-col gap-2 flex-1">
+            <div className="flex-1">
               <Controller
                 control={control}
                 name="edit_user.first_name"
@@ -91,50 +96,27 @@ export const EditUser = () => {
                   </div>
                 )}
               />
-              <Controller
-                control={control}
-                name="edit_user.middle_name"
-                render={({ field }) => (
-                  <div>
-                    <Label className="text-xs">Middle Name</Label>
-                    <TextInput
-                      placeholder="Middle Name"
-                      color="primary"
-                      {...field}
-                    />
-                    {(errors?.edit_user as FieldValues)?.middle_name
-                      ?.message && (
-                      <small className="text-red-500 mb-1">
-                        {
-                          (errors?.edit_user as FieldValues)?.middle_name
-                            ?.message
-                        }
-                      </small>
-                    )}
-                  </div>
-                )}
-              />
-              <Controller
-                control={control}
-                name="edit_user.last_name"
-                render={({ field }) => (
-                  <div>
-                    <Label className="text-xs">Last Name</Label>
-                    <TextInput
-                      placeholder="Last Name"
-                      color="primary"
-                      {...field}
-                    />
-                    {(errors?.edit_user as FieldValues)?.last_name?.message && (
-                      <small className="text-red-500 mb-1">
-                        {(errors?.edit_user as FieldValues)?.last_name?.message}
-                      </small>
-                    )}
-                  </div>
-                )}
-              />
             </div>
-            <div className="w-64 h-56 ">
+            <Controller
+              control={control}
+              name="edit_user.middle_name"
+              render={({ field }) => (
+                <div>
+                  <Label className="text-xs">Middle Name</Label>
+                  <TextInput
+                    placeholder="Middle Name"
+                    color="primary"
+                    {...field}
+                  />
+                  {(errors?.edit_user as FieldValues)?.middle_name?.message && (
+                    <small className="text-red-500 mb-1">
+                      {(errors?.edit_user as FieldValues)?.middle_name?.message}
+                    </small>
+                  )}
+                </div>
+              )}
+            />
+            {/* <div className="w-64 h-56 ">
               <div className="w-full h-full pl-5 pt-5">
                 <Controller
                   control={control}
@@ -198,8 +180,23 @@ export const EditUser = () => {
                   )}
                 />
               </div>
-            </div>
+            </div> */}
           </div>
+          <Controller
+            control={control}
+            name="edit_user.last_name"
+            render={({ field }) => (
+              <div>
+                <Label className="text-xs">Last Name</Label>
+                <TextInput placeholder="Last Name" color="primary" {...field} />
+                {(errors?.edit_user as FieldValues)?.last_name?.message && (
+                  <small className="text-red-500 mb-1">
+                    {(errors?.edit_user as FieldValues)?.last_name?.message}
+                  </small>
+                )}
+              </div>
+            )}
+          />
           <Controller
             control={control}
             name="edit_user.preferred_name"
@@ -220,6 +217,26 @@ export const EditUser = () => {
                     }
                   </small>
                 )}
+              </div>
+            )}
+          />
+          <Controller
+            control={control}
+            name="edit_user.birth_date"
+            render={({ field: { value, onChange } }) => (
+              <div>
+                <Label className="text-xs">Date of Birth</Label>
+                <Datepicker
+                  placeholder="Date of Birth"
+                  color="primary"
+                  onSelectedDateChanged={(date) =>
+                    onChange(moment(date).format("YYYY-MM-DD"))
+                  }
+                  maxDate={moment().toDate()}
+                  showTodayButton={false}
+                  showClearButton={false}
+                  value={value ? moment(value).format("MMMM DD, YYYY") : ""}
+                />
               </div>
             )}
           />

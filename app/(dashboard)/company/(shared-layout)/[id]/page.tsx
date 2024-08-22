@@ -25,7 +25,9 @@ const Page = async function (props: { params: { id: string } }) {
 
   if (["IN PROGRESS", "COMPLETED"].includes(data?.provisioning_status)) {
     const provisionResponse: {
-      data: { log_content: Array<{ event: string }> };
+      data: {
+        log_content: Array<{ event: string; status: "pending" | "completed" }>;
+      };
     } = await axios.get<any>(
       `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${data?.web_address}&bucket_name=ee-provision-dev`
     );

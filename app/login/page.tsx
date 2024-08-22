@@ -40,7 +40,7 @@ export default async function Page() {
   }
 
   return (
-    <div className="test bg-primary-600 h-screen w-screen">
+    <div className="login bg-primary-600 h-screen w-screen">
       <div className="container mx-auto flex items-center h-full justify-center">
         <Card className="p-6 backdrop-blur-md shadow-md w-[430px]">
           <div className="text-xl font-medium text-center uppercase ">

@@ -50,6 +50,7 @@ export function UserDetailModal(props: UserDetailModal) {
         first_name: user?.first_name ?? "",
         last_name: user?.last_name ?? "",
         middle_name: user?.middle_name ?? "",
+        birth_date: user?.birth_date ?? "",
         preferred_name: user?.preferred_name ?? "",
         email: user?.email ?? "",
         primary_phone: user?.primary_phone ?? "",

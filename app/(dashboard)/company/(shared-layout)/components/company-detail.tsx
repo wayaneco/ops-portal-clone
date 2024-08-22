@@ -29,7 +29,7 @@ import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { createClient } from "@/utils/supabase/client";
 
 type CompanyDetailType = {
-  initialLogs?: Array<{ event: string }>;
+  initialLogs?: Array<{ event: string; status: "pending" | "completed" }>;
   companyInfo?: ClientsType;
 };
 
@@ -40,7 +40,7 @@ type ToastType = {
 };
 
 type ProvisionLoggingContextType = {
-  logs: Array<{ event: string }>;
+  logs: Array<{ event: string; status: "pending" | "completed" }>;
   handleProvision: () => any;
   isProvisioning: boolean;
   isCompleted: boolean;
@@ -149,7 +149,10 @@ const CompanyDetail = function ({
           show: true,
           message: (
             <div>
-              <strong>{watchName}</strong> is added successfully
+              <strong>{watchName}</strong>{" "}
+              {!!companyInfo
+                ? "is updated successfully."
+                : "is added successfully."}
             </div>
           ),
         });
@@ -255,11 +258,12 @@ const CompanyDetail = function ({
 
           setLogs(data?.log_content);
 
-          if (
-            data?.log_content?.some((entry: any) =>
-              entry.event.includes("Clean up")
-            )
-          ) {
+          const FINISH_LENGTH = 7;
+          const totalCompletedEvent = data?.log_content?.filter(
+            ({ status }: { status: "completed" }) => status === "completed"
+          )?.length;
+
+          if (totalCompletedEvent === FINISH_LENGTH) {
             const response = await supabase
               .from("clients")
               .update({
@@ -276,8 +280,7 @@ const CompanyDetail = function ({
             clearInterval(intervalId);
           }
         } catch (err) {
-          console.log(err);
-          setStartLogging(false);
+          fetchData();
         }
       };
 
@@ -285,7 +288,7 @@ const CompanyDetail = function ({
 
       const intervalId = setInterval(() => {
         fetchData();
-      }, 16000); // 16 seconds
+      }, 10000); // 10 seconds
 
       // Clean up interval on component unmount
       return () => clearInterval(intervalId);
@@ -334,7 +337,12 @@ const CompanyDetail = function ({
             <Spinner color="primary" size="xl" />
           </div>
         )}
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
+        <form
+          onSubmit={methods.handleSubmit(onSubmit)}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") e.preventDefault();
+          }}
+        >
           <div className="absolute left-0 right-0 overflow-x-hidden">
             <div className="relative z-10 bg-gray-50">
               <div className="flex gap-x-4 items-center">

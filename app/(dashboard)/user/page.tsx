@@ -9,7 +9,6 @@ export default async function Page() {
     headers: headers(),
     next: {
       tags: ["user_list"],
-      revalidate: 200,
     },
     cache: "no-cache",
   });

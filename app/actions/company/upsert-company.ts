@@ -1,10 +1,7 @@
 "use server";
 
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
-import { getMimeType } from "@/utils/file/getMimeType";
-import { error } from "console";
 import { revalidatePath, revalidateTag } from "next/cache";
-import { redirect } from "next/navigation";
 import { createClient } from "utils/supabase/server";
 
 type UpsertCompanyDetailsType = {
@@ -77,15 +74,12 @@ export const upsertCompanyDetails = async (
     if (error_update_clients) throw new Error(error_update_clients?.message);
 
     if (params.logo && params?.logo?.includes("base64")) {
-      const mimeType = getMimeType(params?.logo);
       const file = convertBase64toFile(params.logo!, params?.name);
-
-      const [, type] = mimeType.split("/");
 
       const { data: file_data, error: error_upload_file } =
         await supabase.storage
           .from("client_logos")
-          .upload(`public/${client_id}.${type}`, file as File, {
+          .upload(`public/${client_id}`, file as File, {
             upsert: true,
           });
 

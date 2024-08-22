@@ -8,7 +8,7 @@ import { usePathname } from "next/navigation";
 
 import { useSupabaseSessionContext } from "../Context/SupabaseSessionProvider";
 import { createClient } from "@/utils/supabase/client";
-import { ClientsType, UserDetailType } from "@/app/types";
+import { ClientsType } from "@/app/types";
 import { useUserClientProviderContext } from "../Context/UserClientContext";
 import { useState } from "react";
 import { useEffect } from "react";
@@ -24,6 +24,9 @@ export default function Navbar({
 
   const [isUserANetworkAdmin, setIsUserANetworkAdmin] =
     useState<boolean>(false);
+  const [allClientList, setAllClientList] = useState<
+    Array<{ id: string; name: string }>
+  >([]);
 
   const { user, userInfo } = useSupabaseSessionContext();
 
@@ -67,19 +70,16 @@ export default function Navbar({
   };
 
   const checkUserRole = async () => {
-    const { data, error } = await supabase.rpc("has_admin_role", {
+    const { data = false, error } = await supabase.rpc("has_admin_role", {
       p_role_name: ROLE_NETWORK_ADMIN,
       p_user_id: userInfo.user_id,
     });
 
-    if (error) {
-    } else {
-      setIsUserANetworkAdmin(data);
-    }
+    setIsUserANetworkAdmin(data);
   };
 
   const getAllClients = async () => {
-    const { data } = await supabase
+    const { data = [] } = await supabase
       .from("clients")
       .select(
         `
@@ -89,10 +89,10 @@ export default function Navbar({
       )
       .order("name", { ascending: true });
 
-    return data;
+    setAllClientList(data as Array<{ id: string; name: string }>);
   };
 
-  const generateFieldForActiveClient = () => {
+  const GenerateFieldForActiveClient = () => {
     const { userInfo } = useSupabaseSessionContext();
     const { changeClient, selectedClient } = useUserClientProviderContext();
     let component;
@@ -100,7 +100,7 @@ export default function Navbar({
     let clientList: any = [];
 
     if (isUserANetworkAdmin) {
-      clientList = getAllClients();
+      clientList = allClientList;
     } else {
       clientList = userInfo?.clients;
     }
@@ -153,7 +153,9 @@ export default function Navbar({
   useEffect(() => {
     if (userInfo.user_id) {
       checkUserRole();
+      getAllClients();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userInfo]);
 
   return (
@@ -184,7 +186,7 @@ export default function Navbar({
       </FBNavbar.Collapse>
       {user ? (
         <div className="flex items-center gap-x-4">
-          {generateFieldForActiveClient()}
+          <GenerateFieldForActiveClient />
           <Button
             color="white"
             type="button"
