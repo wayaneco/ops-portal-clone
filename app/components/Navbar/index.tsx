@@ -31,8 +31,13 @@ export default function Navbar({
   const [isDoneFetching, setIsDoneFetching] = useState<boolean>(false);
 
   const { user, userInfo } = useSupabaseSessionContext();
-  const { changeClient, clientLists, selectedClient, currentPrivilege } =
-    useUserClientProviderContext();
+  const {
+    changeClient,
+    clientLists,
+    selectedClient,
+    currentPrivilege,
+    selectRef,
+  } = useUserClientProviderContext();
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
   const REGEX_USER_PAGE = new RegExp(/^\/user?(\/\w)?.+/);
@@ -94,7 +99,6 @@ export default function Navbar({
 
     let clientList: any = [];
 
-    console.log(isUserANetworkAdmin);
     if (isUserANetworkAdmin) {
       clientList = clientLists;
     } else {
@@ -108,6 +112,7 @@ export default function Navbar({
             <strong>{userInfo?.email}</strong>
             <div className="">in behalf of</div>
             <Select
+              ref={selectRef}
               color="primary"
               className="w-36"
               value={selectedClient}

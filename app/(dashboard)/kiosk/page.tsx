@@ -1,9 +1,14 @@
+"use client";
+
 import { Avatar, Button, Card } from "flowbite-react";
 import Image from "next/image";
+
+import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 
 import TonisKitchen from "public/tonis.svg";
 
 export default function Page() {
+  const { selectRef } = useUserClientProviderContext();
   return (
     <div className="py-16">
       <Card>
@@ -22,7 +27,12 @@ export default function Page() {
               )}
             />
             <div className="mt-4">
-              <Button color="primary">Change client</Button>
+              <Button
+                color="primary"
+                onClick={() => selectRef?.current?.showPicker()}
+              >
+                Change client
+              </Button>
             </div>
           </div>
           <div className="flex items-center mb-[40px]">

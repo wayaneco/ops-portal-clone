@@ -7,11 +7,13 @@ import {
   SetStateAction,
   useContext,
   useEffect,
+  useRef,
   useState,
 } from "react";
 import { useSupabaseSessionContext } from "../SupabaseSessionProvider";
 
 type UserClientContextType = {
+  selectRef: any;
   selectedClient: string;
   changeClient: Dispatch<SetStateAction<any>>;
   currentPrivilege: Array<string>;
@@ -30,6 +32,7 @@ export const UserClientContextProvider = (
     PropsWithChildren
 ) => {
   const { children, clientLists } = props;
+  const selectRef = useRef<HTMLSelectElement>();
   const { userInfo } = useSupabaseSessionContext();
 
   const [selectedClient, setSelectedClient] = useState<string>(() =>
@@ -55,7 +58,6 @@ export const UserClientContextProvider = (
         (client) => client?.id === selectedClient
       );
 
-      console.log({ selectedClient, findClient });
       if (findClient) {
         setCurrentPrivilege(findClient?.privileges as Array<string>);
         return;
@@ -68,6 +70,7 @@ export const UserClientContextProvider = (
   return (
     <UserClientContext.Provider
       value={{
+        selectRef,
         selectedClient,
         currentPrivilege,
         changeClient: (value: string) => setSelectedClient(value as string),

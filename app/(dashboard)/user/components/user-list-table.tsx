@@ -52,7 +52,8 @@ export const UserListTable = (props: UserListTableProps) => {
   });
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const { currentPrivilege, selectedClient } = useUserClientProviderContext();
+  const { currentPrivilege, selectedClient, selectRef } =
+    useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
 
