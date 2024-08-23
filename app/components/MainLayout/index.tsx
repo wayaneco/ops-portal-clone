@@ -32,7 +32,7 @@ export default function MainLayout(props: MainLayoutProps) {
 
   return (
     <>
-      <Navbar privileges={props?.privileges} />
+      <Navbar />
       <div
         className={`min-h-screen mx-auto pt-[100px] ${
           !regex.test(pathname) && "container"

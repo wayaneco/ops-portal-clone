@@ -6,9 +6,18 @@ import Image from "next/image";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 
 import TonisKitchen from "public/tonis.svg";
+import { ROLE_AGENT, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 export default function Page() {
-  const { selectRef } = useUserClientProviderContext();
+  const { selectRef, currentPrivilege } = useUserClientProviderContext();
+
+  const hasPrivilege = currentPrivilege?.some((privilege) =>
+    [ROLE_NETWORK_ADMIN, ROLE_AGENT]?.includes(privilege)
+  );
+
+  if (!hasPrivilege)
+    return <div>You are not authorized to view this page!</div>;
+
   return (
     <div className="py-16">
       <Card>

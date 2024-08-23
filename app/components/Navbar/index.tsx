@@ -18,11 +18,7 @@ import {
   ROLE_AGENT,
 } from "@/app/constant";
 
-export default function Navbar({
-  privileges,
-}: {
-  privileges: string;
-}): ReactNode {
+const Navbar = () => {
   const supabase = createClient();
   const pathname = usePathname();
 
@@ -52,7 +48,11 @@ export default function Navbar({
       <>
         {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
           <FBNavbar.Link
-            href="/user"
+            href={
+              !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN])
+                ? `/user/${user?.id}`
+                : "/user"
+            }
             className={`text-base md:text-lg ${
               REGEX_USER_PAGE.test(pathname) && "text-primary-500"
             }`}
@@ -60,9 +60,13 @@ export default function Navbar({
             User
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) && (
+        {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]) && (
           <FBNavbar.Link
-            href="/company"
+            href={
+              !isEnable([ROLE_NETWORK_ADMIN])
+                ? `/company/${selectedClient}`
+                : "/company"
+            }
             className={`text-base md:text-lg ${
               REGEX_COMPANY_PAGE.test(pathname) && "text-primary-500"
             }`}
@@ -163,7 +167,7 @@ export default function Navbar({
       getAllData();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo]);
+  }, [userInfo?.user_id]);
 
   return (
     <FBNavbar
@@ -217,4 +221,6 @@ export default function Navbar({
       ) : null}
     </FBNavbar>
   );
-}
+};
+
+export default Navbar;

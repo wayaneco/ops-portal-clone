@@ -3,19 +3,19 @@
 import { PropsWithChildren } from "react";
 
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
-import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
-
-import SidebarProvider from "./context";
+import { ROLE_NETWORK_ADMIN } from "@/app/constant";
+import { usePathname } from "next/navigation";
 
 export default function Layout(props: PropsWithChildren) {
+  const pathname = usePathname();
   const { currentPrivilege } = useUserClientProviderContext();
 
   const hasPrivilege = currentPrivilege?.some((privilege) =>
-    [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]?.includes(privilege)
+    [ROLE_NETWORK_ADMIN]?.includes(privilege)
   );
 
-  if (!hasPrivilege)
+  if (!hasPrivilege && pathname === "/company")
     return <div>You are not authorized to view this page!</div>;
 
-  return <SidebarProvider>{props.children}</SidebarProvider>;
+  return <>{props.children}</>;
 }

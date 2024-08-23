@@ -23,6 +23,7 @@ import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
+import { userInfo } from "os";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -85,10 +86,11 @@ export function UserDetailForm(props: UserDetailFormType) {
     client: null,
   });
 
-  const { selectedClient, hasAdminRole } = useUserClientProviderContext();
+  const { selectedClient, hasAdminRole, currentPrivilege } =
+    useUserClientProviderContext();
   const { user: currentLoggedInUser } = useSupabaseSessionContext();
 
-  const isSelfServing = data?.user_id === currentLoggedInUser?.id;
+  const isSelfService = data?.user_id === currentLoggedInUser?.id;
 
   const handleOpenModal = ({
     data,
@@ -126,6 +128,12 @@ export function UserDetailForm(props: UserDetailFormType) {
   const handleResetToast = () =>
     setToast({ show: false, message: "", error: false });
 
+  const isEnable = (expectedPrivilege: Array<any>) => {
+    return currentPrivilege?.some((current) =>
+      expectedPrivilege?.includes(current)
+    );
+  };
+
   React.useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
 
@@ -151,7 +159,11 @@ export function UserDetailForm(props: UserDetailFormType) {
         closeDialog: handleResetModal,
       }}
     >
-      <Link href="/user">
+      <Link
+        href={
+          !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]) ? `/` : "/user"
+        }
+      >
         <Button color="primary">BACK</Button>
       </Link>
       <div className="mt-5">
@@ -243,30 +255,34 @@ export function UserDetailForm(props: UserDetailFormType) {
               </form>
             </div>
             <div className="flex gap-x-2 h-fit">
-              <Button
-                color="primary"
-                className="h-fit"
-                onClick={() =>
-                  handleOpenModal({
-                    data,
-                    modalContent: ModalContentType.EDIT_USER,
-                  })
-                }
-              >
-                Edit User
-              </Button>
-              <Button
-                color="primary"
-                className="h-fit"
-                onClick={() =>
-                  handleOpenModal({
-                    data,
-                    modalContent: ModalContentType.PASSKEY,
-                  })
-                }
-              >
-                Reissue Passkey
-              </Button>
+              {(hasAdminRole || isSelfService) && (
+                <Button
+                  color="primary"
+                  className="h-fit"
+                  onClick={() =>
+                    handleOpenModal({
+                      data,
+                      modalContent: ModalContentType.EDIT_USER,
+                    })
+                  }
+                >
+                  Edit User
+                </Button>
+              )}
+              {hasAdminRole && (
+                <Button
+                  color="primary"
+                  className="h-fit"
+                  onClick={() =>
+                    handleOpenModal({
+                      data,
+                      modalContent: ModalContentType.PASSKEY,
+                    })
+                  }
+                >
+                  Reissue Passkey
+                </Button>
+              )}
             </div>
           </div>
           <div className="mt-10">
@@ -305,41 +321,43 @@ export function UserDetailForm(props: UserDetailFormType) {
                         </Table.Cell>
                         <Table.Cell>
                           {(hasAdminRole ||
-                            (isSelfServing && selectedClient === client?.id)) &&
-                            client?.privileges?.some((priv) =>
-                              [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN].includes(
-                                priv
-                              )
-                            ) && (
-                              <div className="flex gap-x-2">
-                                <Button
-                                  color="primary"
-                                  type="button"
-                                  onClick={() => {
-                                    handleOpenModal({
-                                      data: data,
-                                      client,
-                                      modalContent: ModalContentType.EDIT,
-                                    });
-                                  }}
-                                >
-                                  Edit
-                                </Button>
-                                <Button
-                                  color="primary"
-                                  type="button"
-                                  onClick={() => {
-                                    handleOpenModal({
-                                      data,
-                                      client,
-                                      modalContent: ModalContentType.REVOKE,
-                                    });
-                                  }}
-                                >
-                                  Revoke
-                                </Button>
-                              </div>
-                            )}
+                            (isSelfService &&
+                              selectedClient === client?.id &&
+                              client?.privileges?.some((priv) =>
+                                [
+                                  ROLE_NETWORK_ADMIN,
+                                  ROLE_COMPANY_ADMIN,
+                                ].includes(priv)
+                              ))) && (
+                            <div className="flex gap-x-2">
+                              <Button
+                                color="primary"
+                                type="button"
+                                onClick={() => {
+                                  handleOpenModal({
+                                    data: data,
+                                    client,
+                                    modalContent: ModalContentType.EDIT,
+                                  });
+                                }}
+                              >
+                                Edit
+                              </Button>
+                              <Button
+                                color="primary"
+                                type="button"
+                                onClick={() => {
+                                  handleOpenModal({
+                                    data,
+                                    client,
+                                    modalContent: ModalContentType.REVOKE,
+                                  });
+                                }}
+                              >
+                                Revoke
+                              </Button>
+                            </div>
+                          )}
                         </Table.Cell>
                       </Table.Row>
                     ))}
@@ -347,19 +365,21 @@ export function UserDetailForm(props: UserDetailFormType) {
                 )}
               </Table>
             </div>
-            <div className="mt-10">
-              <Button
-                color="primary"
-                onClick={() =>
-                  handleOpenModal({
-                    data,
-                    modalContent: ModalContentType.ADD,
-                  })
-                }
-              >
-                Add new
-              </Button>
-            </div>
+            {hasAdminRole && (
+              <div className="mt-10">
+                <Button
+                  color="primary"
+                  onClick={() =>
+                    handleOpenModal({
+                      data,
+                      modalContent: ModalContentType.ADD,
+                    })
+                  }
+                >
+                  Add new
+                </Button>
+              </div>
+            )}
           </div>
           {isSubmitting && (
             <div className="absolute inset-0 z-50">
