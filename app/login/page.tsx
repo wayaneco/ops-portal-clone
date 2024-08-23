@@ -3,11 +3,16 @@ import { LoginForm } from "./components/form";
 import { createClient } from "@/utils/supabase/server";
 import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
+import { ROLE_NETWORK_ADMIN } from "../constant";
 
 export default async function Page() {
-  const session = (await createClient().auth.getSession()).data.session;
+  const supabase = createClient();
 
-  if (session) return redirect("/");
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (user) return redirect("/");
 
   async function loginUser(prevState: any, formData: FormData) {
     "use server";
