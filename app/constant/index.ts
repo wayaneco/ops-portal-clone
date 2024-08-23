@@ -1,4 +1,7 @@
 import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN, ROLE_AGENT } from "./roles";
+import { STATUS_COMPLETED, STATUS_IN_PROGRESS } from "./status";
+
+export type STATUS_PROVISION = "pending" | "completed";
 
 const BASE_URL = process.env["NEXT_PUBLIC_SUPABASE_URL"]
   ? process.env["NEXT_PUBLIC_SUPABASE_URL"]
@@ -30,4 +33,6 @@ export {
   ROLE_AGENT,
   SUPABASE_SERVICE_ROLE_KEY,
   SUPABASE_URL,
+  STATUS_COMPLETED,
+  STATUS_IN_PROGRESS,
 };

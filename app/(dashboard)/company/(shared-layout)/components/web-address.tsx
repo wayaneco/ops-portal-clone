@@ -5,6 +5,7 @@ import { useDebouncedCallback } from "use-debounce";
 
 import { useProvisionLoggingContext } from "./company-detail";
 import { createClient } from "@/utils/supabase/client";
+import { STATUS_PROVISION } from "@/app/constant";
 
 export const WebAddress = () => {
   const supabase = createClient();
@@ -177,7 +178,7 @@ export const WebAddress = () => {
                 <List className="overflow-hidden">
                   {logs?.map(
                     (
-                      item: { event: string; status: "pending" | "completed" },
+                      item: { event: string; status: STATUS_PROVISION },
                       index: any,
                       all
                     ) => {

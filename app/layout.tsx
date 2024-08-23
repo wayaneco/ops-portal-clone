@@ -16,6 +16,7 @@ import {
 } from "@supabase/supabase-js";
 import { UserClientContextProvider } from "./components/Context/UserClientContext";
 import { headers } from "next/headers";
+import { ROLE_NETWORK_ADMIN } from "./constant";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -55,6 +56,11 @@ export default async function RootLayout({
     .select("id, name")
     .order("name", { ascending: true });
 
+  const { data: hasAdminRole = false } = await supabase.rpc("has_admin_role", {
+    p_role_name: ROLE_NETWORK_ADMIN,
+    p_user_id: userData?.user?.id,
+  });
+
   return (
     <html lang="en">
       <CorbadoProvider>
@@ -63,7 +69,10 @@ export default async function RootLayout({
             userInfo={data}
             user={userData?.user as User}
           >
-            <UserClientContextProvider clientLists={clientLists!}>
+            <UserClientContextProvider
+              clientLists={clientLists!}
+              hasAdminRole={hasAdminRole}
+            >
               <body className={inter.className}>
                 <main className="bg-gray-200">{children}</main>
               </body>

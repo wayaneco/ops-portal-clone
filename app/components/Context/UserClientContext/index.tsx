@@ -18,6 +18,7 @@ type UserClientContextType = {
   changeClient: Dispatch<SetStateAction<any>>;
   currentPrivilege: Array<string>;
   clientLists: Array<{ id: string; name: string }>;
+  hasAdminRole: boolean;
 };
 
 const UserClientContext = createContext<UserClientContextType | undefined>(
@@ -27,11 +28,11 @@ const UserClientContext = createContext<UserClientContextType | undefined>(
 export const UserClientContextProvider = (
   props: Omit<
     UserClientContextType,
-    "selectedClient" | "changeClient" | "currentPrivilege"
+    "selectedClient" | "changeClient" | "currentPrivilege" | "selectRef"
   > &
     PropsWithChildren
 ) => {
-  const { children, clientLists } = props;
+  const { children, clientLists, hasAdminRole } = props;
   const selectRef = useRef<HTMLSelectElement>();
   const { userInfo } = useSupabaseSessionContext();
 
@@ -65,7 +66,7 @@ export const UserClientContextProvider = (
 
       // setCurrentPrivilege([]); // TODO: After clarification
     }
-  }, [selectedClient]);
+  }, [selectedClient, userInfo?.clients]);
 
   return (
     <UserClientContext.Provider
@@ -75,6 +76,7 @@ export const UserClientContextProvider = (
         currentPrivilege,
         changeClient: (value: string) => setSelectedClient(value as string),
         clientLists,
+        hasAdminRole,
       }}
     >
       {children}

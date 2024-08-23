@@ -1,6 +1,13 @@
-import { headers } from "next/headers";
-import CompanyDetail from "../components/company-detail";
 import axios from "axios";
+import { headers } from "next/headers";
+
+import {
+  STATUS_COMPLETED,
+  STATUS_IN_PROGRESS,
+  STATUS_PROVISION,
+} from "@/app/constant";
+
+import CompanyDetail from "../components/company-detail";
 
 const Page = async function (props: { params: { id: string } }) {
   const response = await fetch(
@@ -23,10 +30,12 @@ const Page = async function (props: { params: { id: string } }) {
 
   let log_content;
 
-  if (["IN PROGRESS", "COMPLETED"].includes(data?.provisioning_status)) {
+  if (
+    [STATUS_IN_PROGRESS, STATUS_COMPLETED].includes(data?.provisioning_status)
+  ) {
     const provisionResponse: {
       data: {
-        log_content: Array<{ event: string; status: "pending" | "completed" }>;
+        log_content: Array<{ event: string; status: STATUS_PROVISION }>;
       };
     } = await axios.get<any>(
       `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${data?.web_address}&bucket_name=ee-provision-dev`

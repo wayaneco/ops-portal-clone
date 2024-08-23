@@ -27,9 +27,14 @@ import { ClientsType } from "@/app/types";
 import { upsertCompanyDetails } from "@/app/actions/company/upsert-company";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { createClient } from "@/utils/supabase/client";
+import {
+  STATUS_COMPLETED,
+  STATUS_IN_PROGRESS,
+  STATUS_PROVISION,
+} from "@/app/constant";
 
 type CompanyDetailType = {
-  initialLogs?: Array<{ event: string; status: "pending" | "completed" }>;
+  initialLogs?: Array<{ event: string; status: STATUS_PROVISION }>;
   companyInfo?: ClientsType;
 };
 
@@ -40,7 +45,7 @@ type ToastType = {
 };
 
 type ProvisionLoggingContextType = {
-  logs: Array<{ event: string; status: "pending" | "completed" }>;
+  logs: Array<{ event: string; status: STATUS_PROVISION }>;
   handleProvision: () => any;
   isProvisioning: boolean;
   isCompleted: boolean;
@@ -73,7 +78,7 @@ const CompanyDetail = function ({
   const [logs, setLogs] =
     useState<ProvisionLoggingContextType["logs"]>(initialLogs);
   const [isCompleted, setIsCompleted] = useState(
-    companyInfo?.provisioning_status === "COMPLETED"
+    companyInfo?.provisioning_status === STATUS_COMPLETED
   );
   const [toastState, setToastState] = useState<ToastType>({
     show: false,
@@ -196,7 +201,7 @@ const CompanyDetail = function ({
       const { data, error } = await supabase
         .from("clients")
         .update({
-          provisioning_status: "IN PROGRESS",
+          provisioning_status: STATUS_IN_PROGRESS,
         })
         .eq("id", companyInfo?.client_id);
 
@@ -267,7 +272,7 @@ const CompanyDetail = function ({
             const response = await supabase
               .from("clients")
               .update({
-                provisioning_status: "COMPLETED",
+                provisioning_status: STATUS_COMPLETED,
               })
               .eq("id", companyInfo?.client_id);
 
@@ -302,11 +307,11 @@ const CompanyDetail = function ({
         `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
       );
 
-      if (companyInfo?.provisioning_status === "IN PROGRESS") {
+      if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
         await supabase
           .from("clients")
           .update({
-            provisioning_status: "COMPLETED",
+            provisioning_status: STATUS_COMPLETED,
           })
           .eq("id", companyInfo?.client_id);
       }
@@ -314,9 +319,9 @@ const CompanyDetail = function ({
       setLogs(data?.log_content);
     };
 
-    if (companyInfo?.provisioning_status === "IN PROGRESS") {
+    if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
       setStartLogging(true);
-    } else if (companyInfo?.provisioning_status === "COMPLETED") {
+    } else if (companyInfo?.provisioning_status === STATUS_COMPLETED) {
       getLogs();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps

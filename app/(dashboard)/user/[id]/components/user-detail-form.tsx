@@ -85,7 +85,7 @@ export function UserDetailForm(props: UserDetailFormType) {
     client: null,
   });
 
-  const { selectedClient } = useUserClientProviderContext();
+  const { selectedClient, hasAdminRole } = useUserClientProviderContext();
   const { user: currentLoggedInUser } = useSupabaseSessionContext();
 
   const isSelfServing = data?.user_id === currentLoggedInUser?.id;
@@ -304,8 +304,8 @@ export function UserDetailForm(props: UserDetailFormType) {
                           </div>
                         </Table.Cell>
                         <Table.Cell>
-                          {isSelfServing &&
-                            selectedClient === client?.id &&
+                          {(hasAdminRole ||
+                            (isSelfServing && selectedClient === client?.id)) &&
                             client?.privileges?.some((priv) =>
                               [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN].includes(
                                 priv
