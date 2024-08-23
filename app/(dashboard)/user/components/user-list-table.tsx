@@ -52,7 +52,7 @@ export const UserListTable = (props: UserListTableProps) => {
   });
   const [showModal, setShowModal] = useState<boolean>(false);
 
-  const { currentPrivilege, selectedClient, selectRef } =
+  const { currentPrivilege, selectedClient, hasAdminRole } =
     useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
@@ -130,23 +130,25 @@ export const UserListTable = (props: UserListTableProps) => {
             setSearch(event.target.value);
           }}
         />
-        <div className="flex items-center gap-2">
-          <Checkbox
-            id="showAllUsers"
-            checked={isShowAllUsers}
-            color="primary"
-            size={24}
-            className="cursor-pointer"
-            onChange={() => setIsShowAllUsers((prev) => !prev)}
-          />
-          <Label
-            htmlFor="showAllUsers"
-            color="primary"
-            className="flex cursor-pointer"
-          >
-            Show All Users
-          </Label>
-        </div>
+        {hasAdminRole && (
+          <div className="flex items-center gap-2">
+            <Checkbox
+              id="showAllUsers"
+              checked={isShowAllUsers}
+              color="primary"
+              size={24}
+              className="cursor-pointer"
+              onChange={() => setIsShowAllUsers((prev) => !prev)}
+            />
+            <Label
+              htmlFor="showAllUsers"
+              color="primary"
+              className="flex cursor-pointer  text-gray-600"
+            >
+              Show All Users
+            </Label>
+          </div>
+        )}
       </div>
       <div className="mt-10 overflow-x-auto overflow-y-auto border border-gray-100">
         <div className="max-h-[calc(100vh-440px)]">
