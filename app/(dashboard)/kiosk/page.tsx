@@ -41,8 +41,6 @@ export default function Page() {
 
   if (!hasPrivilege) return redirect("/");
 
-  console.log(currentClient);
-
   return (
     <div className="py-16">
       <Card>
