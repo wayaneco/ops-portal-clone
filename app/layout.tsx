@@ -17,6 +17,7 @@ import {
 import { UserClientContextProvider } from "./components/Context/UserClientContext";
 import { headers } from "next/headers";
 import { ROLE_NETWORK_ADMIN } from "./constant";
+import { ClientsType } from "./types";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -53,7 +54,7 @@ export default async function RootLayout({
 
   const { data: clientLists = [] } = await supabase
     .from("clients")
-    .select("id, name")
+    .select(`id, name, logo_url, web_address, provisioning_status`)
     .order("name", { ascending: true });
 
   const { data: hasAdminRole = false } = await supabase.rpc("has_admin_role", {
@@ -70,7 +71,7 @@ export default async function RootLayout({
             user={userData?.user as User}
           >
             <UserClientContextProvider
-              clientLists={clientLists!}
+              clientLists={clientLists! as Array<ClientsType>}
               hasAdminRole={hasAdminRole}
             >
               <body className={inter.className}>

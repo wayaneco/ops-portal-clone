@@ -11,13 +11,14 @@ import {
   useState,
 } from "react";
 import { useSupabaseSessionContext } from "../SupabaseSessionProvider";
+import { ClientsType } from "@/app/types";
 
 type UserClientContextType = {
   selectRef: any;
   selectedClient: string;
   changeClient: Dispatch<SetStateAction<any>>;
   currentPrivilege: Array<string>;
-  clientLists: Array<{ id: string; name: string }>;
+  clientLists: Array<ClientsType>;
   hasAdminRole: boolean;
 };
 
