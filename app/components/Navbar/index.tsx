@@ -1,6 +1,6 @@
 "use client";
 
-import React, { ReactNode } from "react";
+import React from "react";
 import { Button, Navbar as FBNavbar, Select } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -10,8 +10,6 @@ import { useSupabaseSessionContext } from "../Context/SupabaseSessionProvider";
 import { createClient } from "@/utils/supabase/client";
 import { ClientsType } from "@/app/types";
 import { useUserClientProviderContext } from "../Context/UserClientContext";
-import { useState } from "react";
-import { useEffect } from "react";
 import {
   ROLE_NETWORK_ADMIN,
   ROLE_COMPANY_ADMIN,
@@ -22,17 +20,15 @@ const Navbar = () => {
   const supabase = createClient();
   const pathname = usePathname();
 
-  const [isUserANetworkAdmin, setIsUserANetworkAdmin] =
-    useState<boolean>(false);
-  const [isDoneFetching, setIsDoneFetching] = useState<boolean>(false);
-
-  const { user, userInfo } = useSupabaseSessionContext();
+  const { user } = useSupabaseSessionContext();
   const {
     changeClient,
     clientLists,
     selectedClient,
     currentPrivilege,
+    clearState,
     selectRef,
+    hasAdminRole,
   } = useUserClientProviderContext();
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
@@ -88,22 +84,13 @@ const Navbar = () => {
     );
   };
 
-  const checkUserRole = async () => {
-    const { data = false } = await supabase.rpc("has_admin_role", {
-      p_role_name: ROLE_NETWORK_ADMIN,
-      p_user_id: userInfo.user_id,
-    });
-
-    return data;
-  };
-
   const GenerateFieldForActiveClient = () => {
     const { userInfo } = useSupabaseSessionContext();
     let component;
 
     let clientList: any = [];
 
-    if (isUserANetworkAdmin) {
+    if (hasAdminRole) {
       clientList = clientLists;
     } else {
       clientList = userInfo?.clients;
@@ -155,20 +142,6 @@ const Navbar = () => {
     return component;
   };
 
-  useEffect(() => {
-    const getAllData = async () => {
-      const isRoleAdmin = await checkUserRole();
-
-      setIsUserANetworkAdmin(isRoleAdmin);
-      setIsDoneFetching(true);
-    };
-
-    if (userInfo.user_id) {
-      getAllData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userInfo?.user_id]);
-
   return (
     <FBNavbar
       className="fixed w-full z-50 shadow-md"
@@ -187,7 +160,7 @@ const Navbar = () => {
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        {isDoneFetching && <MenuList currentPrivilege={currentPrivilege} />}
+        {<MenuList currentPrivilege={currentPrivilege} />}
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"
@@ -195,30 +168,29 @@ const Navbar = () => {
           Logout
         </FBNavbar.Link>
       </FBNavbar.Collapse>
-      {isDoneFetching ? (
-        user ? (
-          <div className="flex items-center gap-x-4">
-            <GenerateFieldForActiveClient />
-            <Button
-              color="white"
-              type="button"
-              className="text-black hidden md:block"
-              onClick={() => {
-                supabase.auth.signOut();
-              }}
-            >
-              Logout
-            </Button>
-          </div>
-        ) : (
-          <Link
-            href="/login"
-            className="text-base text-black md:text-lg hidden md:block"
+      {user ? (
+        <div className="flex items-center gap-x-4">
+          <GenerateFieldForActiveClient />
+          <Button
+            color="white"
+            type="button"
+            className="text-black hidden md:block"
+            onClick={async () => {
+              await supabase.auth.signOut();
+              clearState();
+            }}
           >
-            Login
-          </Link>
-        )
-      ) : null}
+            Logout
+          </Button>
+        </div>
+      ) : (
+        <Link
+          href="/login"
+          className="text-base text-black md:text-lg hidden md:block"
+        >
+          Login
+        </Link>
+      )}
     </FBNavbar>
   );
 };

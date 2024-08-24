@@ -1,19 +1,19 @@
 "use client";
 
-import { Avatar, Button, Card } from "flowbite-react";
+import { useMemo } from "react";
 import Image from "next/image";
+import { redirect } from "next/navigation";
+
+import { Avatar, Button, Card } from "flowbite-react";
 
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
-
-import TonisKitchen from "public/tonis.svg";
 import {
   ROLE_AGENT,
   ROLE_NETWORK_ADMIN,
   STATUS_COMPLETED,
 } from "@/app/constant";
-import { redirect } from "next/navigation";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
-import { useMemo } from "react";
+import * as ImagePlaceholder from "public/image-placeholder.jpg";
 
 export default function Page() {
   const { selectRef, currentPrivilege, clientLists, selectedClient } =
@@ -41,6 +41,8 @@ export default function Page() {
 
   if (!hasPrivilege) return redirect("/");
 
+  console.log(currentClient);
+
   return (
     <div className="py-16">
       <Card>
@@ -50,10 +52,19 @@ export default function Page() {
               img={(avatarProps) => (
                 <div className="h-56 w-52">
                   <Image
-                    src={currentClient?.data?.logo_url as string}
+                    src={
+                      currentClient?.data?.logo_url
+                        ? currentClient?.data?.logo_url
+                        : (ImagePlaceholder.default.src as string)
+                    }
                     alt={`User Profile`}
                     fill
                     {...avatarProps}
+                    className={
+                      !currentClient?.data?.logo_url
+                        ? "bg-[#C4C4C4] object-contain"
+                        : ""
+                    }
                   />
                 </div>
               )}
