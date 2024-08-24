@@ -5,17 +5,18 @@ import { redirect } from "next/navigation";
 
 export default async function Layout(props: PropsWithChildren) {
   const supabase = await createClient();
-  const session = (await supabase.auth.getSession()).data.session;
 
-  const email = (await supabase.auth.getUser()).data.user?.email;
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   const { data } = await supabase
     .from("users_data_view")
     .select("privileges")
-    .eq("email", email)
+    .eq("email", user?.email)
     .single();
 
-  if (!session) {
+  if (!user) {
     redirect("/login");
   }
 

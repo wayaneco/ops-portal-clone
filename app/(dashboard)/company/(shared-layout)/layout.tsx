@@ -6,6 +6,7 @@ import { useUserClientProviderContext } from "@/app/components/Context/UserClien
 import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 import SidebarProvider from "./context";
+import { redirect } from "next/navigation";
 
 export default function Layout(props: PropsWithChildren) {
   const { currentPrivilege } = useUserClientProviderContext();
@@ -14,8 +15,7 @@ export default function Layout(props: PropsWithChildren) {
     [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]?.includes(privilege)
   );
 
-  if (!hasPrivilege)
-    return <div>You are not authorized to view this page!</div>;
+  if (!hasPrivilege) return redirect("/");
 
   return <SidebarProvider>{props.children}</SidebarProvider>;
 }

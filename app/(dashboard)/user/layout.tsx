@@ -4,7 +4,7 @@ import { PropsWithChildren } from "react";
 
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
-import { usePathname } from "next/navigation";
+import { redirect, usePathname } from "next/navigation";
 
 export default function Layout(props: PropsWithChildren) {
   const pathname = usePathname();
@@ -14,8 +14,7 @@ export default function Layout(props: PropsWithChildren) {
     [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]?.includes(privilege)
   );
 
-  if (!hasPrivilege && pathname === "/user")
-    return <div>You are not authorized to view this page!</div>;
+  if (!hasPrivilege && pathname === "/user") return redirect("/");
 
   return <>{props.children}</>;
 }

@@ -7,6 +7,7 @@ import { useUserClientProviderContext } from "@/app/components/Context/UserClien
 
 import TonisKitchen from "public/tonis.svg";
 import { ROLE_AGENT, ROLE_NETWORK_ADMIN } from "@/app/constant";
+import { redirect } from "next/navigation";
 
 export default function Page() {
   const { selectRef, currentPrivilege } = useUserClientProviderContext();
@@ -15,8 +16,7 @@ export default function Page() {
     [ROLE_NETWORK_ADMIN, ROLE_AGENT]?.includes(privilege)
   );
 
-  if (!hasPrivilege)
-    return <div>You are not authorized to view this page!</div>;
+  if (!hasPrivilege) return redirect("/");
 
   return (
     <div className="py-16">
