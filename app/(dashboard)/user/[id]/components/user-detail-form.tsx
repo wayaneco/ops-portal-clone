@@ -155,10 +155,14 @@ export function UserDetailForm(props: UserDetailFormType) {
   const showActionColumn = (client: ClientsType) => {
     return (
       hasAdminRole ||
-      isSelfService ||
-      (selectedClient === client?.id &&
+      (isSelfService &&
+        selectedClient === client?.id &&
         client?.privileges?.some((priv) =>
           [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN].includes(priv)
+        )) ||
+      (selectedClient === client?.id &&
+        currentPrivilege?.some((priv) =>
+          [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]?.includes(priv)
         ))
     );
   };
