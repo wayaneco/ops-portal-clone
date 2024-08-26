@@ -103,7 +103,15 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
     },
   },
   footer: {},
-  navbar: {},
+  navbar: {
+    link: {
+      base: "block py-2 pl-3 pr-4 p-0",
+      active: {
+        on: "text-primary-500",
+        off: "text-gray-600 hover:text-primary-500",
+      },
+    },
+  },
 };
 
 export default FlowbiteTheme;

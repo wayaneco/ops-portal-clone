@@ -44,38 +44,38 @@ const Navbar = () => {
       <>
         {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
           <FBNavbar.Link
+            as={Link}
+            active={REGEX_USER_PAGE.test(pathname)}
             href={
               !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN])
                 ? `/user/${user?.id}`
                 : "/user"
             }
-            className={`text-base md:text-lg ${
-              REGEX_USER_PAGE.test(pathname) && "text-primary-500"
-            }`}
+            className="text-base md:text-lg"
           >
             User
           </FBNavbar.Link>
         )}
         {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]) && (
           <FBNavbar.Link
+            as={Link}
+            active={REGEX_COMPANY_PAGE.test(pathname)}
             href={
               !isEnable([ROLE_NETWORK_ADMIN])
                 ? `/company/${selectedClient}`
                 : "/company"
             }
-            className={`text-base md:text-lg ${
-              REGEX_COMPANY_PAGE.test(pathname) && "text-primary-500"
-            }`}
+            className="text-base md:text-lg"
           >
             Company
           </FBNavbar.Link>
         )}
         {isEnable([ROLE_AGENT]) && (
           <FBNavbar.Link
+            as={Link}
+            active={pathname === "/kiosk"}
             href="/kiosk"
-            className={`text-base md:text-lg ${
-              pathname === "/kiosk" && "text-primary-500"
-            }`}
+            className="text-base md:text-lg"
           >
             Kiosk
           </FBNavbar.Link>

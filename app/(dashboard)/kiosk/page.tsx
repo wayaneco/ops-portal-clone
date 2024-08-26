@@ -115,8 +115,8 @@ export default function Page() {
           ) : (
             <div className="flex items-center mb-[40px]">
               <div className="text-gray-600 text-lg">
-                Sorry. Your sub-domain is not yet provision. Please contact you
-                administrator
+                Sorry. Your sub-domain is not yet provisioned. Please contact
+                your administrator.
               </div>
             </div>
           )}
