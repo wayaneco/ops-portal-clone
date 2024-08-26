@@ -5,8 +5,10 @@ import { useEffect, useState } from "react";
 
 import { updateUserRoles } from "app/actions/user/update-client";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
-import { RoleType } from "@/app/types";
+import { Privileges, RoleType } from "@/app/types";
 import { useUserDetailFormContext } from "./user-detail-form";
+import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+import { ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 export const EditClient = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -21,6 +23,7 @@ export const EditClient = () => {
     formState: { errors },
   } = useFormContext();
   const { user: userContext } = useSupabaseSessionContext();
+  const { currentPrivilege } = useUserClientProviderContext();
   const { setToast, closeDialog } = useUserDetailFormContext();
 
   const { user, client } = watch("info");
@@ -110,87 +113,95 @@ export const EditClient = () => {
               No data to display
             </div>
           ) : (
-            roleList?.map((role: RoleType) => {
-              const isPrimaryContact = role?.name === "Primary Contact";
+            roleList
+              ?.filter((role: { name: string }) => {
+                if (currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
+                  return true;
+                }
 
-              return (
-                <>
-                  {isPrimaryContact && <HR className="my-1" />}
-                  <div key={role?.id} className="flex items-center gap-2">
-                    <Controller
-                      control={control}
-                      name={`edit_client.role_ids`}
-                      defaultValue={""}
-                      render={() => {
-                        const isChecked = role_ids?.includes(role?.name);
+                return role?.name !== ROLE_NETWORK_ADMIN;
+              })
+              ?.map((role: RoleType) => {
+                const isPrimaryContact = role?.name === "Primary Contact";
 
-                        const isDisabled =
-                          isPrimaryContact &&
-                          (!user?.primary_phone || !user?.email);
+                return (
+                  <>
+                    {isPrimaryContact && <HR className="my-1" />}
+                    <div key={role?.id} className="flex items-center gap-2">
+                      <Controller
+                        control={control}
+                        name={`edit_client.role_ids`}
+                        defaultValue={""}
+                        render={() => {
+                          const isChecked = role_ids?.includes(role?.name);
 
-                        return (
-                          <>
-                            <Checkbox
-                              color="primary"
-                              id={role?.id}
-                              disabled={isDisabled}
-                              className="w-5 h-5"
-                              checked={isChecked}
-                              onChange={() => {
-                                const cloneRoleIds = JSON.parse(
-                                  JSON.stringify(role_ids)
-                                );
+                          const isDisabled =
+                            isPrimaryContact &&
+                            (!user?.primary_phone || !user?.email);
 
-                                if (isChecked) {
-                                  const filteredRoleIds = cloneRoleIds.filter(
-                                    (p: string) => p !== role?.name
+                          return (
+                            <>
+                              <Checkbox
+                                color="primary"
+                                id={role?.id}
+                                disabled={isDisabled}
+                                className="w-5 h-5"
+                                checked={isChecked}
+                                onChange={() => {
+                                  const cloneRoleIds = JSON.parse(
+                                    JSON.stringify(role_ids)
                                   );
 
-                                  setValue(
-                                    "edit_client.role_ids",
-                                    filteredRoleIds
-                                  );
-                                  if (!filteredRoleIds?.length) {
-                                    setError("edit_client.role_ids", {
-                                      message: "Please select a role.",
-                                      type: "required",
-                                    });
+                                  if (isChecked) {
+                                    const filteredRoleIds = cloneRoleIds.filter(
+                                      (p: string) => p !== role?.name
+                                    );
+
+                                    setValue(
+                                      "edit_client.role_ids",
+                                      filteredRoleIds
+                                    );
+                                    if (!filteredRoleIds?.length) {
+                                      setError("edit_client.role_ids", {
+                                        message: "Please select a role.",
+                                        type: "required",
+                                      });
+                                    }
+                                  } else {
+                                    setValue("edit_client.role_ids", [
+                                      ...cloneRoleIds,
+                                      role?.name,
+                                    ]);
+                                    clearErrors("edit_client.role_ids");
                                   }
-                                } else {
-                                  setValue("edit_client.role_ids", [
-                                    ...cloneRoleIds,
-                                    role?.name,
-                                  ]);
-                                  clearErrors("edit_client.role_ids");
-                                }
-                              }}
-                            />
-                            <Label
-                              className={`text-lg ${
-                                isDisabled
-                                  ? "cursor-not-allowed"
-                                  : "cursor-pointer"
-                              }`}
-                              htmlFor={role?.id}
-                              disabled={isDisabled}
-                            >
-                              {role?.name}
-                            </Label>
-                            {isPrimaryContact && isDisabled && (
-                              <small className="text-red-500">
-                                You need to update the user{" "}
-                                <strong>Email</strong> and{" "}
-                                <strong>Phone Number</strong>.
-                              </small>
-                            )}
-                          </>
-                        );
-                      }}
-                    />
-                  </div>
-                </>
-              );
-            })
+                                }}
+                              />
+                              <Label
+                                className={`text-lg ${
+                                  isDisabled
+                                    ? "cursor-not-allowed"
+                                    : "cursor-pointer"
+                                }`}
+                                htmlFor={role?.id}
+                                disabled={isDisabled}
+                              >
+                                {role?.name}
+                              </Label>
+                              {isPrimaryContact && isDisabled && (
+                                <small className="text-red-500">
+                                  You need to update the user{" "}
+                                  <strong>Email</strong> and{" "}
+                                  <strong>Phone Number</strong>.
+                                </small>
+                              )}
+                            </>
+                          );
+                        }}
+                      />
+                    </div>
+                  </>
+                );
+              })
           )}
         </div>
       </Modal.Body>

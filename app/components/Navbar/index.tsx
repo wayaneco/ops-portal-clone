@@ -177,7 +177,7 @@ const Navbar = () => {
             className="text-black hidden md:block"
             onClick={async () => {
               await supabase.auth.signOut();
-              clearState();
+              // clearState();
             }}
           >
             Logout

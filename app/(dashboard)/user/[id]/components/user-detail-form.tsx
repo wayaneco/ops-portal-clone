@@ -19,7 +19,11 @@ import { useUserClientProviderContext } from "@/app/components/Context/UserClien
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { uploadFile } from "@/app/actions/user/upload-file";
-import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
+import {
+  ROLE_COMPANY_ADMIN,
+  ROLE_NETWORK_ADMIN,
+  ROLE_PRIMARY_CONTACT,
+} from "@/app/constant";
 
 import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
@@ -147,6 +151,17 @@ export function UserDetailForm(props: UserDetailFormType) {
       clearTimeout(timeout);
     };
   }, [toast.show]);
+
+  const showActionColumn = (client: ClientsType) => {
+    return (
+      hasAdminRole ||
+      isSelfService ||
+      (selectedClient === client?.id &&
+        client?.privileges?.some((priv) =>
+          [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN].includes(priv)
+        ))
+    );
+  };
 
   if (isFirstRender) return <SkeletonWithUserImage />;
 
@@ -295,6 +310,9 @@ export function UserDetailForm(props: UserDetailFormType) {
                   <Table.HeadCell className="bg-primary-500 text-white">
                     Privileges
                   </Table.HeadCell>
+                  <Table.HeadCell className="w-56 text-center bg-primary-500 text-white">
+                    Primary Contact
+                  </Table.HeadCell>
                   <Table.HeadCell className="w-40 text-center bg-primary-500 text-white">
                     Action
                   </Table.HeadCell>
@@ -312,23 +330,66 @@ export function UserDetailForm(props: UserDetailFormType) {
                         <Table.Cell>{client.name}</Table.Cell>
                         <Table.Cell>
                           <div className="flex gap-2">
-                            {client.privileges?.map((privilege, i) => (
-                              <Badge key={i} className="w-fit" color="primary">
-                                {privilege}
-                              </Badge>
-                            ))}
+                            {client.privileges
+                              ?.filter((priv) => priv !== ROLE_PRIMARY_CONTACT)
+                              ?.map((privilege, i) => (
+                                <Badge
+                                  key={i}
+                                  className="w-fit"
+                                  color="primary"
+                                >
+                                  {privilege}
+                                </Badge>
+                              ))}
                           </div>
                         </Table.Cell>
+                        <Table.Cell className="text-center">
+                          {client.privileges?.some(
+                            (xPriv) => xPriv === ROLE_PRIMARY_CONTACT
+                          ) ? (
+                            <div className="flex justify-center">
+                              <svg
+                                className="w-6 h-6 text-primary-500 "
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M5 11.917 9.724 16.5 19 7.5"
+                                />
+                              </svg>
+                            </div>
+                          ) : (
+                            <div className="flex justify-center">
+                              <svg
+                                className="w-6 h-6 text-red-500 dark:text-white"
+                                aria-hidden="true"
+                                xmlns="http://www.w3.org/2000/svg"
+                                width="24"
+                                height="24"
+                                fill="none"
+                                viewBox="0 0 24 24"
+                              >
+                                <path
+                                  stroke="currentColor"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"
+                                  stroke-width="2"
+                                  d="M6 18 17.94 6M18 18 6.06 6"
+                                />
+                              </svg>
+                            </div>
+                          )}
+                        </Table.Cell>
                         <Table.Cell>
-                          {(hasAdminRole ||
-                            (isSelfService &&
-                              selectedClient === client?.id &&
-                              client?.privileges?.some((priv) =>
-                                [
-                                  ROLE_NETWORK_ADMIN,
-                                  ROLE_COMPANY_ADMIN,
-                                ].includes(priv)
-                              ))) && (
+                          {showActionColumn(client) && (
                             <div className="flex gap-x-2">
                               <Button
                                 color="primary"

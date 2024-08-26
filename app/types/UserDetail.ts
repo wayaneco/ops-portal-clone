@@ -20,12 +20,11 @@ export type UserDetailType = {
   clients: Array<ClientsType>;
 };
 
-export enum Privileges {
-  "NetworkAdmin" = "Network Admin",
-  "CompanyAdmin" = "Company Admin",
-  "Agent" = "Agent",
-  "Customer" = "Customer",
-}
+export type Privileges =
+  | "Network Admin"
+  | "Company Admin"
+  | "Agent"
+  | "Primary Contact";
 
 export type ClientsType = {
   id: string;
