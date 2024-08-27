@@ -49,8 +49,8 @@ const MapComponent = () => {
     const newLng = event.latLng.lng();
     setNewMarkerPosition({ lat: newLat, lng: newLng });
 
-    setValue("latitude", newLat);
-    setValue("longitude", newLng);
+    setValue("latitude", newLat, { shouldDirty: true });
+    setValue("longitude", newLng, { shouldDirty: true });
   };
 
   const searchLocation = async (address: string) => {
@@ -64,10 +64,11 @@ const MapComponent = () => {
     if (data.results.length > 0) {
       const location = data.results[0].geometry.location;
       setNewMarkerPosition(location);
-      setValue("latitude", location.lat);
-      setValue("longitude", location.lng);
+      setValue("latitude", location.lat, { shouldDirty: true });
+      setValue("longitude", location.lng, { shouldDirty: true });
     } else {
-      throw new Error("Location not found");
+      // throw new Error("Location not found");
+      console.log("Location not found!");
     }
   };
 

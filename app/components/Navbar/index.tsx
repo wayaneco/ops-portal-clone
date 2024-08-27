@@ -96,7 +96,7 @@ const Navbar = () => {
     }
 
     switch (true) {
-      case clientList.length > 1:
+      case clientList?.length > 1:
         component = (
           <div className="flex items-center gap-x-2 text-gray-600">
             <strong>{userInfo?.email}</strong>
@@ -119,7 +119,7 @@ const Navbar = () => {
           </div>
         );
         break;
-      case clientList.length === 1:
+      case clientList?.length === 1:
         component = (
           <div className="flex items-center gap-x-2 text-gray-600">
             <strong>{userInfo?.email}</strong>

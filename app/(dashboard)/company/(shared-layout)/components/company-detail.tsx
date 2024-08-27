@@ -124,7 +124,13 @@ const CompanyDetail = function ({
   const watchIsWebAddressValid = methods.watch("isWebAddressValid");
 
   const isSubmitButtonDisabled =
-    startLogging || !watchIsWebAddressValid || !watchName || !watchWebAddress;
+    !methods?.formState?.isDirty ||
+    startLogging ||
+    !watchIsWebAddressValid ||
+    !watchName ||
+    !watchWebAddress;
+
+  console.log({ watchWebAddress, companinfo_web: companyInfo?.web_address });
 
   const onSubmit = (data: any) => {
     setIsSubmitting(true);
@@ -193,6 +199,15 @@ const CompanyDetail = function ({
 
   const handleProvision = async () => {
     try {
+      if (watchWebAddress !== companyInfo?.web_address) {
+        await supabase
+          .from("clients")
+          .update({
+            web_address: watchWebAddress,
+          })
+          .eq("id", companyInfo?.client_id);
+      }
+
       const response = await fetch(
         "https://api-portal-dev.everesteffect.com/provision",
         {
