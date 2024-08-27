@@ -5,7 +5,7 @@ import { UserDetailForm } from "./components/user-detail-form";
 
 const Page = async function (props: { params: { id: string } }) {
   const response = await fetch(
-    `http://localhost:3000/api/user/${props?.params?.id}`,
+    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${props?.params?.id}`,
     {
       method: "GET",
       headers: headers(),

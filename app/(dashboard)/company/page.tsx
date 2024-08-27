@@ -4,7 +4,7 @@ import { headers } from "next/headers";
 import { CompanyListTable } from "./components/company-list-table";
 
 const Page = async function () {
-  const response = await fetch("http://localhost:3000/api/company", {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company`, {
     method: "GET",
     headers: headers(),
     next: {

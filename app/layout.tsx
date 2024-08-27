@@ -35,7 +35,7 @@ export default async function RootLayout({
   const { data: userData } = await supabase.auth.getUser();
 
   const response = await fetch(
-    `http://localhost:3000/api/user/${userData?.user?.id}`,
+    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${userData?.user?.id}`,
     {
       method: "GET",
       headers: headers(),
