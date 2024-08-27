@@ -17,7 +17,10 @@ export async function revokePrivilege(params: {
   });
 
   if (error) {
-    throw new Error("Error revoking roles.");
+    return {
+      isError: true,
+      message: `Failed to revoke client.`,
+    };
   }
 
   revalidateTag("user_details");

@@ -40,7 +40,12 @@ export async function updateUserInfo(params: UpdateUserInfoType) {
           email: params?.email,
         });
 
-      if (update_email_error) throw new Error(update_email_error?.message);
+      if (update_email_error) {
+        return {
+          isError: true,
+          message: `Failed to update email.`,
+        };
+      }
     }
 
     const payload = {
@@ -66,24 +71,24 @@ export async function updateUserInfo(params: UpdateUserInfoType) {
       payload
     );
 
-    if (update_user_info_error)
-      throw new Error(update_user_info_error?.message);
+    if (update_user_info_error) {
+      return {
+        isError: true,
+        message: `Failed to update user.`,
+      };
+    }
 
     revalidateTag("user_details");
     revalidatePath("(dashboard)/user/[id]", "layout");
 
-    return JSON.parse(
-      JSON.stringify({
-        isError: false,
-        message: "Success",
-      })
-    );
+    return {
+      isError: false,
+      message: "Success",
+    };
   } catch (error) {
-    return JSON.parse(
-      JSON.stringify({
-        isError: true,
-        message: error,
-      })
-    );
+    return {
+      isError: true,
+      message: error,
+    };
   }
 }
