@@ -45,12 +45,26 @@ export function UserDetailModal(props: UserDetailModal) {
       edit_client: {
         role_ids: client?.privileges?.map((role: string) => role),
       },
+      edit_user: {
+        photo_url: "",
+        first_name: user?.first_name ?? "",
+        last_name: user?.last_name ?? "",
+        middle_name: user?.middle_name ?? "",
+        birth_date: user?.birth_date ?? "",
+        preferred_name: user?.preferred_name ?? "",
+        email: user?.email ?? "",
+        primary_phone: user?.primary_phone ?? "",
+        addr_line_1: user?.addr_line_1 ?? "",
+        addr_line_2: user?.addr_line_2 ?? "",
+        zip_code: user?.zip_code ?? "",
+        city: user?.city ?? "",
+        country: user?.country ?? "",
+        state_province_region: user?.state_province_region ?? "",
+      },
     },
     mode: "onChange",
     resolver: yupResolver(schema(modalContent)),
   });
-
-  console.log(methods.formState.errors);
 
   return (
     <Modal show={show} onClose={onClose} {...otherProps}>

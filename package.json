@@ -20,12 +20,15 @@
     "axios": "^1.7.4",
     "flowbite": "^2.4.1",
     "flowbite-react": "^0.10.1",
+    "moment": "^2.30.1",
     "next": "14.2.5",
     "react": "^18",
     "react-beautiful-dnd": "^13.1.1",
+    "react-confetti": "^6.1.0",
     "react-dom": "^18",
     "react-hook-form": "^7.52.1",
     "react-tailwindcss-select": "^1.8.5",
+    "use-debounce": "^10.0.3",
     "yup": "^1.4.0"
   },
   "devDependencies": {

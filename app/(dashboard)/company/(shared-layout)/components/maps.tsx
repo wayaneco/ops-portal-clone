@@ -2,8 +2,10 @@
 we need to make this component client rendered as well*/
 "use client";
 
+import { NEXT_PUBLIC_GOOGLE_MAP_API } from "@/app/constant";
 //Map component Component from library
 import { GoogleMap, Marker } from "@react-google-maps/api";
+import { TextInput, Button } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
@@ -14,13 +16,13 @@ const defaultMapContainerStyle = {
 };
 
 //Default zoom level, can be adjusted
-const defaultMapZoom = 1;
+const defaultMapZoom = 10;
 
 //Map options
 const defaultMapOptions = {
   zoomControl: true,
   gestureHandling: "auto",
-  mapTypeId: "satellite",
+  mapTypeId: "roadmap",
   maxZoom: 18, // Set the maximum zoom level
   minZoom: 3, // Set the minimum zoom level
 };
@@ -28,15 +30,17 @@ const defaultMapOptions = {
 const MapComponent = () => {
   const { setValue, watch } = useFormContext();
 
-  const watchLatitude = watch("latitude");
-  const watchLongitude = watch("longitude");
+  const watchLatitude = watch("latitude") || "";
+  const watchLongitude = watch("longitude") || "";
+
   const [newMarkerPosition, setNewMarkerPosition] = useState<{
     lat: number;
     lng: number;
   }>({
-    lat: watchLatitude,
-    lng: watchLongitude,
+    lat: Number(watchLatitude) || 40.7128,
+    lng: Number(watchLongitude) || 74.006,
   });
+  const [addressSearch, setAddressSearch] = useState<string>("");
 
   const onMarkerDragEnd = (event: {
     latLng: { lat: () => any; lng: () => any };
@@ -49,25 +53,46 @@ const MapComponent = () => {
     setValue("longitude", newLng);
   };
 
-  useEffect(() => {
-    if (navigator.geolocation) {
-      navigator.geolocation.getCurrentPosition((position) => {
-        const { latitude, longitude } = position.coords;
+  const searchLocation = async (address: string) => {
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(
+        address
+      )}&key=${NEXT_PUBLIC_GOOGLE_MAP_API}`
+    );
+    const data = await response.json();
 
-        setNewMarkerPosition({
-          lat: latitude,
-          lng: longitude,
-        });
-
-        setValue("latitude", latitude);
-        setValue("longitude", longitude);
-      });
+    if (data.results.length > 0) {
+      const location = data.results[0].geometry.location;
+      setNewMarkerPosition(location);
+      setValue("latitude", location.lat);
+      setValue("longitude", location.lng);
+    } else {
+      throw new Error("Location not found");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  };
 
   return (
-    <div className="w-full relative">
+    <div className="w-full relative ">
+      <div className="absolute w-96 top-2 left-1 z-10">
+        <div className="flex items-center">
+          <TextInput
+            className="mr-2"
+            placeholder="Enter address"
+            color="primary"
+            onChange={(evt) => {
+              setAddressSearch(evt.target.value);
+            }}
+          />
+          <Button
+            color="primary"
+            onClick={(_evt: any) => {
+              searchLocation(addressSearch);
+            }}
+          >
+            Search
+          </Button>
+        </div>
+      </div>
       <GoogleMap
         mapContainerStyle={defaultMapContainerStyle}
         center={newMarkerPosition}

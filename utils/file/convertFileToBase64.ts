@@ -1,4 +1,4 @@
-export const convertFileToBase64 = (file: any) => {
+export const convertFileToBase64 = (file: any): string => {
   try {
     return new Promise((resolve) => {
       const reader = new FileReader();

@@ -1,7 +1,5 @@
 import * as React from "react";
-import { NextPage } from "next";
-import Link from "next/link";
-import { Button, Card } from "flowbite-react";
+import { headers } from "next/headers";
 
 import { UserDetailForm } from "./components/user-detail-form";
 
@@ -10,13 +8,11 @@ const Page = async function (props: { params: { id: string } }) {
     `http://localhost:3000/api/user/${props?.params?.id}`,
     {
       method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
+      headers: headers(),
       next: {
         tags: ["user_details"],
-        revalidate: 0,
       },
+      cache: "no-cache",
     }
   );
 
@@ -28,14 +24,7 @@ const Page = async function (props: { params: { id: string } }) {
 
   return (
     <div className="py-8 bg-gray-200">
-      <Link href="/user">
-        <Button color="primary">BACK</Button>
-      </Link>
-      <div className="mt-5">
-        <Card>
-          <UserDetailForm data={data} />
-        </Card>
-      </div>
+      <UserDetailForm data={data} />
     </div>
   );
 };

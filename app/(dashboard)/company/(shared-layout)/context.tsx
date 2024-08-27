@@ -1,7 +1,11 @@
 "use client";
 
-import { Sidebar, SidebarItems, SidebarItemGroup } from "flowbite-react";
 import { createContext, PropsWithChildren, useState } from "react";
+import { Sidebar, SidebarItems, SidebarItemGroup } from "flowbite-react";
+
+import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+
+import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 export type SidebarContextType = {
   pathname: string;
@@ -17,34 +21,52 @@ const SIDEBAR_ITEMS = [
     id: 1,
     label: "Web Address",
     routeName: "webAddress",
+    allowedRole: [ROLE_NETWORK_ADMIN],
   },
   {
     id: 2,
     label: "Service Location",
     routeName: "serviceLocation",
+    allowedRole: [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN],
   },
   {
     id: 3,
     label: "Service Provided",
     routeName: "serviceProvided",
+    allowedRole: [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN],
   },
   {
     id: 4,
     label: "Tags",
     routeName: "tags",
+    allowedRole: [ROLE_NETWORK_ADMIN],
   },
   {
     id: 5,
     label: "Provider Type",
     routeName: "providerType",
+    allowedRole: [ROLE_NETWORK_ADMIN],
   },
 ];
 
 export default function SidebarContextProvider(props: PropsWithChildren) {
-  const [pathname, setPathname] = useState("webAddress");
+  const { currentPrivilege } = useUserClientProviderContext();
+
+  const [pathname, setPathname] = useState(() => {
+    if (currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
+      return "webAddress";
+    }
+
+    return "serviceLocation";
+  });
 
   return (
-    <SidebarContext.Provider value={{ pathname, setPathname }}>
+    <SidebarContext.Provider
+      value={{
+        pathname,
+        setPathname,
+      }}
+    >
       <div className="h-[calc(100vh-100px)]">
         <div className="flex w-full h-full ">
           <Sidebar className="pt-[80px] relative z-10">
@@ -52,6 +74,13 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
               <SidebarItemGroup>
                 {SIDEBAR_ITEMS.map((item) => {
                   const isActive = item.routeName === pathname;
+                  if (
+                    !item?.allowedRole.some((allowed) =>
+                      currentPrivilege?.includes(allowed)
+                    )
+                  ) {
+                    return null;
+                  }
                   return (
                     <div
                       key={item.id}
@@ -63,7 +92,7 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
                       {item.label}
                     </div>
                   );
-                })}
+                }).filter(Boolean)}
               </SidebarItemGroup>
             </SidebarItems>
           </Sidebar>

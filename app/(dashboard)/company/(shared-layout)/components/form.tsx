@@ -15,8 +15,8 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
     case "webAddress":
       component = (
         <div className="m-8">
-          <Card>
-            <div className="p-8">
+          <Card className="[&>div]:block max-h-[calc(100vh-245px)] overflow-hidden">
+            <div className="p-8 self-start">
               <WebAddress />
             </div>
           </Card>

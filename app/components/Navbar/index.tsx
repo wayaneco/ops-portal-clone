@@ -1,58 +1,144 @@
 "use client";
 
-import { ReactNode, useContext, useState } from "react";
-import { Button, Navbar as FBNavbar, NavbarBrand } from "flowbite-react";
+import React from "react";
+import { Button, Navbar as FBNavbar, Select } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { AuthContext } from "../Context/SupabaseSessionProvider";
+import { useSupabaseSessionContext } from "../Context/SupabaseSessionProvider";
 import { createClient } from "@/utils/supabase/client";
+import { ClientsType } from "@/app/types";
+import { useUserClientProviderContext } from "../Context/UserClientContext";
+import {
+  ROLE_NETWORK_ADMIN,
+  ROLE_COMPANY_ADMIN,
+  ROLE_AGENT,
+} from "@/app/constant";
 
-export default function Navbar({
-  privileges,
-}: {
-  privileges: string;
-}): ReactNode {
+const Navbar = () => {
   const supabase = createClient();
-  const { session } = useContext(AuthContext)!;
   const pathname = usePathname();
 
-  const regex = new RegExp(/^\/company?\w/);
+  const { user } = useSupabaseSessionContext();
+  const {
+    changeClient,
+    clientLists,
+    selectedClient,
+    currentPrivilege,
+    clearState,
+    selectRef,
+    hasAdminRole,
+  } = useUserClientProviderContext();
 
-  const dynamicLinks = (privileges: string) => {
+  const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
+  const REGEX_USER_PAGE = new RegExp(/^\/user?(\/\w)?.+/);
+
+  const MenuList = ({ currentPrivilege }: { currentPrivilege: Array<any> }) => {
+    const isEnable = (expectedPrivilege: Array<any>) => {
+      return currentPrivilege?.some((current) =>
+        expectedPrivilege?.includes(current)
+      );
+    };
+    return (
+      <>
+        {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
+          <FBNavbar.Link
+            as={Link}
+            active={REGEX_USER_PAGE.test(pathname)}
+            href={
+              !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN])
+                ? `/user/${user?.id}`
+                : "/user"
+            }
+            className="text-base md:text-lg"
+          >
+            User
+          </FBNavbar.Link>
+        )}
+        {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]) && (
+          <FBNavbar.Link
+            as={Link}
+            active={REGEX_COMPANY_PAGE.test(pathname)}
+            href={
+              !isEnable([ROLE_NETWORK_ADMIN])
+                ? `/company/${selectedClient}`
+                : "/company"
+            }
+            className="text-base md:text-lg"
+          >
+            Company
+          </FBNavbar.Link>
+        )}
+        {isEnable([ROLE_AGENT]) && (
+          <FBNavbar.Link
+            as={Link}
+            active={pathname === "/kiosk"}
+            href="/kiosk"
+            className="text-base md:text-lg"
+          >
+            Kiosk
+          </FBNavbar.Link>
+        )}
+      </>
+    );
+  };
+
+  const GenerateFieldForActiveClient = () => {
+    const { userInfo } = useSupabaseSessionContext();
     let component;
-    switch (privileges) {
+
+    let clientList: any = [];
+
+    if (hasAdminRole) {
+      clientList = clientLists;
+    } else {
+      clientList = userInfo?.clients;
+    }
+
+    switch (true) {
+      case clientList.length > 1:
+        component = (
+          <div className="flex items-center gap-x-2 text-gray-600">
+            <strong>{userInfo?.email}</strong>
+            <div className="">in behalf of</div>
+            <Select
+              ref={selectRef}
+              color="primary"
+              className="w-36"
+              value={selectedClient}
+              onChange={(event) => {
+                changeClient(event?.target?.value);
+              }}
+            >
+              {clientList?.map((client: ClientsType, index: number) => (
+                <option key={index} value={client?.id}>
+                  {client?.name}
+                </option>
+              ))}
+            </Select>
+          </div>
+        );
+        break;
+      case clientList.length === 1:
+        component = (
+          <div className="flex items-center gap-x-2 text-gray-600">
+            <strong>{userInfo?.email}</strong>
+            <div className="">in behalf of</div>
+            <strong>{userInfo?.clients[0].name}</strong>
+          </div>
+        );
+        break;
       default:
         component = (
-          <>
-            <FBNavbar.Link
-              href="/user"
-              className={`text-base md:text-lg ${
-                pathname === "/user" && "text-primary-500"
-              }`}
-            >
-              User
-            </FBNavbar.Link>
-            <FBNavbar.Link
-              href="/company"
-              className={`text-base md:text-lg ${
-                regex.test(pathname) && "text-primary-500"
-              }`}
-            >
-              Company
-            </FBNavbar.Link>
-            <FBNavbar.Link
-              href="/kiosk"
-              className={`text-base md:text-lg ${
-                pathname === "/kiosk" && "text-primary-500"
-              }`}
-            >
-              Kiosk
-            </FBNavbar.Link>
-          </>
+          <div className="flex items-center gap-x-2 text-gray-600">
+            <div className="">Welcome,</div>
+            <strong>{userInfo?.email}</strong>
+          </div>
         );
+        break;
     }
+
     return component;
   };
 
@@ -74,7 +160,7 @@ export default function Navbar({
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        {dynamicLinks(privileges)}
+        {<MenuList currentPrivilege={currentPrivilege} />}
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"
@@ -82,17 +168,18 @@ export default function Navbar({
           Logout
         </FBNavbar.Link>
       </FBNavbar.Collapse>
-      {session ? (
-        <Button
-          color="white"
-          type="button"
-          className="text-black"
-          onClick={() => {
-            supabase.auth.signOut();
-          }}
-        >
-          Logout
-        </Button>
+      {user ? (
+        <div className="flex items-center gap-x-4">
+          <GenerateFieldForActiveClient />
+          <Button
+            color="white"
+            type="button"
+            className="text-black hidden md:block"
+            onClick={() => supabase.auth.signOut()}
+          >
+            Logout
+          </Button>
+        </div>
       ) : (
         <Link
           href="/login"
@@ -103,4 +190,6 @@ export default function Navbar({
       )}
     </FBNavbar>
   );
-}
+};
+
+export default Navbar;

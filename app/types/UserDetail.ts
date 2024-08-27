@@ -16,18 +16,19 @@ export type UserDetailType = {
   primary_phone: string;
   secondary_phone: string;
   photo_url: string;
+  zip_code: string;
   clients: Array<ClientsType>;
 };
 
-export enum Privileges {
-  "NetworkAdmin" = "Network Admin",
-  "CompanyAdmin" = "Company Admin",
-  "Agent" = "Agent",
-  "Customer" = "Customer",
-}
+export type Privileges =
+  | "Network Admin"
+  | "Company Admin"
+  | "Agent"
+  | "Primary Contact";
 
 export type ClientsType = {
   id: string;
+  client_id?: string;
   name: string;
   latitude: string;
   logo_url: string;
@@ -35,7 +36,8 @@ export type ClientsType = {
   longitude: string;
   time_zone: string;
   is_enabled: boolean;
-  privileges: Array<Privileges>;
+  created_at: string;
+  privileges?: Array<Privileges>;
   tags: Array<{
     label: string;
   }>;
@@ -43,6 +45,11 @@ export type ClientsType = {
     label: string;
   }>;
   service_provided: Array<{
+    // TODO:
+    label: string;
+  }>;
+  service_provided_data: Array<{
+    // TODO:
     label: string;
   }>;
   description: string;

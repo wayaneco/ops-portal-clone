@@ -16,12 +16,12 @@ export async function revokePrivilege(params: {
     staff_id: params.staff_id,
   });
 
-  revalidateTag("user_details");
-  revalidatePath("(dashboard)/user/[id]", "layout");
-
   if (error) {
     throw new Error("Error revoking roles.");
   }
+
+  revalidateTag("user_details");
+  revalidatePath("(dashboard)/user/[id]", "layout");
 
   return data;
 }

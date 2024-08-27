@@ -27,8 +27,8 @@ export const ServiceProvided = () => {
   return (
     <div>
       <div>
-        <div className="overflow-y-auto border border-primary-500">
-          <div className="max-h-[calc(100vh-550px)]">
+        <div className="overflow-y-auto rounded-md border border-gray-200">
+          <div className="max-h-[calc(100vh-400px)]">
             <div className="bg-white">
               <DragDropContext
                 onDragEnd={(result) => {
@@ -63,7 +63,9 @@ export const ServiceProvided = () => {
                     >
                       {!fields?.length ? (
                         <div className="p-6">
-                          <div className="text-center">No Data</div>
+                          <div className="text-center text-gray-600">
+                            No Data
+                          </div>
                         </div>
                       ) : (
                         fields.map((_, index: number) => {
@@ -116,8 +118,25 @@ export const ServiceProvided = () => {
                                       </div>
                                     )}
                                   />
+                                  <Controller
+                                    control={control}
+                                    name={`service_provided[${index}].type`}
+                                    defaultValue="count"
+                                    render={({ field }) => (
+                                      <div className="w-full hidden">
+                                        <TextInput
+                                          color="primary"
+                                          disabled={
+                                            !isEditing ||
+                                            fields?.length - 1 !== index
+                                          }
+                                          {...field}
+                                        />
+                                      </div>
+                                    )}
+                                  />
                                   {!isEditing && (
-                                    <div className="mt-2.5 flex">
+                                    <div className="mt-1.5 flex">
                                       <div
                                         {...draggableProvided.dragHandleProps}
                                         className="p-2 rounded-md text-black cursor-pointer hover:bg-primary-500 group"
@@ -190,25 +209,92 @@ export const ServiceProvided = () => {
                                   )}
                                   {fields?.length - 1 === index &&
                                     isEditing && (
-                                      <Button
-                                        color="primary"
-                                        onClick={() => {
-                                          const fieldLabel = watch(
-                                            `service_provided[${index}].label`
-                                          );
+                                      //   <Button
+                                      //     color="primary"
+                                      //     onClick={() => {
+                                      //       const fieldLabel = watch(
+                                      //         `service_provided[${index}].label`
+                                      //       );
 
-                                          if (!fieldLabel) {
-                                            trigger([
-                                              `service_provided[${index}].label`,
-                                            ]);
-                                            return;
-                                          }
+                                      //       if (!fieldLabel) {
+                                      //         trigger([
+                                      //           `service_provided[${index}].label`,
+                                      //         ]);
+                                      //         return;
+                                      //       }
 
-                                          setIsEditing(false);
-                                        }}
-                                      >
-                                        Save
-                                      </Button>
+                                      //       setIsEditing(false);
+                                      //     }}
+                                      //   >
+                                      //     Save
+                                      // </Button>
+                                      <div className="mt-1 5">
+                                        <div className="flex items-center gap-x-2">
+                                          <div
+                                            className={`p-2 rounded-md text-white bg-green-500 group cursor-pointer hover:bg-green-500"
+                                      }`}
+                                            onClick={() => {
+                                              const fieldLabel = watch(
+                                                `service_provided[${index}].label`
+                                              );
+
+                                              if (!fieldLabel) {
+                                                trigger([
+                                                  `service_provided[${index}].label`,
+                                                ]);
+                                                return;
+                                              }
+
+                                              setIsEditing(false);
+                                            }}
+                                          >
+                                            <svg
+                                              className="w-4 h-4 text-white"
+                                              aria-hidden="true"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                              width="24"
+                                              height="24"
+                                              fill="none"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                stroke="currentColor"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M5 11.917 9.724 16.5 19 7.5"
+                                              />
+                                            </svg>
+                                          </div>
+                                          <div
+                                            className={`p-2 rounded-md text-white bg-red-500 group cursor-pointer hover:bg-red-500"
+                                      }`}
+                                            onClick={() => {
+                                              remove(index);
+
+                                              setIsEditing(false);
+                                            }}
+                                          >
+                                            <svg
+                                              className="w-4 h-4 text-white dark:text-white"
+                                              aria-hidden="true"
+                                              xmlns="http://www.w3.org/2000/svg"
+                                              width="24"
+                                              height="24"
+                                              fill="none"
+                                              viewBox="0 0 24 24"
+                                            >
+                                              <path
+                                                stroke="currentColor"
+                                                strokeLinecap="round"
+                                                strokeLinejoin="round"
+                                                strokeWidth="2"
+                                                d="M6 18 17.94 6M18 18 6.06 6"
+                                              />
+                                            </svg>
+                                          </div>
+                                        </div>
+                                      </div>
                                     )}
                                 </div>
                               )}
@@ -234,6 +320,7 @@ export const ServiceProvided = () => {
             setIsEditing(true);
             append({
               label: "",
+              type: "count",
             });
           }}
         >

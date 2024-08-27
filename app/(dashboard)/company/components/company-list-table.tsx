@@ -1,19 +1,29 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
+import moment from "moment";
+import { useRouter } from "next/navigation";
 
 import {
   TextInput,
   Table,
+  Button,
+  Card,
+  TableBody,
+  TableCell,
   TableHead,
   TableHeadCell,
-  TableBody,
   TableRow,
-  TableCell,
-  Button,
+  Badge,
 } from "flowbite-react";
+
 import { ClientsType } from "@/app/types";
+import { useIsFirstRender } from "@/hooks/isFirstRender";
+import { TableSkeleton } from "@/app/components/Skeleton";
+
+import * as ImagePlaceholder from "public/image-placeholder.jpg";
 
 type CompanyListTableProps = {
   data: Array<ClientsType>;
@@ -21,8 +31,25 @@ type CompanyListTableProps = {
 
 export const CompanyListTable = (props: CompanyListTableProps) => {
   const { data = [] } = props;
+  const router = useRouter();
+
   const [search, setSearch] = useState<string>("");
-  const [clientList, setClientList] = useState<Array<ClientsType>>(data);
+
+  const isFirstRender = useIsFirstRender();
+
+  const clientList = useMemo(() => {
+    if (search) {
+      return data?.filter((client: ClientsType) =>
+        client?.name?.toLowerCase().includes(search.toLowerCase())
+      );
+    }
+
+    return data;
+  }, [data, search]);
+
+  if (isFirstRender) {
+    return <TableSkeleton />;
+  }
 
   return (
     <>
@@ -32,30 +59,27 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
         className="w-[450px]"
         value={search}
         onChange={(event) => {
-          const filteredClients = data?.filter((client: ClientsType) =>
-            client?.name
-              ?.toLowerCase()
-              .includes(event.target.value.toLowerCase())
-          );
-          setClientList(filteredClients);
           setSearch(event.target.value);
         }}
       />
       <div className="mt-5">
         <div className="overflow-auto bg-gray-100 border border-gray-100">
-          <div className="max-h-[calc(100vh-440px)] ">
-            <Table hoverable className="shadow-md ">
-              <TableHead>
-                <TableHeadCell className="w-32 text-center bg-primary-500 text-white sticky top-0 z-10">
+          <div className="max-h-[calc(100vh-440px)]">
+            <Table hoverable className="shadow-md">
+              <Table.Head>
+                <Table.HeadCell className="w-32 text-center bg-primary-500 text-white sticky top-0 z-10">
                   Logo
+                </Table.HeadCell>
+                <Table.HeadCell className="bg-primary-500 text-white sticky top-0 z-10">
+                  Name
+                </Table.HeadCell>
+                <TableHeadCell className="w-48 bg-primary-500 text-white sticky top-0 z-10 text-center">
+                  Provision Status
                 </TableHeadCell>
-                <TableHeadCell className="bg-primary-500 text-white sticky top-0 z-10">
-                  Email
-                </TableHeadCell>
-                <TableHeadCell className="w-32 bg-primary-500 text-white sticky top-0 z-10">
-                  <span className="sr-only">View</span>
-                </TableHeadCell>
-              </TableHead>
+                <Table.HeadCell className="w-60 bg-primary-500 text-white sticky top-0 z-10 text-center">
+                  Created At
+                </Table.HeadCell>
+              </Table.Head>
               {!clientList?.length ? (
                 <div className="h-11 relative table-footer-group">
                   <div className="absolute inset-0 flex items-center justify-center w-full h-full">
@@ -63,30 +87,43 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                   </div>
                 </div>
               ) : (
-                <TableBody className="divide-y">
+                <Table.Body className="divide-y">
                   {clientList?.map((client: ClientsType) => (
-                    <TableRow key={client?.id} className="bg-white">
-                      <TableCell>
+                    <Table.Row
+                      key={client?.client_id}
+                      className="bg-white cursor-pointer"
+                      onClick={() => router.push(`/company/${client?.id}`)}
+                    >
+                      <Table.Cell>
                         <div className="relative h-10 w-full">
                           <img
-                            src={client?.logo_url}
+                            src={
+                              !!client?.logo_url
+                                ? client?.logo_url
+                                : ImagePlaceholder.default.src
+                            }
                             alt={`${client?.name} logo`}
                             className="w-full h-full object-contain"
                           />
                         </div>
-                      </TableCell>
-                      <TableCell>{client?.name}</TableCell>
-                      <TableCell>
-                        <Link
-                          href={`/company/${client.id}`}
-                          className="text-yellow-500 underline cursor-pointer"
+                      </Table.Cell>
+                      <Table.Cell>{client?.name}</Table.Cell>
+                      <TableCell className="text-center font-bold">
+                        <Badge
+                          className="w-fit mx-auto"
+                          color={client?.provisioning_status.toLowerCase()}
                         >
-                          View
-                        </Link>
+                          {client?.provisioning_status}
+                        </Badge>
                       </TableCell>
-                    </TableRow>
+                      <Table.Cell>
+                        {moment(client.created_at).format(
+                          "MMMM D, yyyy hh:mm A"
+                        )}
+                      </Table.Cell>
+                    </Table.Row>
                   ))}
-                </TableBody>
+                </Table.Body>
               )}
             </Table>
           </div>

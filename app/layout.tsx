@@ -8,7 +8,16 @@ import { SupabaseSessionProvider } from "@/components/Context/SupabaseSessionPro
 
 import "./globals.css";
 import { createClient } from "@/utils/supabase/server";
-import { AuthSession, Session, UserResponse } from "@supabase/supabase-js";
+import {
+  AuthSession,
+  Session,
+  User,
+  UserResponse,
+} from "@supabase/supabase-js";
+import { UserClientContextProvider } from "./components/Context/UserClientContext";
+import { headers } from "next/headers";
+import { ROLE_NETWORK_ADMIN } from "./constant";
+import { ClientsType } from "./types";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -22,16 +31,53 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const session = await createClient().auth.getSession();
+  const supabase = createClient();
+  const { data: userData } = await supabase.auth.getUser();
+
+  const response = await fetch(
+    `http://localhost:3000/api/user/${userData?.user?.id}`,
+    {
+      method: "GET",
+      headers: headers(),
+      next: {
+        tags: ["user_info"],
+        revalidate: 100,
+      },
+    }
+  );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch user ${userData?.user?.id}`);
+  }
+
+  const data = await response.json();
+
+  const { data: clientLists = [] } = await supabase
+    .from("clients")
+    .select(`id, name, logo_url, web_address, provisioning_status`)
+    .order("name", { ascending: true });
+
+  const { data: hasAdminRole = false } = await supabase.rpc("has_admin_role", {
+    p_role_name: ROLE_NETWORK_ADMIN,
+    p_user_id: userData?.user?.id,
+  });
 
   return (
     <html lang="en">
       <CorbadoProvider>
         <Flowbite theme={{ theme: FlowbiteTheme }}>
-          <SupabaseSessionProvider session={session?.data?.session as Session}>
-            <body className={inter.className}>
-              <main className="bg-gray-200">{children}</main>
-            </body>
+          <SupabaseSessionProvider
+            userInfo={data}
+            user={userData?.user as User}
+          >
+            <UserClientContextProvider
+              clientLists={clientLists! as Array<ClientsType>}
+              hasAdminRole={hasAdminRole}
+            >
+              <body className={inter.className}>
+                <main className="bg-gray-200">{children}</main>
+              </body>
+            </UserClientContextProvider>
           </SupabaseSessionProvider>
         </Flowbite>
       </CorbadoProvider>
