@@ -1,5 +1,5 @@
 import { Label, TextInput, Button, List, Spinner } from "flowbite-react";
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { useDebouncedCallback } from "use-debounce";
 
@@ -54,6 +54,12 @@ export const WebAddress = () => {
       setStatus({ isFetching: false, isDone: true });
     }
   }, 1000); // 1 SECONDS
+
+  useEffect(() => {
+    if (isCompleted) {
+      setStartProvision(false);
+    }
+  }, [isCompleted]);
 
   return (
     <>

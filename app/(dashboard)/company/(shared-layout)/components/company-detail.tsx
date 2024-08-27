@@ -28,10 +28,12 @@ import { upsertCompanyDetails } from "@/app/actions/company/upsert-company";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { createClient } from "@/utils/supabase/client";
 import {
+  ROLE_NETWORK_ADMIN,
   STATUS_COMPLETED,
   STATUS_IN_PROGRESS,
   STATUS_PROVISION,
 } from "@/app/constant";
+import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 
 type CompanyDetailType = {
   initialLogs?: Array<{ event: string; status: STATUS_PROVISION }>;
@@ -90,6 +92,7 @@ const CompanyDetail = function ({
   const router = useRouter();
 
   const { user } = useSupabaseSessionContext();
+  const { currentPrivilege } = useUserClientProviderContext();
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
   )!;
@@ -144,6 +147,7 @@ const CompanyDetail = function ({
               client_id: companyInfo?.client_id,
             },
             {
+              currentPrivilege,
               update: !!companyInfo,
             }
           );
@@ -161,9 +165,15 @@ const CompanyDetail = function ({
             </div>
           ),
         });
-        setTimeout(() => {
-          router.push("/company");
-        }, 3000);
+
+        if (!currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
+          setIsSubmitting(false);
+        }
+
+        currentPrivilege?.includes(ROLE_NETWORK_ADMIN) &&
+          setTimeout(() => {
+            router.push("/company");
+          }, 3000);
       } catch (_) {
         setIsSubmitting(false);
         setToastState({
@@ -350,8 +360,8 @@ const CompanyDetail = function ({
         >
           <div className="absolute left-0 right-0 overflow-x-hidden">
             <div className="relative z-10 bg-gray-50">
-              <div className="flex gap-x-4 items-center">
-                <div className="w-64">
+              <div className="flex items-center">
+                <div className="min-w-64 w-64">
                   <Controller
                     control={methods.control}
                     name="logo"
@@ -403,26 +413,31 @@ const CompanyDetail = function ({
                     )}
                   />
                 </div>
-                <Controller
-                  control={methods.control}
-                  name="name"
-                  render={({ field }) => (
-                    <TextInput
-                      color="primary"
-                      placeholder="Add client name"
-                      className="w-[450px]"
-                      disabled={startLogging}
-                      {...field}
-                    />
-                  )}
-                />
-                <Button
-                  type="submit"
-                  color="primary"
-                  disabled={isSubmitButtonDisabled}
-                >
-                  {companyInfo ? "Update Company" : "Add Company"}
-                </Button>
+                <div className="w-full flex items-center justify-between px-5">
+                  <Controller
+                    control={methods.control}
+                    name="name"
+                    render={({ field }) => (
+                      <TextInput
+                        color="primary"
+                        placeholder="Add client name"
+                        className="w-[450px]"
+                        disabled={
+                          !currentPrivilege?.includes(ROLE_NETWORK_ADMIN) ||
+                          startLogging
+                        }
+                        {...field}
+                      />
+                    )}
+                  />
+                  <Button
+                    type="submit"
+                    color="primary"
+                    disabled={isSubmitButtonDisabled}
+                  >
+                    {companyInfo ? "Update Company" : "Add Company"}
+                  </Button>
+                </div>
               </div>
             </div>
             <div className="h-full w-full pl-64">

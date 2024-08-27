@@ -1,5 +1,6 @@
 "use server";
 
+import { ROLE_NETWORK_ADMIN } from "@/app/constant";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "utils/supabase/server";
@@ -26,7 +27,10 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 export const upsertCompanyDetails = async (
   params: UpsertCompanyDetailsType,
-  { update = false }: { update: boolean }
+  {
+    update = false,
+    currentPrivilege,
+  }: { update: boolean; currentPrivilege: Array<string> }
 ) => {
   const supabase = createClient();
 
@@ -95,8 +99,10 @@ export const upsertCompanyDetails = async (
       })
       .eq("id", client_id || params?.client_id);
 
-    revalidateTag("company_list");
-    revalidatePath("(dashboard)/company", "page");
+    if (currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
+      revalidateTag("company_list");
+      revalidatePath("(dashboard)/company", "page");
+    }
 
     if (error_logo) throw new Error(error_logo?.message);
 

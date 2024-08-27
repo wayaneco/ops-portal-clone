@@ -16,7 +16,7 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
     base: "relative w-full",
     field: {
       input: {
-        base: "block w-full border border-primary-500 disabled:cursor-not-allowed disabled:opacity-50",
+        base: "block w-full border border-primary-500 disabled:cursor-not-allowed disabled:border-none",
         colors: {
           primary:
             "border-primary-500 bg-gray-50 text-gray-900 focus:border-primary-600 focus:ring-primary-600",

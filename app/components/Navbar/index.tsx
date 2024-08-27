@@ -175,10 +175,7 @@ const Navbar = () => {
             color="white"
             type="button"
             className="text-black hidden md:block"
-            onClick={async () => {
-              await supabase.auth.signOut();
-              // clearState();
-            }}
+            onClick={() => supabase.auth.signOut()}
           >
             Logout
           </Button>

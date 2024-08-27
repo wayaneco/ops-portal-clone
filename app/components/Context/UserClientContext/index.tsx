@@ -23,7 +23,6 @@ type UserClientContextType = {
   currentPrivilege: Array<string>;
   clientLists: Array<ClientsType>;
   hasAdminRole: boolean;
-  clearState: () => void;
 };
 
 const UserClientContext = createContext<UserClientContextType | undefined>(
@@ -35,11 +34,7 @@ export const UserClientContextProvider = memo(
   (
     props: Omit<
       UserClientContextType,
-      | "selectedClient"
-      | "changeClient"
-      | "currentPrivilege"
-      | "selectRef"
-      | "clearState"
+      "selectedClient" | "changeClient" | "currentPrivilege" | "selectRef"
     > &
       PropsWithChildren
   ) => {
@@ -96,10 +91,6 @@ export const UserClientContextProvider = memo(
           selectedClient,
           currentPrivilege,
           changeClient: (value: string) => setSelectedClient(value as string),
-          clearState: () => {
-            setSelectedClient("");
-            setCurrentPrivilege([]);
-          },
           clientLists,
           hasAdminRole,
         }}
