@@ -2,7 +2,6 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
-import { getMimeType } from "@/utils/file/getMimeType";
 import { revalidateTag, revalidatePath } from "next/cache";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -26,7 +25,12 @@ export const uploadFile = async (params: UploadFileType) => {
           upsert: true,
         });
 
-      if (file_error) throw new Error(file_error?.message);
+      if (file_error) {
+        return {
+          isError: true,
+          message: `Failed to upload file.`,
+        };
+      }
 
       photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
 
@@ -37,8 +41,12 @@ export const uploadFile = async (params: UploadFileType) => {
         })
         .eq("user_id", params?.user_id);
 
-      if (update_profile_photo_error)
-        throw new Error(update_profile_photo_error?.message);
+      if (update_profile_photo_error) {
+        return {
+          isError: true,
+          message: `Failed to update profile url.`,
+        };
+      }
     }
 
     revalidateTag("user_details");

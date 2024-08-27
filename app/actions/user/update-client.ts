@@ -20,7 +20,12 @@ export async function updateUserRoles(params: {
     staff_id: params.staff_id,
   });
 
-  if (error) throw new Error("Error updating user roles.");
+  if (error) {
+    return {
+      isError: true,
+      message: `Failed to update user roles.`,
+    };
+  }
 
   revalidateTag("user_details");
   revalidatePath("(dashboard)/user/[id]", "layout");
