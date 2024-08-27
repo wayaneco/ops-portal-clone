@@ -1,4 +1,4 @@
-export const convertFileToBase64 = (file: any): string => {
+export const convertFileToBase64 = (file: any): Promise<string | null> => {
   try {
     return new Promise((resolve) => {
       const reader = new FileReader();
@@ -8,6 +8,6 @@ export const convertFileToBase64 = (file: any): string => {
       };
     });
   } catch (_) {
-    return null;
+    return Promise.resolve(null);
   }
 };

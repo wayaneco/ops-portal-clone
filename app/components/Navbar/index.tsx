@@ -26,7 +26,6 @@ const Navbar = () => {
     clientLists,
     selectedClient,
     currentPrivilege,
-    clearState,
     selectRef,
     hasAdminRole,
   } = useUserClientProviderContext();
