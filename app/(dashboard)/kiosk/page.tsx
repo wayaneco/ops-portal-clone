@@ -15,7 +15,7 @@ import {
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import * as ImagePlaceholder from "public/image-placeholder.jpg";
 
-export default function Page() {
+const Page = () => {
   const { selectRef, currentPrivilege, clientLists, selectedClient } =
     useUserClientProviderContext();
   const { userInfo } = useSupabaseSessionContext();
@@ -124,4 +124,6 @@ export default function Page() {
       </Card>
     </div>
   );
-}
+};
+
+export default Page;

@@ -34,6 +34,9 @@ import {
   STATUS_PROVISION,
 } from "@/app/constant";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+import { useIsFirstRender } from "@/app/hooks/isFirstRender";
+
+import LoadingSkeleton from "../loading";
 
 type CompanyDetailType = {
   initialLogs?: Array<{ event: string; status: STATUS_PROVISION }>;
@@ -97,6 +100,8 @@ const CompanyDetail = function ({
     SidebarContext
   )!;
   const inputRef = useRef<HTMLInputElement>();
+
+  const isFirstRender = useIsFirstRender();
 
   const methods = useForm({
     defaultValues: {
@@ -327,7 +332,9 @@ const CompanyDetail = function ({
   useEffect(() => {
     const getLogs = async () => {
       const { data } = await axios.get<any>(
-        `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
+        `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${
+          watchWebAddress || companyInfo?.web_address
+        }&bucket_name=ee-provision-dev`
       );
 
       if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
@@ -349,6 +356,10 @@ const CompanyDetail = function ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyInfo?.provisioning_status]);
+
+  if (isFirstRender || !companyInfo) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <ProvisionLoggingContext.Provider
