@@ -9,6 +9,7 @@ import {
   SUPABASE_URL,
   DEFAULT_PASSWORD,
   SUPABASE_SERVICE_ROLE_KEY,
+  ROLE_AGENT,
 } from "@/constant/index";
 
 type UpdateUserInfoType = {
@@ -60,6 +61,12 @@ export async function addUser(params: UpdateUserInfoType) {
       }
     }
 
+    const { data: agentId } = await supabase
+      .from("roles")
+      .select("id")
+      .eq("name", ROLE_AGENT)
+      .single();
+
     const {
       data: { user: authUser },
       error: error_create_user,
@@ -85,7 +92,7 @@ export async function addUser(params: UpdateUserInfoType) {
           line_2: params?.addr_line_2 ?? "",
           middle_name: params?.middle_name ?? "",
           p_client_id: params?.client_id ?? "",
-          p_role_id: "db920553-b3a6-4d18-82a1-e31cec57b8a0", // DEFAULT TO AGENT: AGENT_ID
+          p_role_id: agentId, // DEFAULT TO AGENT
           p_user_id: authUser.id ?? "",
           preferred_name: params?.preferred_name ?? "",
           primary_email: params?.email ?? "",
