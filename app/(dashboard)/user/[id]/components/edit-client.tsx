@@ -20,7 +20,7 @@ export const EditClient = () => {
     setValue,
     setError,
     clearErrors,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useFormContext();
   const { user: userContext } = useSupabaseSessionContext();
   const { currentPrivilege } = useUserClientProviderContext();
@@ -159,7 +159,8 @@ export const EditClient = () => {
 
                                     setValue(
                                       "edit_client.role_ids",
-                                      filteredRoleIds
+                                      filteredRoleIds,
+                                      { shouldDirty: true }
                                     );
                                     if (!filteredRoleIds?.length) {
                                       setError("edit_client.role_ids", {
@@ -168,10 +169,11 @@ export const EditClient = () => {
                                       });
                                     }
                                   } else {
-                                    setValue("edit_client.role_ids", [
-                                      ...cloneRoleIds,
-                                      role?.name,
-                                    ]);
+                                    setValue(
+                                      "edit_client.role_ids",
+                                      [...cloneRoleIds, role?.name],
+                                      { shouldDirty: true }
+                                    );
                                     clearErrors("edit_client.role_ids");
                                   }
                                 }}
@@ -209,6 +211,7 @@ export const EditClient = () => {
         <Button
           color="primary"
           className="w-[150px] mx-auto"
+          disabled={!isDirty}
           onClick={handleSubmit}
         >
           Save

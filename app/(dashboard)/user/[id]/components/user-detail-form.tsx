@@ -27,7 +27,6 @@ import {
 
 import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
-import { userInfo } from "os";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -274,7 +273,10 @@ export function UserDetailForm(props: UserDetailFormType) {
               </form>
             </div>
             <div className="flex gap-x-2 h-fit">
-              {(hasAdminRole || isSelfService) && (
+              {(currentPrivilege?.some((priv) =>
+                [ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]?.includes(priv)
+              ) ||
+                isSelfService) && (
                 <Button
                   color="primary"
                   className="h-fit"
@@ -285,7 +287,7 @@ export function UserDetailForm(props: UserDetailFormType) {
                     })
                   }
                 >
-                  Edit User
+                  {isSelfService ? "Edit Profile" : "Edit User"}
                 </Button>
               )}
               {hasAdminRole && (

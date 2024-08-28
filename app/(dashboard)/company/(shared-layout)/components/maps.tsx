@@ -5,7 +5,7 @@ we need to make this component client rendered as well*/
 import { NEXT_PUBLIC_GOOGLE_MAP_API } from "@/app/constant";
 //Map component Component from library
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { TextInput, Button } from "flowbite-react";
+import { TextInput, Button, Toast } from "flowbite-react";
 import { useEffect, useState } from "react";
 import { useFormContext } from "react-hook-form";
 
@@ -41,6 +41,11 @@ const MapComponent = () => {
     lng: Number(watchLongitude) || 74.006,
   });
   const [addressSearch, setAddressSearch] = useState<string>("");
+  const [toastState, setToastState] = useState({
+    show: false,
+    message: "",
+    isError: false,
+  });
 
   const onMarkerDragEnd = (event: {
     latLng: { lat: () => any; lng: () => any };
@@ -49,8 +54,8 @@ const MapComponent = () => {
     const newLng = event.latLng.lng();
     setNewMarkerPosition({ lat: newLat, lng: newLng });
 
-    setValue("latitude", newLat);
-    setValue("longitude", newLng);
+    setValue("latitude", newLat, { shouldDirty: true });
+    setValue("longitude", newLng, { shouldDirty: true });
   };
 
   const searchLocation = async (address: string) => {
@@ -64,12 +69,30 @@ const MapComponent = () => {
     if (data.results.length > 0) {
       const location = data.results[0].geometry.location;
       setNewMarkerPosition(location);
-      setValue("latitude", location.lat);
-      setValue("longitude", location.lng);
+      setValue("latitude", location.lat, { shouldDirty: true });
+      setValue("longitude", location.lng, { shouldDirty: true });
     } else {
-      throw new Error("Location not found");
+      setToastState({
+        show: true,
+        message: "Location not found!",
+        isError: true,
+      });
     }
   };
+
+  useEffect(() => {
+    let timeout: ReturnType<typeof setTimeout>;
+
+    if (toastState.show) {
+      timeout = setTimeout(() => {
+        setToastState({ show: false, message: "", isError: false });
+      }, 5000);
+    }
+
+    return () => {
+      clearTimeout(timeout);
+    };
+  }, [toastState.show]);
 
   return (
     <div className="w-full relative ">
@@ -119,6 +142,23 @@ const MapComponent = () => {
             </div>
           </div>
         </div>
+      )}
+      {toastState?.show && (
+        <Toast
+          className={`absolute right-5 top-5 z-[9999] ${
+            toastState?.isError ? "bg-red-600" : "bg-primary-500"
+          }`}
+        >
+          <div className="ml-3 text-sm font-normal text-white">
+            {toastState?.message}
+          </div>
+          <Toast.Toggle
+            className={toastState?.isError ? "bg-red-600" : "bg-primary-500"}
+            onClick={() =>
+              setToastState({ show: false, message: "", isError: false })
+            }
+          />
+        </Toast>
       )}
     </div>
   );

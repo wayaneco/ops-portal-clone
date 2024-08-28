@@ -53,7 +53,12 @@ export async function addUser(params: UpdateUserInfoType) {
 
       generatedEmail = publicEmail;
 
-      if (error_generate_email) throw new Error(error_generate_email.message);
+      if (error_generate_email) {
+        return {
+          isError: true,
+          message: `Failed to generate email.`,
+        };
+      }
     }
 
     const { data: agentId } = await supabase
@@ -70,8 +75,12 @@ export async function addUser(params: UpdateUserInfoType) {
       password,
       email_confirm: true,
     });
+
     if (error_create_user) {
-      throw new Error(error_create_user.message);
+      return {
+        isError: true,
+        message: `Failed to create admin user.`,
+      };
     } else {
       if (authUser) {
         const payload = {
@@ -97,7 +106,10 @@ export async function addUser(params: UpdateUserInfoType) {
         const { error } = await supabase.rpc("add_admin_user", payload);
 
         if (error) {
-          throw new Error(error.message);
+          return {
+            isError: true,
+            message: `Failed to create user`,
+          };
         } else {
           if (params?.photo_url && params?.photo_url?.includes("base64")) {
             const file = convertBase64toFile(
@@ -112,7 +124,12 @@ export async function addUser(params: UpdateUserInfoType) {
                   upsert: true,
                 });
 
-            if (file_error) throw new Error(file_error?.message);
+            if (file_error) {
+              return {
+                isError: true,
+                message: `Failed to upload file.`,
+              };
+            }
 
             photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
           }
@@ -124,7 +141,12 @@ export async function addUser(params: UpdateUserInfoType) {
             })
             .eq("user_id", authUser?.id);
 
-          if (update_photo_error) throw new Error(update_photo_error?.message);
+          if (update_photo_error) {
+            return {
+              isError: true,
+              message: `Failed to update user profile url.`,
+            };
+          }
         }
       }
     }

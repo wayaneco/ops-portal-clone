@@ -7,7 +7,7 @@ import Navbar from "@/components/Navbar";
 import { createClient } from "@/utils/supabase/client";
 
 type MainLayoutProps = PropsWithChildren & {
-  privileges: string;
+  privileges?: string;
 };
 
 export default function MainLayout(props: MainLayoutProps) {
@@ -18,9 +18,7 @@ export default function MainLayout(props: MainLayoutProps) {
   const regex = new RegExp(/(\/company\/)(add|\w)/);
 
   useEffect(() => {
-    let subscribe;
-
-    subscribe = supabase.auth.onAuthStateChange((_, session) => {
+    const subscribe = supabase.auth.onAuthStateChange((_, session) => {
       if (!session) {
         navigate.replace("/login");
       }
@@ -28,7 +26,7 @@ export default function MainLayout(props: MainLayoutProps) {
 
     return () => subscribe.data.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  });
 
   return (
     <>
