@@ -20,11 +20,13 @@ export default async function Layout(props: PropsWithChildren) {
     redirect("/login");
   }
 
-  const { data } = await supabase
-    .from("users_data_view")
-    .select("privileges")
-    .eq("email", user?.email)
-    .single();
+  // const { data } = await supabase
+  //   .from("users_data_view")
+  //   .select("privileges")
+  //   .eq("email", user?.email)
+  //   .single();
+
+  // console.log(data, "data priviliges");
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${user?.id}`,
@@ -59,7 +61,7 @@ export default async function Layout(props: PropsWithChildren) {
         clientLists={clientLists! as Array<ClientsType>}
         hasAdminRole={hasAdminRole}
       >
-        <MainLayout privileges={data?.privileges}>{props.children}</MainLayout>
+        <MainLayout>{props.children}</MainLayout>
       </UserClientContextProvider>
     </SupabaseSessionProvider>
   );
