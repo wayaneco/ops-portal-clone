@@ -27,7 +27,6 @@ import {
 
 import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
-import { userInfo } from "os";
 
 type UserDetailFormType = {
   data: UserDetailType;

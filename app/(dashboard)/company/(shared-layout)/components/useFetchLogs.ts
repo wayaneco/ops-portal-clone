@@ -34,7 +34,7 @@ const useFetchLogs = ({ name }: { name: string }) => {
 
     // Clean up interval on component unmount
     return () => clearInterval(intervalId);
-  }, []);
+  }, [name]);
 
   return { data, loading, error };
 };
