@@ -166,7 +166,7 @@ export function UserDetailForm(props: UserDetailFormType) {
     );
   };
 
-  if (isFirstRender) return <SkeletonWithUserImage />;
+  if (isFirstRender || !data) return <SkeletonWithUserImage />;
 
   return (
     <UserDetailFormContext.Provider

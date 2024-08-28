@@ -1,37 +1,40 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import { Card } from "flowbite-react";
-import { headers } from "next/headers";
 
 import { UserListTable } from "./components/user-list-table";
 
-const getUsers = async () => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user`,
-    {
+import { UserDetailType } from "@/app/types";
+
+const Page = () => {
+  const [users, setUsers] = useState<Array<UserDetailType>>([]);
+
+  const getUsers = async () => {
+    const response = await fetch(`/api/user`, {
       method: "GET",
-      headers: headers(),
       next: {
         tags: ["user_list"],
       },
       cache: "no-cache",
-    }
-  );
+    });
 
-  return response;
-};
-export default async function Page() {
-  const response = await getUsers();
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error("Error fetching user list!");
-  }
+    setUsers(data);
+  };
 
-  const usersList = await response.json();
+  useEffect(() => {
+    getUsers();
+  }, []);
 
   return (
     <div className="pt-16 pb-12">
       <Card>
-        <UserListTable data={usersList} />
+        <UserListTable data={users} />
       </Card>
     </div>
   );
-}
+};
+
+export default Page;

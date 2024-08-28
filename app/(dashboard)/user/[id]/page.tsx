@@ -1,38 +1,28 @@
 "use client";
 
-import * as React from "react";
-import { headers } from "next/headers";
+import { useState, useEffect } from "react";
 
 import { UserDetailForm } from "./components/user-detail-form";
 import { UserDetailType } from "@/app/types";
 
-const Page = function (props: { params: { id: string } }) {
-  const [data, setData] = React.useState<UserDetailType | null>(null);
-  // const response = await getUserDetails(props?.params?.id);
-
-  // if (!response.ok) {
-  //   throw new Error(`Failed to fetch user ${props?.params.id}`);
-  // }
-
-  // const data = await response.json();
+const Page = (props: { params: { id: string } }) => {
+  const [userDetail, setUserDetail] = useState<UserDetailType | null>(null);
 
   const getUserDetails = async (id: string) => {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${id}`,
-      {
-        method: "GET",
-        next: {
-          tags: ["user_details"],
-        },
-        cache: "no-cache",
-      }
-    );
+    const response = await fetch(`/api/user/${id}`, {
+      method: "GET",
+      next: {
+        tags: ["user_details"],
+      },
+      cache: "no-cache",
+    });
 
     const data = await response.json();
-    setData(data);
+
+    setUserDetail(data);
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (props?.params?.id) {
       getUserDetails(props?.params?.id);
     }
@@ -40,7 +30,7 @@ const Page = function (props: { params: { id: string } }) {
 
   return (
     <div className="py-8 bg-gray-200">
-      <UserDetailForm data={data as UserDetailType} />
+      <UserDetailForm data={userDetail as UserDetailType} />
     </div>
   );
 };

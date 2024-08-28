@@ -1,7 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import Link from "next/link";
 import moment from "moment";
 import { useRouter } from "next/navigation";
@@ -10,12 +10,8 @@ import {
   TextInput,
   Table,
   Button,
-  Card,
-  TableBody,
   TableCell,
-  TableHead,
   TableHeadCell,
-  TableRow,
   Badge,
 } from "flowbite-react";
 
@@ -47,7 +43,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
     return data;
   }, [data, search]);
 
-  if (isFirstRender) {
+  if (isFirstRender || !data?.length) {
     return <TableSkeleton />;
   }
 
