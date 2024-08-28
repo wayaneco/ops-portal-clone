@@ -9,9 +9,9 @@ import {
 
 import CompanyDetail from "../components/company-detail";
 
-const Page = async function (props: { params: { id: string } }) {
+const getCompanyDetails = async (id: string) => {
   const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company/${props?.params?.id}`,
+    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company/${id}`,
     {
       method: "GET",
       headers: headers(),
@@ -21,6 +21,12 @@ const Page = async function (props: { params: { id: string } }) {
       },
     }
   );
+
+  return response;
+};
+
+const Page = async function (props: { params: { id: string } }) {
+  const response = await getCompanyDetails(props?.params?.id);
 
   if (!response.ok) {
     throw new Error(`Failed to fetch company ${props?.params.id}`);
