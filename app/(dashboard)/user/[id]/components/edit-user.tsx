@@ -22,7 +22,7 @@ export const EditUser = () => {
     control,
     watch,
     getValues,
-    formState: { errors },
+    formState: { errors, isDirty },
     trigger,
   } = useFormContext();
   const { setToast, closeDialog } = useUserDetailFormContext();
@@ -30,6 +30,8 @@ export const EditUser = () => {
 
   const { user } = watch("info");
   const watchUserEmail = watch("edit_user.email");
+
+  const isSelfService = userInfo?.user_id === user?.user_id;
 
   const handleSubmit = async () => {
     const isFieldsValid = await trigger("edit_user");
@@ -61,7 +63,9 @@ export const EditUser = () => {
 
   return (
     <>
-      <Modal.Header>Update User</Modal.Header>
+      <Modal.Header>
+        {isSelfService ? "Update Profile" : "Update User"}
+      </Modal.Header>
       <Modal.Body>
         {isSubmitting && (
           <div className="absolute inset-0 z-50">
@@ -404,9 +408,10 @@ export const EditUser = () => {
           type="submit"
           color="primary"
           className="w-[150px] mx-auto"
+          disabled={!isDirty}
           onClick={handleSubmit}
         >
-          Update User
+          Update
         </Button>
       </Modal.Footer>
     </>

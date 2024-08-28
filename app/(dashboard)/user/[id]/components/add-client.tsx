@@ -24,7 +24,7 @@ export const AddClient = () => {
     control,
     setError,
     clearErrors,
-    formState: { errors },
+    formState: { errors, isDirty },
   } = useFormContext();
   const { user: userContext } = useSupabaseSessionContext();
 
@@ -273,7 +273,7 @@ export const AddClient = () => {
         <Button
           type="submit"
           color="primary"
-          disabled={!clientList?.length}
+          disabled={!isDirty || !clientList?.length}
           className="w-[150px] mx-auto"
           onClick={handleSubmit}
         >

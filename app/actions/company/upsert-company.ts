@@ -31,7 +31,7 @@ export const upsertCompanyDetails = async (
     update = false,
     currentPrivilege,
   }: { update: boolean; currentPrivilege: Array<string> }
-) => {
+): Promise<{ isError: boolean; message: string }> => {
   const supabase = createClient();
 
   try {
@@ -75,7 +75,12 @@ export const upsertCompanyDetails = async (
       upsertClientParams
     );
 
-    if (error_update_clients) throw new Error(error_update_clients?.message);
+    if (error_update_clients) {
+      return {
+        isError: true,
+        message: `Failed to ${update ? "update" : "create"} clients.`,
+      };
+    }
 
     if (params.logo && params?.logo?.includes("base64")) {
       const file = convertBase64toFile(params.logo!, params?.name);
@@ -87,7 +92,12 @@ export const upsertCompanyDetails = async (
             upsert: true,
           });
 
-      if (error_upload_file) throw new Error(error_upload_file?.message);
+      if (error_upload_file) {
+        return {
+          isError: true,
+          message: `Failed to upload file.`,
+        };
+      }
 
       filePath = `${supabaseUrl}/storage/v1/object/public/client_logos/${file_data?.path}`;
     }
@@ -104,20 +114,21 @@ export const upsertCompanyDetails = async (
       revalidatePath("(dashboard)/company", "page");
     }
 
-    if (error_logo) throw new Error(error_logo?.message);
-
-    return JSON.parse(
-      JSON.stringify({
-        isError: false,
-        message: "Success",
-      })
-    );
-  } catch (error) {
-    return JSON.parse(
-      JSON.stringify({
+    if (error_logo) {
+      return {
         isError: true,
-        message: error,
-      })
-    );
+        message: `Failed to ${update ? "update" : "create"} client logo url.`,
+      };
+    }
+
+    return {
+      isError: false,
+      message: "Success",
+    };
+  } catch (error) {
+    return {
+      isError: true,
+      message: error as string,
+    };
   }
 };
