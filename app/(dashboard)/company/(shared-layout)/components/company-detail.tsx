@@ -130,8 +130,6 @@ const CompanyDetail = function ({
     !watchName ||
     !watchWebAddress;
 
-  console.log({ watchWebAddress, companinfo_web: companyInfo?.web_address });
-
   const onSubmit = (data: any) => {
     setIsSubmitting(true);
     startTransition(async () => {
