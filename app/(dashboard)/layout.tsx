@@ -76,7 +76,9 @@ export default async function Layout(props: PropsWithChildren) {
       user={JSON.parse(JSON.stringify(user as User))}
     >
       <UserClientContextProvider
-        clientLists={clientLists as Array<ClientsType>}
+        clientLists={JSON.parse(
+          JSON.stringify(clientLists as Array<ClientsType>)
+        )}
         hasAdminRole={hasAdminRole}
       >
         <MainLayout>{props.children}</MainLayout>
