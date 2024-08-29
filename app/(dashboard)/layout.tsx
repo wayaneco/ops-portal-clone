@@ -14,7 +14,7 @@ import api from "utils/api/index";
 const getUserInfo = async (id: string) => {
   try {
     const response = await api.get(`/api/user/${id}`, {
-      headers: headers(),
+      headers: new Headers(headers()),
       next: {
         tags: ["user_info"],
       },

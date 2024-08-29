@@ -24,7 +24,8 @@ export const SupabaseSessionProvider = memo(
   (props: SupabaseSessionProviderProps) => {
     const { user, userInfo, children } = props;
 
-    console.log("=======================", user, userInfo);
+    console.log("======================= USER", user);
+    console.log("======================= USERINFO", userInfo);
 
     return (
       <AuthContext.Provider value={{ getSession: () => user, user, userInfo }}>
