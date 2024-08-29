@@ -20,17 +20,17 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 );
 
 // eslint-disable-next-line react/display-name
-export const SupabaseSessionProvider = memo(
-  (props: SupabaseSessionProviderProps) => {
-    const { user, userInfo } = props;
+export const SupabaseSessionProvider = (
+  props: SupabaseSessionProviderProps
+) => {
+  const { user, userInfo } = props;
 
-    return (
-      <AuthContext.Provider value={{ getSession: () => user, user, userInfo }}>
-        {props?.children}
-      </AuthContext.Provider>
-    );
-  }
-);
+  return (
+    <AuthContext.Provider value={{ getSession: () => user, user, userInfo }}>
+      {props?.children}
+    </AuthContext.Provider>
+  );
+};
 
 export const useSupabaseSessionContext = () => {
   const context = useContext<AuthContextType | undefined>(AuthContext!);

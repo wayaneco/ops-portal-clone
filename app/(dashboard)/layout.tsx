@@ -81,7 +81,7 @@ export default async function Layout(props: PropsWithChildren) {
         )}
         hasAdminRole={JSON.parse(JSON.stringify(hasAdminRole))}
       >
-        <MainLayout>{props.children}</MainLayout>
+        {userInfo ? <MainLayout>{props.children}</MainLayout> : null}
       </UserClientContextProvider>
     </SupabaseSessionProvider>
   );
