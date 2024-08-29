@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 
-import { PropsWithChildren, useEffect } from "react";
+import { PropsWithChildren, Suspense, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { createClient } from "@/utils/supabase/client";
 
@@ -26,11 +26,11 @@ export default function MainLayout(props: MainLayoutProps) {
 
     return () => subscribe.data.subscription.unsubscribe();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  });
+  }, []);
 
   return (
-    <>
-      {/* <Navbar /> */}
+    <Suspense fallback={<div>Loading...</div>}>
+      <Navbar />
       <div
         className={`min-h-screen mx-auto pt-[100px] ${
           !regex.test(pathname) && "container"
@@ -38,6 +38,6 @@ export default function MainLayout(props: MainLayoutProps) {
       >
         {props?.children}
       </div>
-    </>
+    </Suspense>
   );
 }
