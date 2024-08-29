@@ -8,7 +8,7 @@ import api from "utils/api";
 
 const getUsers = async (): Promise<Array<UserDetailType>> => {
   const response = await api.get(`/api/user`, {
-    headers: headers(),
+    headers: new Headers(headers()),
     next: {
       tags: ["user_list"],
     },
