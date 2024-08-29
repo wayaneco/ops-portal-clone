@@ -70,8 +70,9 @@ export const EditClient = () => {
         is_primary_contact: roleIds?.includes(isPrimaryContactId),
       });
 
+      console.log(resp, "before if");
       if (resp.message) {
-        console.log(resp);
+        console.log(resp, "error here");
         throw resp;
       } else {
         setToast(
