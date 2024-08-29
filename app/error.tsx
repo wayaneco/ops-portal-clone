@@ -1,6 +1,6 @@
 "use client";
 
-export default function Error(props) {
+export default function Error(props: any) {
   return (
     <div>
       Error Root Layout
