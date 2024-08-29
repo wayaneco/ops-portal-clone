@@ -42,6 +42,8 @@ export const UserClientContextProvider = memo(
     const selectRef = useRef<HTMLSelectElement>();
     const { userInfo } = useSupabaseSessionContext();
 
+    console.log("++++++++++++++++++++++++++++", clientLists, hasAdminRole);
+
     const [selectedClient, setSelectedClient] = useState<string>(
       useMemo(() => {
         return userInfo?.clients?.length

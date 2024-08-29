@@ -72,7 +72,7 @@ export default async function Layout(props: PropsWithChildren) {
 
   return (
     <SupabaseSessionProvider
-      userInfo={userInfo}
+      userInfo={JSON.parse(JSON.stringify(userInfo))}
       user={JSON.parse(JSON.stringify(user as User))}
     >
       <UserClientContextProvider

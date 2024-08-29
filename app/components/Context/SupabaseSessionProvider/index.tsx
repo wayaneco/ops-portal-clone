@@ -22,11 +22,13 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 // eslint-disable-next-line react/display-name
 export const SupabaseSessionProvider = memo(
   (props: SupabaseSessionProviderProps) => {
-    const { user, userInfo } = props;
+    const { user, userInfo, children } = props;
+
+    console.log("=======================", user, userInfo);
 
     return (
       <AuthContext.Provider value={{ getSession: () => user, user, userInfo }}>
-        {props?.children}
+        {children}
       </AuthContext.Provider>
     );
   }
