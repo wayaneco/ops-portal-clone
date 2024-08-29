@@ -30,6 +30,14 @@ const Navbar = () => {
     hasAdminRole,
   } = useUserClientProviderContext();
 
+  console.log({
+    clientLists,
+    selectedClient,
+    currentPrivilege,
+    selectRef,
+    hasAdminRole,
+  });
+
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
   const REGEX_USER_PAGE = new RegExp(/^\/user?(\/\w)?.+/);
 
