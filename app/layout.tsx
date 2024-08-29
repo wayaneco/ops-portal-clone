@@ -22,11 +22,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <CorbadoProvider>
-        <Flowbite theme={{ theme: FlowbiteTheme }}>
-          <body className={inter.className}>
-            <main className="bg-gray-200">{children}</main>
-          </body>
-        </Flowbite>
+        {/* <Flowbite theme={{ theme: FlowbiteTheme }}> */}
+        <body className={inter.className}>
+          <main className="bg-gray-200">{children}</main>
+        </body>
+        {/* </Flowbite> */}
       </CorbadoProvider>
     </html>
   );
