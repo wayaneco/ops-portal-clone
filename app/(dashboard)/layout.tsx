@@ -70,5 +70,5 @@ export default async function Layout(props: PropsWithChildren) {
   const clientLists = await getClients();
   const hasAdminRole = await getHasAdminRole(user?.id);
 
-  return <MainLayout>Hello WOrld!</MainLayout>;
+  return <MainLayout>Hello</MainLayout>;
 }
