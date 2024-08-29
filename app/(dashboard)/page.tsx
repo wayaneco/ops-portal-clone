@@ -2,8 +2,11 @@ import { createClient } from "@/utils/supabase/server";
 import { Button } from "flowbite-react";
 
 export default async function Page() {
-  const supabase = await createClient();
-  const user = await (await supabase.auth.getUser()).data.user;
+  const supabase = createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
 
   return (
     <div className="py-32">

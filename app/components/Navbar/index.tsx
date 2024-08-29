@@ -28,6 +28,7 @@ const Navbar = () => {
     currentPrivilege,
     selectRef,
     hasAdminRole,
+    isDoneFetching,
   } = useUserClientProviderContext();
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
@@ -168,7 +169,7 @@ const Navbar = () => {
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        <MenuList currentPrivilege={currentPrivilege} />
+        {isDoneFetching && <MenuList currentPrivilege={currentPrivilege} />}
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"
@@ -176,26 +177,27 @@ const Navbar = () => {
           Logout
         </FBNavbar.Link>
       </FBNavbar.Collapse>
-      {user ? (
-        <div className="flex items-center gap-x-4">
-          <GenerateFieldForActiveClient />
-          <Button
-            color="white"
-            type="button"
-            className="text-black hidden md:block"
-            onClick={() => supabase.auth.signOut()}
+      {isDoneFetching &&
+        (user ? (
+          <div className="flex items-center gap-x-4">
+            <GenerateFieldForActiveClient />
+            <Button
+              color="white"
+              type="button"
+              className="text-black hidden md:block"
+              onClick={() => supabase.auth.signOut()}
+            >
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="text-base text-black md:text-lg hidden md:block"
           >
-            Logout
-          </Button>
-        </div>
-      ) : (
-        <Link
-          href="/login"
-          className="text-base text-black md:text-lg hidden md:block"
-        >
-          Login
-        </Link>
-      )}
+            Login
+          </Link>
+        ))}
     </FBNavbar>
   );
 };
