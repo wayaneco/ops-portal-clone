@@ -31,6 +31,7 @@ import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 type UserListTableProps = {
   data: Array<UserDetailType>;
+  isFetching: boolean;
 };
 
 export type ToastStateType = {
@@ -40,7 +41,7 @@ export type ToastStateType = {
 };
 
 export const UserListTable = (props: UserListTableProps) => {
-  const { data = [] } = props;
+  const { data = [], isFetching } = props;
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
@@ -56,12 +57,6 @@ export const UserListTable = (props: UserListTableProps) => {
     useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
-
-  // useEffect(() => {
-  //   if (data) {
-  //     setUserList(data);
-  //   }
-  // }, [data]);
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -116,7 +111,7 @@ export const UserListTable = (props: UserListTableProps) => {
     }
   }, [data, search, selectedClient, isShowAllUsers]);
 
-  if (isFirstRender || !data?.length) return <TableSkeleton />;
+  if (isFirstRender || isFetching) return <TableSkeleton />;
 
   return (
     <>
