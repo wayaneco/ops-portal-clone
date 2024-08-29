@@ -1,5 +1,10 @@
 "use client";
 
-export default function Error() {
-  return <div>Error Root Layout</div>;
+export default function Error(props) {
+  return (
+    <div>
+      Error Root Layout
+      {JSON.stringify(props)}
+    </div>
+  );
 }
