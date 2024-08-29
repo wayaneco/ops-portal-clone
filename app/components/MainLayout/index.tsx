@@ -6,9 +6,7 @@ import { PropsWithChildren, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { createClient } from "@/utils/supabase/client";
 
-type MainLayoutProps = PropsWithChildren & {
-  privileges: string;
-};
+type MainLayoutProps = PropsWithChildren;
 
 export default function MainLayout(props: MainLayoutProps) {
   const pathname = usePathname();

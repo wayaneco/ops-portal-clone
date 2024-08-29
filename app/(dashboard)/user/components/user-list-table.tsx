@@ -41,6 +41,7 @@ export type ToastStateType = {
 
 export const UserListTable = (props: UserListTableProps) => {
   const { data = [] } = props;
+
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
@@ -56,12 +57,6 @@ export const UserListTable = (props: UserListTableProps) => {
     useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
-
-  // useEffect(() => {
-  //   if (data) {
-  //     setUserList(data);
-  //   }
-  // }, [data]);
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
