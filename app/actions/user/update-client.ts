@@ -21,10 +21,7 @@ export async function updateUserRoles(params: {
   });
 
   if (error) {
-    return {
-      isError: true,
-      message: `Failed to update user roles.`,
-    };
+    return error;
   }
 
   return data;

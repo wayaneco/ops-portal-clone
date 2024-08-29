@@ -70,7 +70,7 @@ export const EditClient = () => {
         is_primary_contact: roleIds?.includes(isPrimaryContactId),
       });
 
-      if (!resp.isError) {
+      if (!resp.message) {
         setToast(
           <div>
             <strong>{client?.name}</strong> privileges is successfully update.
