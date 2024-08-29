@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 "use client";
 
-import { memo, ReactNode, useEffect, useMemo, useState } from "react";
+import { memo, ReactNode, Suspense, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -39,10 +39,9 @@ export type ToastStateType = {
   isError?: boolean;
 };
 
-export const UserListTable = memo((props: UserListTableProps) => {
+export const UserListTable = (props: UserListTableProps) => {
   const { data = [] } = props;
 
-  console.log({ data });
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
@@ -121,7 +120,7 @@ export const UserListTable = memo((props: UserListTableProps) => {
   if (isFirstRender) return <TableSkeleton />;
 
   return (
-    <>
+    <Suspense>
       <div className="flex justify-between items-center">
         <TextInput
           placeholder="Search by name"
@@ -242,6 +241,6 @@ export const UserListTable = memo((props: UserListTableProps) => {
           />
         </Toast>
       )}
-    </>
+    </Suspense>
   );
-});
+};

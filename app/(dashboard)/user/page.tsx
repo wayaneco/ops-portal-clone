@@ -26,7 +26,7 @@ const getUsers = async (): Promise<Array<UserDetailType>> => {
 export default async function Page() {
   const users = await getUsers();
 
-  console.log(users);
+  console.log("====users", users);
   return (
     <div className="pt-16 pb-12">
       <Card>
