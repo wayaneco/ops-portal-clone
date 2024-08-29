@@ -1,4 +1,5 @@
 export type UserDetailType = {
+  role?: string;
   user_id: string;
   email: string;
   addr_line_1: string;

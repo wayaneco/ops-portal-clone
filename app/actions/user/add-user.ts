@@ -12,10 +12,11 @@ import {
   SUPABASE_URL,
   DEFAULT_PASSWORD,
   SUPABASE_SERVICE_ROLE_KEY,
-  ROLE_AGENT,
 } from "@/constant/index";
 
 type UpdateUserInfoType = {
+  role_id: string;
+  isNetworkAdmin: boolean;
   photo_url: string;
   first_name: string;
   last_name: string;
@@ -48,12 +49,6 @@ export async function addUser(params: UpdateUserInfoType) {
     const password = DEFAULT_PASSWORD;
 
     let generatedEmail: any;
-
-    const { data: agentInfo } = await supabase
-      .from("roles")
-      .select("id")
-      .eq("name", ROLE_AGENT)
-      .single();
 
     if (!params.email) {
       const { data: publicEmail, error: error_generate_email } = await supabase
@@ -94,8 +89,8 @@ export async function addUser(params: UpdateUserInfoType) {
           line_1: params?.addr_line_1 ?? "",
           line_2: params?.addr_line_2 ?? "",
           middle_name: params?.middle_name ?? "",
-          p_client_id: params?.client_id ?? "",
-          p_role_id: agentInfo?.id, // DEFAULT TO AGENT
+          p_client_id: (params?.isNetworkAdmin ? "" : params?.client_id) ?? "",
+          p_role_id: params?.role_id,
           p_user_id: authUser.id ?? "",
           preferred_name: params?.preferred_name ?? "",
           primary_email: params?.email ?? "",
