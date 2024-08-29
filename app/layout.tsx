@@ -2,7 +2,6 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import { Flowbite } from "flowbite-react";
 
-import CorbadoProvider from "@/utils/corbado/Provider";
 import FlowbiteTheme from "./theme";
 
 import "./globals.css";
@@ -21,13 +20,11 @@ export default async function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <CorbadoProvider>
-        {/* <Flowbite theme={{ theme: FlowbiteTheme }}> */}
+      <Flowbite theme={{ theme: FlowbiteTheme }}>
         <body className={inter.className}>
           <main className="bg-gray-200">{children}</main>
         </body>
-        {/* </Flowbite> */}
-      </CorbadoProvider>
+      </Flowbite>
     </html>
   );
 }
