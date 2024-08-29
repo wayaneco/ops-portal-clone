@@ -115,7 +115,7 @@ export const UserListTable = (props: UserListTableProps) => {
 
       return filteredByClient;
     }
-  }, [data, search, selectedClient, isShowAllUsers]);
+  }, [data, data?.length, search, selectedClient, isShowAllUsers]);
 
   if (isFirstRender) return <TableSkeleton />;
 
