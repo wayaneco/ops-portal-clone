@@ -12,6 +12,7 @@ import { RetriggerContextProvider } from "../components/Context/RetriggerProvide
 
 import { ROLE_NETWORK_ADMIN } from "../constant";
 import { ClientsType, UserDetailType } from "../types";
+import { useIsFirstRender } from "../hooks/isFirstRender";
 
 const Layout = (props: PropsWithChildren) => {
   const supabase = createClient();
@@ -22,6 +23,8 @@ const Layout = (props: PropsWithChildren) => {
   const [clients, setClients] = useState<Array<ClientsType>>([]);
   const [hasRoleNetworkAdmin, setHasRoleNetworkAdmin] =
     useState<boolean>(false);
+
+  const isFirstRender = useIsFirstRender();
 
   const getUser = async () => {
     const {
@@ -91,9 +94,11 @@ const Layout = (props: PropsWithChildren) => {
   };
 
   useEffect(() => {
-    fetchAllData();
+    if (isFirstRender) {
+      fetchAllData();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [isFirstRender]);
 
   return (
     <SupabaseSessionProvider
