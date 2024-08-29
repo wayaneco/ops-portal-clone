@@ -71,10 +71,15 @@ export default async function Layout(props: PropsWithChildren) {
   const hasAdminRole = await getHasAdminRole(user?.id);
 
   return (
-    <SupabaseSessionProvider userInfo={userInfo} user={user as User}>
+    <SupabaseSessionProvider
+      userInfo={JSON.parse(JSON.stringify(userInfo))}
+      user={JSON.parse(JSON.stringify(user as User))}
+    >
       <UserClientContextProvider
-        clientLists={clientLists as Array<ClientsType>}
-        hasAdminRole={hasAdminRole}
+        clientLists={JSON.parse(
+          JSON.stringify(clientLists as Array<ClientsType>)
+        )}
+        hasAdminRole={JSON.parse(JSON.stringify(hasAdminRole))}
       >
         <MainLayout>{props.children}</MainLayout>
       </UserClientContextProvider>
