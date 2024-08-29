@@ -41,8 +41,11 @@ export default async function Page() {
       data: { user },
       error,
     } = await supabase.auth.signInWithPassword(payload);
+
     if (error) {
-      return error;
+      return {
+        invalid: "Invalid email and password.",
+      };
     }
 
     const { data: userAuth } = await supabase

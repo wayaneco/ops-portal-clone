@@ -78,6 +78,11 @@ export function LoginForm({ loginUser }: LoginFormProps) {
           )
         }
       />
+      {message?.invalid && (
+        <span className="font-medium text-red-500 text-xs">
+          {message?.invalid}
+        </span>
+      )}
       <SubmitButton />
     </form>
   );
