@@ -76,12 +76,9 @@ export const EditClient = () => {
             </div>
           );
           closeDialog();
-
-          console.log("updated clients info");
           return;
         })
         .catch(() => {
-          console.log("something went wrong");
           throw resp;
         });
     } catch (error: any) {
