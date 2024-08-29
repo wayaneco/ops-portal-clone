@@ -104,7 +104,7 @@ const CompanyDetail = function ({
   const isFirstRender = useIsFirstRender();
 
   const methods = useForm({
-    defaultValues: {
+    values: {
       logo: companyInfo?.logo_url ?? null,
       name: companyInfo?.name ?? "",
       web_address: companyInfo?.web_address ?? "",
