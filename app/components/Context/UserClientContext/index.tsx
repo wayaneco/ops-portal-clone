@@ -23,6 +23,7 @@ type UserClientContextType = {
   currentPrivilege: Array<string>;
   clientLists: Array<ClientsType>;
   hasAdminRole: boolean;
+  isDoneFetching: boolean;
 };
 
 const UserClientContext = createContext<UserClientContextType | undefined>(
@@ -38,36 +39,32 @@ export const UserClientContextProvider = memo(
     > &
       PropsWithChildren
   ) => {
-    const { children, clientLists, hasAdminRole } = props;
+    const { children, clientLists, hasAdminRole, isDoneFetching } = props;
     const selectRef = useRef<HTMLSelectElement>();
     const { userInfo } = useSupabaseSessionContext();
 
-    const [selectedClient, setSelectedClient] = useState<string>(
-      useMemo(() => {
-        return userInfo?.clients?.length
-          ? (userInfo?.clients?.[0]?.id as string)
-          : "";
-      }, [userInfo])
-    );
+    const [selectedClient, setSelectedClient] = useState<string>("");
+    const [currentPrivilege, setCurrentPrivilege] = useState<Array<string>>([]);
 
-    const [currentPrivilege, setCurrentPrivilege] = useState<Array<string>>(
-      useMemo(() => {
+    useEffect(() => {
+      if (isDoneFetching) {
         const defaultId = userInfo?.clients?.length
           ? (userInfo?.clients?.[0]?.id as string)
           : "";
+
+        setSelectedClient(defaultId);
 
         const findClient = userInfo?.clients?.find(
           (client) => client?.id === defaultId
         );
 
         if (findClient) {
-          return findClient?.privileges as Array<string>;
+          setCurrentPrivilege(findClient?.privileges as Array<string>);
+        } else {
+          setCurrentPrivilege([]);
         }
-
-        return [];
-        // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [userInfo])
-    );
+      }
+    }, [isDoneFetching]);
 
     useEffect(() => {
       if (selectedClient) {
@@ -76,17 +73,17 @@ export const UserClientContextProvider = memo(
         );
 
         if (findClient) {
-          setCurrentPrivilege(findClient?.privileges as Array<string>);
-          return;
+          return setCurrentPrivilege(findClient?.privileges as Array<string>);
         }
 
         // setCurrentPrivilege([]); // TODO: After clarification
       }
-    }, [selectedClient, userInfo]);
+    }, [selectedClient, userInfo, isDoneFetching]);
 
     return (
       <UserClientContext.Provider
         value={{
+          isDoneFetching,
           selectRef,
           selectedClient,
           currentPrivilege,
