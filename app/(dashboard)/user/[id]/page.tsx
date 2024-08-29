@@ -3,28 +3,37 @@ import { headers } from "next/headers";
 
 import { UserDetailForm } from "./components/user-detail-form";
 
-const Page = async function (props: { params: { id: string } }) {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${props?.params?.id}`,
-    {
-      method: "GET",
-      headers: headers(),
-      next: {
-        tags: ["user_details"],
-      },
-      cache: "no-cache",
+const getUserDetail = async (id: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${id}`,
+      {
+        method: "GET",
+        headers: headers(),
+        next: {
+          tags: ["user_details"],
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user ${id}`);
     }
-  );
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch user ${props?.params.id}`);
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return error;
   }
-
-  const data = await response.json();
+};
+const Page = async function ({ params: { id } }: { params: { id: string } }) {
+  const user = await getUserDetail(id);
 
   return (
     <div className="py-8 bg-gray-200">
-      <UserDetailForm data={data} />
+      <UserDetailForm data={user} />
     </div>
   );
 };

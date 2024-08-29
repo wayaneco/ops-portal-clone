@@ -2,14 +2,12 @@ import { PropsWithChildren } from "react";
 import { headers } from "next/headers";
 import { redirect } from "next/navigation";
 
-import { User } from "@supabase/supabase-js";
 import { createClient } from "@/utils/supabase/server";
 import { ROLE_NETWORK_ADMIN } from "../constant";
 
 import MainLayout from "../components/MainLayout";
 import { SupabaseSessionProvider } from "../components/Context/SupabaseSessionProvider";
 import { UserClientContextProvider } from "../components/Context/UserClientContext";
-import { ClientsType } from "../types";
 
 const getUserInfo = async (id: string) => {
   try {
@@ -20,8 +18,8 @@ const getUserInfo = async (id: string) => {
         headers: headers(),
         next: {
           tags: ["user_info"],
-          revalidate: 100,
         },
+        cache: "no-store",
       }
     );
 
