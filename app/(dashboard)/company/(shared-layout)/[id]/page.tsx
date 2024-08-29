@@ -14,7 +14,7 @@ const Page = async function (props: { params: { id: string } }) {
     `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company/${props?.params?.id}`,
     {
       method: "GET",
-      headers: headers(),
+      headers: new Headers(headers()),
       next: {
         tags: ["company_details"],
         revalidate: 0,
