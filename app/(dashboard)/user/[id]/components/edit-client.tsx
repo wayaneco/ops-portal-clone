@@ -68,20 +68,22 @@ export const EditClient = () => {
         role_ids: roleIds,
         staff_id: userContext?.id,
         is_primary_contact: roleIds?.includes(isPrimaryContactId),
-      });
+      })
+        .then(() => {
+          setToast(
+            <div>
+              <strong>{client?.name}</strong> privileges is successfully update.
+            </div>
+          );
+          closeDialog();
 
-      console.log(resp, "before if");
-      if (resp.message) {
-        console.log(resp, "error here");
-        throw resp;
-      } else {
-        setToast(
-          <div>
-            <strong>{client?.name}</strong> privileges is successfully update.
-          </div>
-        );
-        closeDialog();
-      }
+          console.log("updated clients info");
+          return;
+        })
+        .catch(() => {
+          console.log("something went wrong");
+          throw resp;
+        });
     } catch (error: any) {
       setIsSubmitting(false);
       return setToast(<div>{error?.message}</div>, true);
