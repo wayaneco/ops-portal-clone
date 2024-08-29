@@ -119,6 +119,7 @@ export const UserListTable = (props: UserListTableProps) => {
 
   if (isFirstRender) return <TableSkeleton />;
 
+  console.log("====================", userList);
   return (
     <Suspense>
       <div className="flex justify-between items-center">
