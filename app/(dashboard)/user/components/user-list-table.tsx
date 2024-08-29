@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 "use client";
 
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { memo, ReactNode, useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -39,7 +39,7 @@ export type ToastStateType = {
   isError?: boolean;
 };
 
-export const UserListTable = (props: UserListTableProps) => {
+export const UserListTable = memo((props: UserListTableProps) => {
   const { data = [] } = props;
 
   console.log({ data });
@@ -244,4 +244,4 @@ export const UserListTable = (props: UserListTableProps) => {
       )}
     </>
   );
-};
+});
