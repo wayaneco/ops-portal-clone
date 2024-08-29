@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { Suspense } from "react";
 import { Button, Navbar as FBNavbar, Select } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
@@ -29,14 +29,6 @@ const Navbar = () => {
     selectRef,
     hasAdminRole,
   } = useUserClientProviderContext();
-
-  console.log({
-    clientLists,
-    selectedClient,
-    currentPrivilege,
-    selectRef,
-    hasAdminRole,
-  });
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
   const REGEX_USER_PAGE = new RegExp(/^\/user?(\/\w)?.+/);
@@ -150,52 +142,54 @@ const Navbar = () => {
   };
 
   return (
-    <FBNavbar
-      className="fixed w-full z-50 shadow-md"
-      fluid={/^\/company\/\w/.test(pathname)}
-    >
-      <FBNavbar.Brand
-        as={Link}
-        href="/"
-        className="w-[100px] h-[80px] relative mr-10"
+    <Suspense fallback={<div>Loading...</div>}>
+      <FBNavbar
+        className="fixed w-full z-50 shadow-md"
+        fluid={/^\/company\/\w/.test(pathname)}
       >
-        <Image
-          src="https://www.everesteffect.com/img/ee_logo_dark.svg"
-          alt="Everest Effect Logo"
-          fill
-        />
-      </FBNavbar.Brand>
-      <FBNavbar.Toggle />
-      <FBNavbar.Collapse className="flex-none md:flex-1">
-        {<MenuList currentPrivilege={currentPrivilege} />}
-        <FBNavbar.Link
-          href="/auth"
-          className="text-base md:text-lg block md:hidden"
+        <FBNavbar.Brand
+          as={Link}
+          href="/"
+          className="w-[100px] h-[80px] relative mr-10"
         >
-          Logout
-        </FBNavbar.Link>
-      </FBNavbar.Collapse>
-      {user ? (
-        <div className="flex items-center gap-x-4">
-          <GenerateFieldForActiveClient />
-          <Button
-            color="white"
-            type="button"
-            className="text-black hidden md:block"
-            onClick={() => supabase.auth.signOut()}
+          <Image
+            src="https://www.everesteffect.com/img/ee_logo_dark.svg"
+            alt="Everest Effect Logo"
+            fill
+          />
+        </FBNavbar.Brand>
+        <FBNavbar.Toggle />
+        <FBNavbar.Collapse className="flex-none md:flex-1">
+          {<MenuList currentPrivilege={currentPrivilege} />}
+          <FBNavbar.Link
+            href="/auth"
+            className="text-base md:text-lg block md:hidden"
           >
             Logout
-          </Button>
-        </div>
-      ) : (
-        <Link
-          href="/login"
-          className="text-base text-black md:text-lg hidden md:block"
-        >
-          Login
-        </Link>
-      )}
-    </FBNavbar>
+          </FBNavbar.Link>
+        </FBNavbar.Collapse>
+        {user ? (
+          <div className="flex items-center gap-x-4">
+            <GenerateFieldForActiveClient />
+            <Button
+              color="white"
+              type="button"
+              className="text-black hidden md:block"
+              onClick={() => supabase.auth.signOut()}
+            >
+              Logout
+            </Button>
+          </div>
+        ) : (
+          <Link
+            href="/login"
+            className="text-base text-black md:text-lg hidden md:block"
+          >
+            Login
+          </Link>
+        )}
+      </FBNavbar>
+    </Suspense>
   );
 };
 

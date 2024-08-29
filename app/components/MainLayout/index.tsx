@@ -15,7 +15,7 @@ export default function MainLayout(props: MainLayoutProps) {
   const navigate = useRouter();
   const supabase = createClient();
 
-  const { userInfo } = useSupabaseSessionContext();
+  const {} = useUserClientProviderContext();
 
   const regex = new RegExp(/(\/company\/)(add|\w)/);
 
@@ -32,7 +32,7 @@ export default function MainLayout(props: MainLayoutProps) {
 
   return (
     <Suspense fallback={<div>Loading...</div>}>
-      {userInfo ? <Navbar /> : <div>Loading...</div>}
+      <Navbar />
       <div
         className={`min-h-screen mx-auto pt-[100px] ${
           !regex.test(pathname) && "container"
