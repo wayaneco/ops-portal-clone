@@ -9,7 +9,7 @@ const getUsers = async () => {
       `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user`,
       {
         method: "GET",
-        headers: headers(),
+        headers: new Headers(headers()),
         next: {
           tags: ["user_list"],
         },

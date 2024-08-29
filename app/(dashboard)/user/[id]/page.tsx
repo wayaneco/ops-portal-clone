@@ -9,7 +9,7 @@ const getUserDetail = async (id: string) => {
       `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${id}`,
       {
         method: "GET",
-        headers: headers(),
+        headers: new Headers(headers()),
         next: {
           tags: ["user_details"],
         },
