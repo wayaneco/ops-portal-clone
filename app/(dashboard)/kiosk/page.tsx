@@ -2,16 +2,11 @@
 
 import { useMemo } from "react";
 import Image from "next/image";
-import { redirect } from "next/navigation";
 
 import { Avatar, Button, Card } from "flowbite-react";
 
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
-import {
-  // ROLE_AGENT,
-  ROLE_NETWORK_ADMIN,
-  STATUS_COMPLETED,
-} from "@/app/constant";
+import { ROLE_NETWORK_ADMIN, STATUS_COMPLETED } from "@/app/constant";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import * as ImagePlaceholder from "public/image-placeholder.jpg";
 
@@ -19,10 +14,6 @@ const Page = () => {
   const { selectRef, currentPrivilege, clientLists, selectedClient } =
     useUserClientProviderContext();
   const { userInfo } = useSupabaseSessionContext();
-
-  // const hasPrivilege = currentPrivilege?.some((privilege) =>
-  //   [ROLE_NETWORK_ADMIN, ROLE_AGENT]?.includes(privilege)
-  // );
 
   const currentClient = useMemo(() => {
     let data;
@@ -38,8 +29,6 @@ const Page = () => {
       data: data?.find((client) => client?.id === selectedClient),
     };
   }, [clientLists, userInfo, selectedClient, currentPrivilege]);
-
-  // if (!hasPrivilege) return redirect("/");
 
   return (
     <div className="py-16">
