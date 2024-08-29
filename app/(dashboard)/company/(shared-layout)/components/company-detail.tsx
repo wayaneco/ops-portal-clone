@@ -18,7 +18,7 @@ import Confetti from "react-confetti";
 import { SidebarContext, SidebarContextType } from "../context";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { schema } from "../schema";
 import { AddClientForm } from "../components/form";
@@ -93,6 +93,7 @@ const CompanyDetail = function ({
   const [_, startTransition] = useTransition();
 
   const router = useRouter();
+  const path = usePathname();
 
   const { user } = useSupabaseSessionContext();
   const { currentPrivilege } = useUserClientProviderContext();
@@ -357,7 +358,7 @@ const CompanyDetail = function ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyInfo?.provisioning_status]);
 
-  if (isFirstRender || !companyInfo) {
+  if (isFirstRender || (!companyInfo && path !== "/company/add")) {
     return <LoadingSkeleton />;
   }
 
