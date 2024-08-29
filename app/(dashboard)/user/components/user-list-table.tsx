@@ -115,12 +115,10 @@ export const UserListTable = (props: UserListTableProps) => {
 
       return filteredByClient;
     }
-  }, [data, data?.length, search, selectedClient, isShowAllUsers]);
+  }, [data, search, selectedClient, isShowAllUsers]);
 
   if (isFirstRender) return <TableSkeleton />;
 
-  console.log("====================", userList);
-  console.log("++++++++++++++++++++", data);
   return (
     <Suspense>
       <div className="flex justify-between items-center">
