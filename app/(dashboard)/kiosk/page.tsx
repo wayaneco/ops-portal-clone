@@ -8,7 +8,7 @@ import { Avatar, Button, Card } from "flowbite-react";
 
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import {
-  ROLE_AGENT,
+  // ROLE_AGENT,
   ROLE_NETWORK_ADMIN,
   STATUS_COMPLETED,
 } from "@/app/constant";
@@ -20,9 +20,9 @@ const Page = () => {
     useUserClientProviderContext();
   const { userInfo } = useSupabaseSessionContext();
 
-  const hasPrivilege = currentPrivilege?.some((privilege) =>
-    [ROLE_NETWORK_ADMIN, ROLE_AGENT]?.includes(privilege)
-  );
+  // const hasPrivilege = currentPrivilege?.some((privilege) =>
+  //   [ROLE_NETWORK_ADMIN, ROLE_AGENT]?.includes(privilege)
+  // );
 
   const currentClient = useMemo(() => {
     let data;
@@ -39,7 +39,7 @@ const Page = () => {
     };
   }, [clientLists, userInfo, selectedClient, currentPrivilege]);
 
-  if (!hasPrivilege) return redirect("/");
+  // if (!hasPrivilege) return redirect("/");
 
   return (
     <div className="py-16">
