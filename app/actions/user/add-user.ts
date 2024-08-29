@@ -4,7 +4,10 @@ import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
 import { revalidatePath, revalidateTag } from "next/cache";
 
 import { createClient } from "utils/supabase/server";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import {
+  createClient as createAdminClient,
+  PostgrestSingleResponse,
+} from "@supabase/supabase-js";
 import {
   SUPABASE_URL,
   DEFAULT_PASSWORD,
@@ -46,6 +49,12 @@ export async function addUser(params: UpdateUserInfoType) {
 
     let generatedEmail: any;
 
+    const { data: agentInfo } = await supabase
+      .from("roles")
+      .select("id")
+      .eq("name", ROLE_AGENT)
+      .single();
+
     if (!params.email) {
       const { data: publicEmail, error: error_generate_email } = await supabase
         .rpc("generate_email")
@@ -60,12 +69,6 @@ export async function addUser(params: UpdateUserInfoType) {
         };
       }
     }
-
-    const { data: agentId } = await supabase
-      .from("roles")
-      .select("id")
-      .eq("name", ROLE_AGENT)
-      .single();
 
     const {
       data: { user: authUser },
@@ -92,7 +95,7 @@ export async function addUser(params: UpdateUserInfoType) {
           line_2: params?.addr_line_2 ?? "",
           middle_name: params?.middle_name ?? "",
           p_client_id: params?.client_id ?? "",
-          p_role_id: agentId, // DEFAULT TO AGENT
+          p_role_id: agentInfo?.id, // DEFAULT TO AGENT
           p_user_id: authUser.id ?? "",
           preferred_name: params?.preferred_name ?? "",
           primary_email: params?.email ?? "",
@@ -108,7 +111,7 @@ export async function addUser(params: UpdateUserInfoType) {
         if (error) {
           return {
             isError: true,
-            message: `Failed to create user`,
+            message: `Failed to create user.`,
           };
         } else {
           if (params?.photo_url && params?.photo_url?.includes("base64")) {
@@ -151,9 +154,6 @@ export async function addUser(params: UpdateUserInfoType) {
       }
     }
 
-    revalidateTag("user_list");
-    revalidatePath("(dashboard)/user", "page");
-    revalidatePath("(dashboard)/user", "layout");
     return {
       isError: false,
       error: null,

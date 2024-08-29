@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { ClientsType } from "@/app/types";
 
 const Page = () => {
+  const [isFetching, setIsFetching] = useState<boolean>(true);
   const [clients, setClients] = useState<Array<ClientsType>>([]);
 
   const getCompany = async () => {
@@ -19,7 +20,9 @@ const Page = () => {
     });
 
     const data = await response.json();
+
     setClients(data);
+    setIsFetching(false);
   };
 
   useEffect(() => {
@@ -29,7 +32,7 @@ const Page = () => {
   return (
     <div className="py-16">
       <Card>
-        <CompanyListTable data={clients} />
+        <CompanyListTable data={clients} isFetching={isFetching} />
       </Card>
     </div>
   );

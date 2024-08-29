@@ -1,12 +1,15 @@
 import { PropsWithChildren } from "react";
-import MainLayout from "../components/MainLayout";
 import { createClient } from "@/utils/supabase/server";
 import { redirect } from "next/navigation";
 import { headers } from "next/headers";
-import { ROLE_NETWORK_ADMIN } from "../constant";
 import { User } from "@supabase/supabase-js";
+
+import MainLayout from "../components/MainLayout";
 import { SupabaseSessionProvider } from "../components/Context/SupabaseSessionProvider";
 import { UserClientContextProvider } from "../components/Context/UserClientContext";
+import { RetriggerContextProvider } from "../components/Context/RetriggerProvider";
+
+import { ROLE_NETWORK_ADMIN } from "../constant";
 import { ClientsType } from "../types";
 
 export default async function Layout(props: PropsWithChildren) {
@@ -19,14 +22,6 @@ export default async function Layout(props: PropsWithChildren) {
   if (!user) {
     redirect("/login");
   }
-
-  // const { data } = await supabase
-  //   .from("users_data_view")
-  //   .select("privileges")
-  //   .eq("email", user?.email)
-  //   .single();
-
-  // console.log(data, "data priviliges");
 
   const response = await fetch(
     `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${user?.id}`,
@@ -61,7 +56,9 @@ export default async function Layout(props: PropsWithChildren) {
         clientLists={clientLists! as Array<ClientsType>}
         hasAdminRole={hasAdminRole}
       >
-        <MainLayout>{props.children}</MainLayout>
+        <RetriggerContextProvider>
+          <MainLayout>{props.children}</MainLayout>
+        </RetriggerContextProvider>
       </UserClientContextProvider>
     </SupabaseSessionProvider>
   );

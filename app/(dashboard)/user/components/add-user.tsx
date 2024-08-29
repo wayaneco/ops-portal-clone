@@ -29,6 +29,7 @@ import { UserDetailType } from "@/app/types";
 import { ToastStateType } from "./user-list-table";
 import { schema } from "./schema";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+import { useRetriggerContextProvider } from "@/app/components/Context/RetriggerProvider";
 
 type AddUserProps = {
   close: () => void;
@@ -41,6 +42,7 @@ export const AddUser = (props: AddUserProps) => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { user } = useSupabaseSessionContext();
   const { selectedClient } = useUserClientProviderContext();
+  const { refreshUserListFunc } = useRetriggerContextProvider();
 
   const methods = useForm({
     defaultValues: {
@@ -76,15 +78,24 @@ export const AddUser = (props: AddUserProps) => {
     if (!isFieldsValid) return;
     setIsSubmitting(true);
     try {
-      const response: { isError: boolean; error: string } = await addUser({
+      const response: { isError: boolean; message: string } = await addUser({
         ...(getValues() as UserDetailType),
         staff_id: user?.id,
         client_id: selectedClient,
         birth_date: "2024-08-13",
       });
 
-      if (response.isError) throw new Error(response?.error);
+      if (response.isError) {
+        setToast({
+          show: true,
+          message: <div>{response?.message}</div>,
+          isError: true,
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
+      refreshUserListFunc();
       setIsSubmitting(false);
       setToast({ show: true, message: <div>User is added successfully.</div> });
       close();
