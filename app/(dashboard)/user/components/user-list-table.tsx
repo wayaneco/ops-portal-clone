@@ -41,6 +41,8 @@ export type ToastStateType = {
 
 export const UserListTable = (props: UserListTableProps) => {
   const { data = [] } = props;
+
+  console.log({ data });
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
