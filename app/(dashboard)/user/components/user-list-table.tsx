@@ -40,7 +40,7 @@ export type ToastStateType = {
 };
 
 export const UserListTable = (props: UserListTableProps) => {
-  const { data = [] } = props;
+  const { data } = props;
 
   const router = useRouter();
 
@@ -120,6 +120,7 @@ export const UserListTable = (props: UserListTableProps) => {
   if (isFirstRender) return <TableSkeleton />;
 
   console.log("====================", userList);
+  console.log("++++++++++++++++++++", data);
   return (
     <Suspense>
       <div className="flex justify-between items-center">
