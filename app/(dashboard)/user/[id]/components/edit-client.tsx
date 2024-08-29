@@ -70,15 +70,16 @@ export const EditClient = () => {
         is_primary_contact: roleIds?.includes(isPrimaryContactId),
       });
 
-      if (!resp.message) {
+      if (resp.message) {
+        console.log(resp);
+        throw resp;
+      } else {
         setToast(
           <div>
             <strong>{client?.name}</strong> privileges is successfully update.
           </div>
         );
         closeDialog();
-      } else {
-        throw resp;
       }
     } catch (error: any) {
       setIsSubmitting(false);
