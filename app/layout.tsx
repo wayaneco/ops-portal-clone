@@ -4,6 +4,8 @@ import { Flowbite } from "flowbite-react";
 
 import FlowbiteTheme from "./theme";
 
+import "./globals.css";
+
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {

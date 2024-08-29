@@ -10,7 +10,7 @@ import {
 } from "flowbite-react";
 import { yupResolver } from "@hookform/resolvers/yup";
 
-import { ClientsType, UserDetailType } from "@/types/UserDetail";
+import { ClientsType, UserDetailType } from "@/app/types/UserDetail";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { ModalContentType } from "../types";

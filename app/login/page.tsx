@@ -1,11 +1,12 @@
 import { Card } from "flowbite-react";
-import { redirect } from "next/navigation";
 
 import { LoginForm } from "./components/form";
 
 import { createClient } from "@/utils/supabase/server";
 
-import { loginUser } from "app/actions/login/login-user";
+import { redirect } from "next/navigation";
+
+import { loginUser } from "../actions/login/login-user";
 
 export default async function Page() {
   const supabase = createClient();
@@ -14,7 +15,7 @@ export default async function Page() {
     data: { user },
   } = await supabase.auth.getUser();
 
-  if (user) redirect("/");
+  if (user) return redirect("/");
 
   return (
     <div className="login bg-primary-600 h-screen w-screen">
