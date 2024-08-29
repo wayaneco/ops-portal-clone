@@ -3,18 +3,16 @@ import { headers } from "next/headers";
 
 import { UserListTable } from "./components/user-list-table";
 
+import api from "utils/api";
+
 const getUsers = async () => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user`,
-    {
-      method: "GET",
-      headers: headers(),
-      next: {
-        tags: ["user_list"],
-      },
-      cache: "no-cache",
-    }
-  );
+  const response = await api.get(`/api/user`, {
+    headers: headers(),
+    next: {
+      tags: ["user_list"],
+    },
+    cache: "no-store",
+  });
 
   return response;
 };

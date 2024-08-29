@@ -1,4 +1,8 @@
-const BASE_URL = process.env["NEXT_PUBLIC_APP_BASE_URL"];
+const BASE_URL =
+  process.env["NEXT_PUBLIC_APP_BASE_URL"] ||
+  "https://ops-portal-clone.vercel.app";
+
+console.log(BASE_URL);
 
 const api = {
   get: (
