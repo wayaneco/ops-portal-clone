@@ -34,7 +34,7 @@ const Page = async function () {
   return (
     <div className="py-16">
       <Card>
-        <CompanyListTable data={clients} />
+        <CompanyListTable data={JSON.parse(JSON.stringify(clients))} />
       </Card>
     </div>
   );

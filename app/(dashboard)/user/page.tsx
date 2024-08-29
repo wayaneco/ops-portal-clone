@@ -35,7 +35,7 @@ export default async function Page() {
   return (
     <div className="pt-16 pb-12">
       <Card>
-        <UserListTable data={users} />
+        <UserListTable data={JSON.parse(JSON.stringify(users))} />
       </Card>
     </div>
   );

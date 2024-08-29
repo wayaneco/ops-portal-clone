@@ -33,7 +33,7 @@ const Page = async function ({ params: { id } }: { params: { id: string } }) {
 
   return (
     <div className="py-8 bg-gray-200">
-      <UserDetailForm data={user} />
+      <UserDetailForm data={JSON.parse(JSON.stringify(user))} />
     </div>
   );
 };
