@@ -9,7 +9,7 @@ const getClients = async () => {
       `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company`,
       {
         method: "GET",
-        headers: headers(),
+        headers: new Headers(headers()),
         next: {
           tags: ["company_list"],
         },
