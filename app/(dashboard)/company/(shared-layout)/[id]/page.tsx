@@ -12,6 +12,8 @@ import {
 import CompanyDetail from "../components/company-detail";
 import { ClientsType } from "@/app/types";
 
+const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
+
 const Page = (props: { params: { id: string } }) => {
   const [companyDetail, setCompanyDetail] = useState<ClientsType | null>(null);
   const [initialLogContent, setInitialLogContent] = useState<
@@ -38,7 +40,7 @@ const Page = (props: { params: { id: string } }) => {
         log_content: Array<{ event: string; status: STATUS_PROVISION }>;
       };
     } = await axios.get<any>(
-      `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`
+      `${provisionApiEnv}/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`
     );
 
     return provisionResponse;

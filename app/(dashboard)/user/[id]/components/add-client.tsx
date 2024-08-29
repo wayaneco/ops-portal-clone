@@ -38,6 +38,7 @@ export const AddClient = () => {
       createClient()
         .from("clients")
         .select()
+        .eq("is_enabled", true)
         .then((result) => {
           setValue("dropdowns.clientList", result?.data);
           setClientList(result?.data as Array<any>);

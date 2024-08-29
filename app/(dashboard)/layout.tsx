@@ -43,6 +43,7 @@ export default async function Layout(props: PropsWithChildren) {
   const { data: clientLists = [] } = await supabase
     .from("clients")
     .select(`id, name, logo_url, web_address, provisioning_status`)
+    .eq("is_enabled", true)
     .order("name", { ascending: true });
 
   const { data: hasAdminRole = false } = await supabase.rpc("has_admin_role", {

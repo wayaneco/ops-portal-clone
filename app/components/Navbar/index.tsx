@@ -69,7 +69,7 @@ const Navbar = () => {
             Company
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_AGENT]) && (
+        {isEnable([ROLE_AGENT, ROLE_NETWORK_ADMIN]) && (
           <FBNavbar.Link
             as={Link}
             active={pathname === "/kiosk"}
@@ -100,7 +100,8 @@ const Navbar = () => {
         if (hasAdminRole && REGEX_COMPANY_PAGE.test(pathname)) {
           component = (
             <div className="flex items-center gap-x-2 text-gray-600">
-              <strong>{userInfo?.email}</strong> as Network Admin
+              <strong>{userInfo?.email}</strong> as{" "}
+              <strong>Network Admin</strong>
             </div>
           );
         } else {
@@ -167,7 +168,7 @@ const Navbar = () => {
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        {<MenuList currentPrivilege={currentPrivilege} />}
+        <MenuList currentPrivilege={currentPrivilege} />
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"

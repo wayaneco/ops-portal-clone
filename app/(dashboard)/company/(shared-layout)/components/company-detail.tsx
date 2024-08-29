@@ -1,5 +1,6 @@
 "use client";
 
+import moment from "moment";
 import axios from "axios";
 
 import { TextInput, Button, Spinner, Toast } from "flowbite-react";
@@ -59,6 +60,8 @@ type ProvisionLoggingContextType = {
 export const ProvisionLoggingContext = createContext<
   ProvisionLoggingContextType | undefined
 >(undefined);
+
+const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
 
 export const useProvisionLoggingContext = () => {
   const context = useContext<ProvisionLoggingContextType | undefined>(
@@ -212,20 +215,19 @@ const CompanyDetail = function ({
           .eq("id", companyInfo?.client_id);
       }
 
-      const response = await fetch(
-        "https://api-portal-dev.everesteffect.com/provision",
-        {
-          method: "POST",
-          mode: "no-cors", // Set to 'no-cors' to disable CORS handling
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            name: `${watchWebAddress}-execution-aug-14-2024`,
-            input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
-          }),
-        }
-      );
+      const response = await fetch(`${provisionApiEnv}/provision`, {
+        method: "POST",
+        mode: "no-cors", // Set to 'no-cors' to disable CORS handling
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: `${watchWebAddress}-execution-${moment()
+            .format("MMM-DD-YYYY")
+            .toLowerCase()}`,
+          input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
+        }),
+      });
 
       const { data, error } = await supabase
         .from("clients")
@@ -287,7 +289,7 @@ const CompanyDetail = function ({
       const fetchData = async () => {
         try {
           const { data } = await axios.get<any>(
-            `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
+            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
           );
 
           setLogs(data?.log_content);
@@ -333,7 +335,7 @@ const CompanyDetail = function ({
   useEffect(() => {
     const getLogs = async () => {
       const { data } = await axios.get<any>(
-        `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${
+        `${provisionApiEnv}/provision-logs?provider_name=${
           watchWebAddress || companyInfo?.web_address
         }&bucket_name=ee-provision-dev`
       );

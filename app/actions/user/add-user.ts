@@ -1,7 +1,7 @@
 "use server";
 
+import moment from "moment";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
-import { revalidatePath, revalidateTag } from "next/cache";
 
 import { createClient } from "utils/supabase/server";
 import {
@@ -82,26 +82,32 @@ export async function addUser(params: UpdateUserInfoType) {
     } else {
       if (authUser) {
         const payload = {
-          birth_date: params?.birth_date ?? "",
+          birth_date: params?.birth_date ?? moment().format("YYYY-MM-DD"),
           city: params?.city ?? "",
           first_name: params?.first_name ?? "",
           last_name: params?.last_name ?? "",
           line_1: params?.addr_line_1 ?? "",
           line_2: params?.addr_line_2 ?? "",
           middle_name: params?.middle_name ?? "",
-          p_client_id: (params?.isNetworkAdmin ? "" : params?.client_id) ?? "",
-          p_role_id: params?.role_id,
           p_user_id: authUser.id ?? "",
           preferred_name: params?.preferred_name ?? "",
           primary_email: params?.email ?? "",
           primary_phone: params?.primary_phone ?? "",
-          profile_url: "",
+          profile_url: photoUrl,
           staff_id: params?.staff_id ?? "",
           state_province_region: params?.state_province_region ?? "",
           zip_code: params?.zip_code ?? "",
+          ...(!params?.isNetworkAdmin && {
+            p_client_id:
+              (params?.isNetworkAdmin ? "" : params?.client_id) ?? "",
+            p_role_id: params?.role_id,
+          }),
         };
 
-        const { error } = await supabase.rpc("add_admin_user", payload);
+        const { error } = await supabase.rpc(
+          params?.isNetworkAdmin ? "add_network_admin_user" : "add_admin_user",
+          payload
+        );
 
         if (error) {
           return {
