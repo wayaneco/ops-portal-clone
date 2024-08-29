@@ -86,3 +86,5 @@ export default async function Layout(props: PropsWithChildren) {
     </SupabaseSessionProvider>
   );
 }
+
+export const dynamic = "force-dynamic";
