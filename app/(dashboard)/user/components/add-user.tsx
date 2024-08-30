@@ -29,7 +29,6 @@ import { UserDetailType } from "@/app/types";
 
 import { ToastStateType } from "./user-list-table";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
-import { useRetriggerContextProvider } from "@/app/components/Context/RetriggerProvider";
 import { ROLE_NETWORK_ADMIN, ROLE_PRIMARY_CONTACT } from "@/app/constant";
 
 import { schema } from "./schema";
@@ -51,7 +50,6 @@ export const AddUser = (props: AddUserProps) => {
 
   const { user } = useSupabaseSessionContext();
   const { selectedClient } = useUserClientProviderContext();
-  const { refreshUserListFunc } = useRetriggerContextProvider();
   const { hasAdminRole } = useUserClientProviderContext();
 
   const methods = useForm({
@@ -114,7 +112,6 @@ export const AddUser = (props: AddUserProps) => {
         return;
       }
 
-      refreshUserListFunc();
       setIsSubmitting(false);
       setToast({ show: true, message: <div>User is added successfully.</div> });
       close();

@@ -67,7 +67,8 @@ export const useUserDetailFormContext = () => {
   return context;
 };
 
-export function UserDetailForm(props: UserDetailFormType) {
+// eslint-disable-next-line react/display-name
+export const UserDetailForm = React.memo((props: UserDetailFormType) => {
   const { data } = props;
 
   console.log("================", data);
@@ -485,4 +486,4 @@ export function UserDetailForm(props: UserDetailFormType) {
       </div>
     </UserDetailFormContext.Provider>
   );
-}
+});
