@@ -1,5 +1,3 @@
-"use client";
-
 import { Card } from "flowbite-react";
 
 import { headers } from "next/headers";
