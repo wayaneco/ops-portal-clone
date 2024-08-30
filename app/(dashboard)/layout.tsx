@@ -21,7 +21,7 @@ const getUserInfo = async (id: string) => {
         next: {
           tags: ["user_info"],
         },
-        cache: "no-cache",
+        cache: "force-cache",
       }
     );
 
