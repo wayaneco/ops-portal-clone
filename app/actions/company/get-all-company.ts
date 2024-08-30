@@ -5,7 +5,9 @@ export const getAllCompany = async () => {
   try {
     const { data, error } = await supabase
       .from("clients")
-      .select("id, name, logo_url, provisioning_status, created_at")
+      .select(
+        "id, name, logo_url, provisioning_status, created_at, web_address"
+      )
       .eq("is_enabled", true)
       .order("created_at", { ascending: false });
 
