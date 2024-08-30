@@ -159,7 +159,6 @@ const CompanyDetail = function ({
             client_id: companyInfo?.client_id,
           },
           {
-            currentPrivilege,
             update: !!companyInfo,
           }
         )

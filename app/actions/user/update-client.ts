@@ -24,5 +24,8 @@ export async function updateUserRoles(params: {
     return error;
   }
 
+  revalidateTag("user_details");
+  revalidatePath("(dashboard)/user/[id]", "layout");
+
   return data;
 }

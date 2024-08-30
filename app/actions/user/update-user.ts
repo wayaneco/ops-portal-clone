@@ -1,5 +1,6 @@
 "use server";
 
+import { revalidateTag, revalidatePath } from "next/cache";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 import { createClient } from "utils/supabase/server";
@@ -71,11 +72,14 @@ export async function updateUserInfo(params: UpdateUserInfoType) {
     );
 
     if (update_user_info_error) {
-      throw update_user_info_error
+      throw update_user_info_error;
     }
+
+    revalidateTag("user_details");
+    revalidatePath("(dashboard)/user/[id]", "layout");
 
     return data;
   } catch (error) {
-    return error
+    return error;
   }
 }
