@@ -30,6 +30,7 @@ import { AddUser } from "./add-user";
 
 type UserListTableProps = {
   data: Array<UserDetailType>;
+  refetch: () => void;
 };
 
 export type ToastStateType = {
@@ -39,7 +40,7 @@ export type ToastStateType = {
 };
 
 export const UserListTable = (props: UserListTableProps) => {
-  const { data = [] } = props;
+  const { data = [], refetch } = props;
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
@@ -215,7 +216,13 @@ export const UserListTable = (props: UserListTableProps) => {
 
       {showModal && (
         <Modal show={showModal} onClose={() => setShowModal(false)}>
-          <AddUser close={() => setShowModal(false)} setToast={setToastState} />
+          <AddUser
+            close={() => {
+              refetch();
+              setShowModal(false);
+            }}
+            setToast={setToastState}
+          />
         </Modal>
       )}
       {toastState.show && (

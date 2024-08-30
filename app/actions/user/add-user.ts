@@ -83,7 +83,7 @@ export async function addUser(params: UpdateUserInfoType) {
     } else {
       if (authUser) {
         const payload = {
-          birth_date: params?.birth_date ?? moment().format("YYYY-MM-DD"),
+          birth_date: params?.birth_date || null,
           city: params?.city ?? "",
           first_name: params?.first_name ?? "",
           last_name: params?.last_name ?? "",
@@ -155,8 +155,6 @@ export async function addUser(params: UpdateUserInfoType) {
         }
       }
     }
-
-    revalidatePath("(dashboard)/user", "page");
 
     return {
       isError: false,
