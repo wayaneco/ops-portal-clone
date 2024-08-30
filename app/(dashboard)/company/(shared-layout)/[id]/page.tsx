@@ -4,32 +4,7 @@ import { headers } from "next/headers";
 import { STATUS_COMPLETED, STATUS_IN_PROGRESS } from "@/app/constant";
 
 import CompanyDetail from "../components/company-detail";
-
-const getCompanyDetails = async (id: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company/${id}`,
-      {
-        method: "GET",
-        headers: headers(),
-        next: {
-          tags: ["company_details"],
-        },
-        cache: "no-cache",
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch company ${id}`);
-    }
-
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    return error;
-  }
-};
+import { getCompanyById } from "@/app/actions/company/get-company-by-id";
 
 const getInitialLogs = async (web_address: string) => {
   try {
@@ -44,7 +19,7 @@ const getInitialLogs = async (web_address: string) => {
 };
 
 const Page = async function (props: { params: { id: string } }) {
-  const companyDetail = await getCompanyDetails(props?.params?.id);
+  const companyDetail = await getCompanyById(props?.params?.id);
 
   let initial_logs;
 

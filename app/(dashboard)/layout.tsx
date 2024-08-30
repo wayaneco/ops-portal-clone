@@ -9,33 +9,9 @@ import { ROLE_NETWORK_ADMIN } from "../constant";
 import { SupabaseSessionProvider } from "../components/Context/SupabaseSessionProvider";
 import { UserClientContextProvider } from "../components/Context/UserClientContext";
 
+import { getUserById } from "../actions/user/get-user-by-id";
+
 import MainLayout from "../components/MainLayout";
-
-const getUserInfo = async (id: string) => {
-  try {
-    const response = await fetch(
-      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${id}`,
-      {
-        method: "GET",
-        headers: headers(),
-        next: {
-          tags: ["user_info"],
-        },
-        cache: "force-cache",
-      }
-    );
-
-    if (!response.ok) {
-      throw new Error(`Failed to fetch user ${id}`);
-    }
-
-    const data = await response.json();
-
-    return data;
-  } catch (error) {
-    return error;
-  }
-};
 
 export default async function Layout(props: PropsWithChildren) {
   const supabase = await createClient();
@@ -72,7 +48,7 @@ export default async function Layout(props: PropsWithChildren) {
     }
   };
 
-  const userInfo = await getUserInfo(user?.id);
+  const userInfo = await getUserById(user?.id);
   const clientLists = await getClients();
   const hasAdminRole = await getHasRoleAdmin(user?.id);
 
