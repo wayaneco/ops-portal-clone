@@ -23,15 +23,13 @@ import {
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import { UserDetailType, ClientsType } from "@/app/types";
 import { TableSkeleton } from "@/app/components/Skeleton";
-
-import { AddUser } from "./add-user";
-import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
+import { AddUser } from "./add-user";
+
 type UserListTableProps = {
   data: Array<UserDetailType>;
-  isFetching: boolean;
 };
 
 export type ToastStateType = {
@@ -41,7 +39,7 @@ export type ToastStateType = {
 };
 
 export const UserListTable = (props: UserListTableProps) => {
-  const { data = [], isFetching } = props;
+  const { data = [] } = props;
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
@@ -111,7 +109,7 @@ export const UserListTable = (props: UserListTableProps) => {
     }
   }, [data, search, selectedClient, isShowAllUsers]);
 
-  if (isFirstRender || isFetching) return <TableSkeleton />;
+  if (isFirstRender) return <TableSkeleton />;
 
   return (
     <>

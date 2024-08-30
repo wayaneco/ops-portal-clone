@@ -1,6 +1,7 @@
 "use client";
 
 import { PropsWithChildren } from "react";
+import { redirect } from "next/navigation";
 
 import SidebarProvider from "./context";
 

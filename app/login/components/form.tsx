@@ -1,7 +1,6 @@
 "use client";
 
-import { TextInput, Button } from "flowbite-react";
-import { useState } from "react";
+import { TextInput } from "flowbite-react";
 import { useFormState } from "react-dom";
 import { SubmitButton } from "./submitButton";
 type LoginFormProps = {
@@ -79,9 +78,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
         }
       />
       {message?.invalid && (
-        <span className="font-medium text-red-500 text-xs">
-          {message?.invalid}
-        </span>
+        <span className="font-xs font- text-red-500">{message?.invalid}</span>
       )}
       <SubmitButton />
     </form>

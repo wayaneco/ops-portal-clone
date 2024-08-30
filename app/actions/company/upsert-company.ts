@@ -1,6 +1,5 @@
 "use server";
 
-import { ROLE_NETWORK_ADMIN } from "@/app/constant";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
 import { revalidatePath, revalidateTag } from "next/cache";
 import { createClient } from "utils/supabase/server";
@@ -27,11 +26,8 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 export const upsertCompanyDetails = async (
   params: UpsertCompanyDetailsType,
-  {
-    update = false,
-    currentPrivilege,
-  }: { update: boolean; currentPrivilege: Array<string> }
-): Promise<{ isError: boolean; message: string }> => {
+  { update = false }: { update: boolean }
+) => {
   const supabase = createClient();
 
   try {
@@ -76,10 +72,7 @@ export const upsertCompanyDetails = async (
     );
 
     if (error_update_clients) {
-      return {
-        isError: true,
-        message: `Failed to ${update ? "update" : "create"} clients.`,
-      };
+      throw error_update_clients;
     }
 
     if (params.logo && params?.logo?.includes("base64")) {
@@ -93,10 +86,7 @@ export const upsertCompanyDetails = async (
           });
 
       if (error_upload_file) {
-        return {
-          isError: true,
-          message: `Failed to upload file.`,
-        };
+        throw error_upload_file;
       }
 
       filePath = `${supabaseUrl}/storage/v1/object/public/client_logos/${file_data?.path}`;
@@ -109,26 +99,23 @@ export const upsertCompanyDetails = async (
       })
       .eq("id", client_id || params?.client_id);
 
-    if (currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
+    if (error_logo) {
+      throw error_logo;
+    }
+
+    if (!update) {
       revalidateTag("company_list");
       revalidatePath("(dashboard)/company", "page");
     }
 
-    if (error_logo) {
-      return {
-        isError: true,
-        message: `Failed to ${update ? "update" : "create"} client logo url.`,
-      };
-    }
-
     return {
-      isError: false,
-      message: "Success",
+      ok: true,
+      data: client_id,
     };
   } catch (error) {
     return {
-      isError: true,
-      message: error as string,
+      ok: false,
+      error,
     };
   }
 };

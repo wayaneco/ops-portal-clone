@@ -28,7 +28,6 @@ const Navbar = () => {
     currentPrivilege,
     selectRef,
     hasAdminRole,
-    isDoneFetching,
   } = useUserClientProviderContext();
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
@@ -40,6 +39,7 @@ const Navbar = () => {
         expectedPrivilege?.includes(current)
       );
     };
+
     return (
       <>
         {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
@@ -70,7 +70,7 @@ const Navbar = () => {
             Company
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_AGENT, ROLE_NETWORK_ADMIN]) && (
+        {isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) && (
           <FBNavbar.Link
             as={Link}
             active={pathname === "/kiosk"}
@@ -169,7 +169,7 @@ const Navbar = () => {
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        {isDoneFetching && <MenuList currentPrivilege={currentPrivilege} />}
+        <MenuList currentPrivilege={currentPrivilege} />
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"
@@ -177,27 +177,26 @@ const Navbar = () => {
           Logout
         </FBNavbar.Link>
       </FBNavbar.Collapse>
-      {isDoneFetching &&
-        (user ? (
-          <div className="flex items-center gap-x-4">
-            <GenerateFieldForActiveClient />
-            <Button
-              color="white"
-              type="button"
-              className="text-black hidden md:block"
-              onClick={() => supabase.auth.signOut()}
-            >
-              Logout
-            </Button>
-          </div>
-        ) : (
-          <Link
-            href="/login"
-            className="text-base text-black md:text-lg hidden md:block"
+      {user ? (
+        <div className="flex items-center gap-x-4">
+          <GenerateFieldForActiveClient />
+          <Button
+            color="white"
+            type="button"
+            className="text-black hidden md:block"
+            onClick={() => supabase.auth.signOut()}
           >
-            Login
-          </Link>
-        ))}
+            Logout
+          </Button>
+        </div>
+      ) : (
+        <Link
+          href="/login"
+          className="text-base text-black md:text-lg hidden md:block"
+        >
+          Login
+        </Link>
+      )}
     </FBNavbar>
   );
 };

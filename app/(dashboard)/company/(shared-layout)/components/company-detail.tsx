@@ -143,29 +143,27 @@ const CompanyDetail = function ({
     setIsSubmitting(true);
     startTransition(async () => {
       try {
-        const response: { isError: boolean; message: string } =
-          await upsertCompanyDetails(
-            {
-              logo: data?.logo as string,
-              name: data?.name,
-              web_address: data?.web_address,
-              longitude: data?.longitude,
-              latitude: data?.latitude,
-              is_enabled: data?.is_enabled,
-              provisioning_status: data?.provisioning_status,
-              service_provided: data?.service_provided,
-              tags: data?.tags,
-              provider_types: data?.provider_types,
-              staff_id: user?.id,
-              client_id: companyInfo?.client_id,
-            },
-            {
-              currentPrivilege,
-              update: !!companyInfo,
-            }
-          );
+        const response = await upsertCompanyDetails(
+          {
+            logo: data?.logo as string,
+            name: data?.name,
+            web_address: data?.web_address,
+            longitude: data?.longitude,
+            latitude: data?.latitude,
+            is_enabled: data?.is_enabled,
+            provisioning_status: data?.provisioning_status,
+            service_provided: data?.service_provided,
+            tags: data?.tags,
+            provider_types: data?.provider_types,
+            staff_id: user?.id,
+            client_id: companyInfo?.client_id,
+          },
+          {
+            update: !!companyInfo,
+          }
+        );
 
-        if (response.isError) throw new Error(response?.message);
+        if (!response.ok) throw response.error;
 
         setToastState({
           show: true,
@@ -187,17 +185,11 @@ const CompanyDetail = function ({
           setTimeout(() => {
             router.push("/company");
           }, 3000);
-      } catch (_) {
+      } catch (error: any) {
         setIsSubmitting(false);
         setToastState({
           show: true,
-          message: (
-            <div>
-              {!!companyInfo
-                ? "Field to update client."
-                : "Field to add client."}
-            </div>
-          ),
+          message: <div>{error.message || error}</div>,
           isError: true,
         });
       }
@@ -360,7 +352,7 @@ const CompanyDetail = function ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyInfo?.provisioning_status]);
 
-  if (isFirstRender || (!companyInfo && path! !== "/company/add")) {
+  if (isFirstRender || (!companyInfo && path !== "/company/add")) {
     return <LoadingSkeleton />;
   }
 

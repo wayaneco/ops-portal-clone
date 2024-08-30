@@ -23,11 +23,10 @@ import * as ImagePlaceholder from "public/image-placeholder.jpg";
 
 type CompanyListTableProps = {
   data: Array<ClientsType>;
-  isFetching: boolean;
 };
 
 export const CompanyListTable = (props: CompanyListTableProps) => {
-  const { data = [], isFetching } = props;
+  const { data = [] } = props;
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
@@ -44,7 +43,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
     return data;
   }, [data, search]);
 
-  if (isFirstRender || isFetching) {
+  if (isFirstRender) {
     return <TableSkeleton />;
   }
 

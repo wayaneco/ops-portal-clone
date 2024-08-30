@@ -1,121 +1,92 @@
-"use client";
-
-import { PropsWithChildren, useEffect, useState } from "react";
-import { createClient } from "@/utils/supabase/client";
+import { PropsWithChildren } from "react";
 import { redirect } from "next/navigation";
-import { User } from "@supabase/supabase-js";
+import { headers } from "next/headers";
 
-import MainLayout from "../components/MainLayout";
-import { SupabaseSessionProvider } from "../components/Context/SupabaseSessionProvider";
-import { UserClientContextProvider } from "../components/Context/UserClientContext";
-import { RetriggerContextProvider } from "../components/Context/RetriggerProvider";
+import { createClient } from "@/utils/supabase/server";
 
 import { ROLE_NETWORK_ADMIN } from "../constant";
-import { ClientsType, UserDetailType } from "../types";
-import { useIsFirstRender } from "../hooks/isFirstRender";
 
-const Layout = (props: PropsWithChildren) => {
-  const supabase = createClient();
+import { SupabaseSessionProvider } from "../components/Context/SupabaseSessionProvider";
+import { UserClientContextProvider } from "../components/Context/UserClientContext";
 
-  const [isDoneFetching, setIsDoneFetching] = useState(false);
-  const [user, setUser] = useState<User>();
-  const [userInfo, setUserInfo] = useState<UserDetailType>();
-  const [clients, setClients] = useState<Array<ClientsType>>([]);
-  const [hasRoleNetworkAdmin, setHasRoleNetworkAdmin] =
-    useState<boolean>(false);
+import MainLayout from "../components/MainLayout";
 
-  const isFirstRender = useIsFirstRender();
+const getUserInfo = async (id: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${id}`,
+      {
+        method: "GET",
+        headers: new Headers(headers()),
+        next: {
+          tags: ["user_info"],
+        },
+        cache: "no-store",
+      }
+    );
 
-  const getUser = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
-
-    if (!user) {
-      redirect("/login");
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user ${id}`);
     }
 
-    return user;
-  };
-
-  const getUserInfo = async (id: string) => {
-    const response = await fetch(`/api/user/${id}`, {
-      method: "GET",
-      next: {
-        tags: ["user_info"],
-      },
-    });
-
-    const userInfo = await response.json();
-
-    return userInfo;
-  };
-
-  const getClients = async () => {
-    const { data = [] } = await supabase
-      .from("clients")
-      .select(`id, name, logo_url, web_address, provisioning_status`)
-      .eq("is_enabled", true)
-      .order("name", { ascending: true });
+    const data = await response.json();
 
     return data;
+  } catch (error) {
+    return error;
+  }
+};
+
+export default async function Layout(props: PropsWithChildren) {
+  const supabase = await createClient();
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+
+  if (!user) redirect("/login");
+
+  const getClients = async () => {
+    try {
+      const { data } = await supabase
+        .from("clients")
+        .select(`id, name, logo_url, web_address, provisioning_status`)
+        .order("name", { ascending: true });
+
+      return data;
+    } catch (error) {
+      return error;
+    }
   };
 
   const getHasRoleAdmin = async (id: string) => {
-    const { data = false } = await supabase.rpc("has_admin_role", {
-      p_role_name: ROLE_NETWORK_ADMIN,
-      p_user_id: id,
-    });
-    return data;
-  };
-
-  const fetchAllData = async () => {
     try {
-      const respUserAuth = await getUser();
-      setUser(respUserAuth);
+      const { data } = await supabase.rpc("has_admin_role", {
+        p_role_name: ROLE_NETWORK_ADMIN,
+        p_user_id: id,
+      });
 
-      if (respUserAuth) {
-        const [respUserInfo, respClientList, respHasRoleNetworkAdmin] =
-          await Promise.all([
-            await getUserInfo(respUserAuth?.id),
-            await getClients(),
-            await getHasRoleAdmin(respUserAuth?.id),
-          ]);
-
-        setUserInfo(respUserInfo);
-        setClients(respClientList as Array<ClientsType>);
-        setHasRoleNetworkAdmin(respHasRoleNetworkAdmin);
-        setIsDoneFetching(true);
-      }
+      return data;
     } catch (error) {
-      setIsDoneFetching(true);
-      console.log(error);
+      return error;
     }
   };
 
-  useEffect(() => {
-    if (isFirstRender) {
-      fetchAllData();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [isFirstRender]);
+  const userInfo = await getUserInfo(user?.id);
+  const clientLists = await getClients();
+  const hasAdminRole = await getHasRoleAdmin(user?.id);
 
   return (
     <SupabaseSessionProvider
-      userInfo={userInfo as UserDetailType}
-      user={user as User}
+      userInfo={JSON.parse(JSON.stringify(userInfo))}
+      user={JSON.parse(JSON.stringify(user))}
     >
       <UserClientContextProvider
-        isDoneFetching={isDoneFetching}
-        clientLists={clients! as Array<ClientsType>}
-        hasAdminRole={hasRoleNetworkAdmin}
+        clientLists={JSON.parse(JSON.stringify(clientLists))}
+        hasAdminRole={JSON.parse(JSON.stringify(hasAdminRole))}
       >
-        <RetriggerContextProvider>
-          <MainLayout>{props.children}</MainLayout>
-        </RetriggerContextProvider>
+        <MainLayout>{props.children}</MainLayout>
       </UserClientContextProvider>
     </SupabaseSessionProvider>
   );
-};
-
-export default Layout;
+}

@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidateTag, revalidatePath } from "next/cache";
 import { createClient as createAdminClient } from "@supabase/supabase-js";
 
 import { createClient } from "utils/supabase/server";
@@ -27,10 +27,7 @@ type UpdateUserInfoType = {
   isEmailChanged: boolean;
 };
 
-export async function updateUserInfo(params: UpdateUserInfoType): Promise<{
-  isError: boolean;
-  message: string;
-}> {
+export async function updateUserInfo(params: UpdateUserInfoType) {
   const supabase = createClient();
   const supabaseAdmin = createAdminClient(BASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -69,29 +66,20 @@ export async function updateUserInfo(params: UpdateUserInfoType): Promise<{
       zip_code: params?.zip_code ?? "",
     };
 
-    const { error: update_user_info_error } = await supabase.rpc(
+    const { data, error: update_user_info_error } = await supabase.rpc(
       "update_admin_user",
       payload
     );
 
     if (update_user_info_error) {
-      return {
-        isError: true,
-        message: `Failed to update user.`,
-      };
+      throw update_user_info_error;
     }
 
     revalidateTag("user_details");
     revalidatePath("(dashboard)/user/[id]", "layout");
 
-    return {
-      isError: false,
-      message: "Success",
-    };
+    return data;
   } catch (error) {
-    return {
-      isError: true,
-      message: error as string,
-    };
+    return error;
   }
 }

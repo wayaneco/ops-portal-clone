@@ -1,6 +1,7 @@
 "use server";
 
 import moment from "moment";
+import { revalidateTag, revalidatePath } from "next/cache";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
 
 import { createClient } from "utils/supabase/server";
@@ -154,6 +155,9 @@ export async function addUser(params: UpdateUserInfoType) {
         }
       }
     }
+
+    revalidateTag("user_list");
+    revalidatePath("(dashboard)/user", "page");
 
     return {
       isError: false,

@@ -1,42 +1,41 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import { Card } from "flowbite-react";
+import { headers } from "next/headers";
 
 import { UserListTable } from "./components/user-list-table";
 
-import { UserDetailType } from "@/app/types";
-import { useRetriggerContextProvider } from "@/app/components/Context/RetriggerProvider";
+const getUsers = async () => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user`,
+      {
+        method: "GET",
+        headers: new Headers(headers()),
+        next: {
+          tags: ["user_list"],
+        },
+        cache: "no-store",
+      }
+    );
 
-const Page = () => {
-  const [isFetching, setIsFetching] = useState<boolean>(true);
-  const [users, setUsers] = useState<Array<UserDetailType>>([]);
-
-  const { refreshUserList } = useRetriggerContextProvider();
-
-  const getUsers = async () => {
-    const response = await fetch(`/api/user`, {
-      method: "GET",
-      next: {
-        tags: ["user_list"],
-      },
-      cache: "no-cache",
-    });
+    if (!response.ok) {
+      throw new Error("Error fetching user list!");
+    }
 
     const data = await response.json();
 
-    setUsers(data);
-    setIsFetching(false);
-  };
+    return data;
+  } catch (error) {
+    return error;
+  }
+};
 
-  useEffect(() => {
-    getUsers();
-  }, [refreshUserList]);
+const Page = async () => {
+  const users = await getUsers();
 
   return (
     <div className="pt-16 pb-12">
       <Card>
-        <UserListTable data={users} isFetching={isFetching} />
+        <UserListTable data={JSON.parse(JSON.stringify(users))} />
       </Card>
     </div>
   );

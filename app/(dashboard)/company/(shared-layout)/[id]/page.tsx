@@ -1,87 +1,74 @@
-"use client";
-
-import { useState, useEffect } from "react";
 import axios from "axios";
+import { headers } from "next/headers";
 
-import {
-  STATUS_COMPLETED,
-  STATUS_IN_PROGRESS,
-  STATUS_PROVISION,
-} from "@/app/constant";
+import { STATUS_COMPLETED, STATUS_IN_PROGRESS } from "@/app/constant";
 
 import CompanyDetail from "../components/company-detail";
-import { ClientsType } from "@/app/types";
 
-const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
+const getCompanyDetails = async (id: string) => {
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company/${id}`,
+      {
+        method: "GET",
+        headers: new Headers(headers()),
+        next: {
+          tags: ["company_details"],
+        },
+        cache: "no-store",
+      }
+    );
 
-const Page = (props: { params: { id: string } }) => {
-  const [companyDetail, setCompanyDetail] = useState<ClientsType | null>(null);
-  const [initialLogContent, setInitialLogContent] = useState<
-    Array<{ event: string; status: STATUS_PROVISION }>
-  >([]);
-
-  const getCompanyDetails = async (id: string) => {
-    const response = await fetch(`/api/company/${id}`, {
-      method: "GET",
-      next: {
-        tags: ["company_details"],
-        revalidate: 0,
-      },
-    });
+    if (!response.ok) {
+      throw new Error(`Failed to fetch company ${id}`);
+    }
 
     const data = await response.json();
 
     return data;
-  };
+  } catch (error) {
+    return error;
+  }
+};
 
-  const getInitialLogContent = async (web_address: string) => {
-    const provisionResponse: {
-      data: {
-        log_content: Array<{ event: string; status: STATUS_PROVISION }>;
-      };
-    } = await axios.get<any>(
-      `${provisionApiEnv}/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`
+const getInitialLogs = async (web_address: string) => {
+  try {
+    const provisionResponse = await axios.get<any>(
+      `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`
     );
 
-    return provisionResponse;
-  };
+    return provisionResponse?.data?.log_content;
+  } catch (error) {
+    return error;
+  }
+};
 
-  const getCompanyDataAndLogContent = async () => {
-    try {
-      const data = await getCompanyDetails(props?.params?.id);
+const Page = async function (props: { params: { id: string } }) {
+  const companyDetail = await getCompanyDetails(props?.params?.id);
 
-      setCompanyDetail(data);
+  let initial_logs;
 
-      if (
-        [STATUS_IN_PROGRESS, STATUS_COMPLETED].includes(
-          data?.provisioning_status
-        )
-      ) {
-        const provision = await getInitialLogContent(data?.web_address);
+  if (
+    [STATUS_COMPLETED, STATUS_IN_PROGRESS]?.includes(
+      companyDetail?.provisioning_status
+    )
+  ) {
+    const response = await getInitialLogs(companyDetail?.web_address);
 
-        setInitialLogContent(provision?.data?.log_content);
-      } else {
-        setInitialLogContent([]);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
+    initial_logs = response;
+  } else {
+    initial_logs = [];
+  }
 
-  useEffect(() => {
-    if (props?.params?.id) {
-      getCompanyDataAndLogContent();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [props?.params?.id]);
+  console.log(1111111111111111, initial_logs);
+  console.log(2222222222222222, companyDetail);
 
   return (
     <CompanyDetail
-      initialLogs={initialLogContent}
-      companyInfo={companyDetail as ClientsType}
+      initialLogs={JSON.parse(JSON.stringify(initial_logs))}
+      companyInfo={JSON.parse(JSON.stringify(companyDetail))}
     />
   );
-  // return <div></div>;
 };
 
 export default Page;
