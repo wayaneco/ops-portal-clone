@@ -2,7 +2,7 @@
 
 import { usePathname, useRouter } from "next/navigation";
 
-import { PropsWithChildren, Suspense, useEffect } from "react";
+import { PropsWithChildren, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import { createClient } from "@/utils/supabase/client";
 
@@ -29,7 +29,7 @@ export default function MainLayout(props: MainLayoutProps) {
   }, []);
 
   return (
-    <Suspense fallback={<div>Loading...</div>}>
+    <>
       <Navbar />
       <div
         className={`min-h-screen mx-auto pt-[100px] ${
@@ -38,6 +38,6 @@ export default function MainLayout(props: MainLayoutProps) {
       >
         {props?.children}
       </div>
-    </Suspense>
+    </>
   );
 }

@@ -1,6 +1,6 @@
 "use client";
 
-import { PropsWithChildren, Suspense } from "react";
+import { PropsWithChildren } from "react";
 
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
@@ -16,5 +16,5 @@ export default function Layout(props: PropsWithChildren) {
 
   if (!hasPrivilege && pathname === "/user") return redirect("/");
 
-  return <Suspense fallback={<div>Loading...</div>}>{props.children}</Suspense>;
+  return <>{props.children}</>;
 }
