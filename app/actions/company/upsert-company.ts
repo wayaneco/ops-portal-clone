@@ -1,7 +1,7 @@
 "use server";
 
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { createClient } from "utils/supabase/server";
 
 type UpsertCompanyDetailsType = {
@@ -104,7 +104,6 @@ export const upsertCompanyDetails = async (
     }
 
     if (!update) {
-      revalidateTag("company_list");
       revalidatePath("(dashboard)/company", "page");
     }
 

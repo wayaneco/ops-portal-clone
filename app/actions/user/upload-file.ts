@@ -2,7 +2,7 @@
 
 import { createClient } from "@/utils/supabase/server";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
-import { revalidateTag, revalidatePath } from "next/cache";
+import { revalidatePath } from "next/cache";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
@@ -49,8 +49,6 @@ export const uploadFile = async (params: UploadFileType) => {
       }
     }
 
-    revalidateTag("user_details");
-    revalidateTag("user_list");
     revalidatePath("(dashboard)/user/[id]", "page");
 
     return JSON.parse(JSON.stringify(params?.base64_file));
