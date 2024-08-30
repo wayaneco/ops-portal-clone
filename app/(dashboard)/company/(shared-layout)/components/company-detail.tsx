@@ -161,37 +161,36 @@ const CompanyDetail = function ({
           {
             update: !!companyInfo,
           }
-        )
-          .then(() => {
-            setToastState({
-              show: true,
-              message: (
-                <div>
-                  <strong>{watchName}</strong>{" "}
-                  {!!companyInfo
-                    ? "is updated successfully."
-                    : "is added successfully."}
-                </div>
-              ),
-            });
+        );
 
-            if (!currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
-              setIsSubmitting(false);
-            }
+        console.log("============", response);
+        if (!response.ok) throw response.error;
 
-            currentPrivilege?.includes(ROLE_NETWORK_ADMIN) &&
-              setTimeout(() => {
-                router.push("/company");
-              }, 3000);
-          })
-          .catch((error) => {
-            throw error;
-          });
+        setToastState({
+          show: true,
+          message: (
+            <div>
+              <strong>{watchName}</strong>{" "}
+              {!!companyInfo
+                ? "is updated successfully."
+                : "is added successfully."}
+            </div>
+          ),
+        });
+
+        if (!currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
+          setIsSubmitting(false);
+        }
+
+        currentPrivilege?.includes(ROLE_NETWORK_ADMIN) &&
+          setTimeout(() => {
+            router.push("/company");
+          }, 3000);
       } catch (error: any) {
         setIsSubmitting(false);
         setToastState({
           show: true,
-          message: <div>{error.message}</div>,
+          message: <div>{error.message || error}</div>,
           isError: true,
         });
       }

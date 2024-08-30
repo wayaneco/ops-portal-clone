@@ -106,8 +106,14 @@ export const upsertCompanyDetails = async (
     revalidateTag("company_list");
     revalidatePath("(dashboard)/company", "page");
 
-    return client_id;
+    return {
+      ok: true,
+      data: client_id,
+    };
   } catch (error) {
-    return error;
+    return {
+      ok: false,
+      error,
+    };
   }
 };
