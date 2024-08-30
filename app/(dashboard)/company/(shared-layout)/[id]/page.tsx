@@ -15,7 +15,7 @@ const getCompanyDetails = async (id: string) => {
         next: {
           tags: ["company_details"],
         },
-        cache: "no-store",
+        cache: "no-cache",
       }
     );
 

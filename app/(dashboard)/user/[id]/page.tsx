@@ -13,7 +13,7 @@ const getUserDetail = async (id: string) => {
         next: {
           tags: ["user_details"],
         },
-        cache: "no-store",
+        cache: "no-cache",
       }
     );
 
@@ -32,6 +32,7 @@ const getUserDetail = async (id: string) => {
 const Page = async ({ params: { id } }: { params: { id: string } }) => {
   const user = await getUserDetail(id);
 
+  console.log("================", user);
   return (
     <div className="py-8 bg-gray-200">
       <UserDetailForm data={JSON.parse(JSON.stringify(user))} />

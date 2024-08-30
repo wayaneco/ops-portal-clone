@@ -13,7 +13,7 @@ const getUsers = async () => {
         next: {
           tags: ["user_list"],
         },
-        cache: "no-store",
+        cache: "no-cache",
       }
     );
 

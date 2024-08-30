@@ -70,6 +70,8 @@ export const useUserDetailFormContext = () => {
 export function UserDetailForm(props: UserDetailFormType) {
   const { data } = props;
 
+  console.log("================", data);
+
   const inputRef = React.useRef<HTMLInputElement>();
   const isFirstRender = useIsFirstRender();
 
