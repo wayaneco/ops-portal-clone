@@ -103,8 +103,10 @@ export const upsertCompanyDetails = async (
       throw error_logo;
     }
 
-    revalidateTag("company_list");
-    revalidatePath("(dashboard)/company", "page");
+    if (!update) {
+      revalidateTag("company_list");
+      revalidatePath("(dashboard)/company", "page");
+    }
 
     return {
       ok: true,

@@ -163,7 +163,6 @@ const CompanyDetail = function ({
           }
         );
 
-        console.log("============", response);
         if (!response.ok) throw response.error;
 
         setToastState({
