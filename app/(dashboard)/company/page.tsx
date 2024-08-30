@@ -10,7 +10,7 @@ const getCompany = async () => {
       `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company`,
       {
         method: "GET",
-        headers: new Headers(headers()),
+        headers: headers(),
         next: {
           tags: ["company_list"],
         },
