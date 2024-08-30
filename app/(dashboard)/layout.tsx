@@ -12,6 +12,7 @@ import { UserClientContextProvider } from "../components/Context/UserClientConte
 import { getUserById } from "../actions/user/get-user-by-id";
 
 import MainLayout from "../components/MainLayout";
+import { getAllCompany } from "../actions/company/get-all-company";
 
 export default async function Layout(props: PropsWithChildren) {
   const supabase = await createClient();
@@ -21,20 +22,6 @@ export default async function Layout(props: PropsWithChildren) {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
-
-  const getClients = async () => {
-    try {
-      const { data } = await supabase
-        .from("clients")
-        .select(`id, name, logo_url, web_address, provisioning_status`)
-        .order("name", { ascending: true });
-
-      return data;
-    } catch (error) {
-      return error;
-    }
-  };
-
   const getHasRoleAdmin = async (id: string) => {
     try {
       const { data } = await supabase.rpc("has_admin_role", {
@@ -49,7 +36,7 @@ export default async function Layout(props: PropsWithChildren) {
   };
 
   const userInfo = await getUserById(user?.id);
-  const clientLists = await getClients();
+  const clientLists = await getAllCompany();
   const hasAdminRole = await getHasRoleAdmin(user?.id);
 
   return (
