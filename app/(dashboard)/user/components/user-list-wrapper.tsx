@@ -40,7 +40,6 @@ export const UserListWrapper = memo(
 
         if (error) throw error;
 
-        console.log({ fromFUNC: data });
         setUsers(data as Array<UserDetailType>);
         setIsRefetch(false);
       } catch (error) {
