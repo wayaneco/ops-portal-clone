@@ -35,9 +35,6 @@ const Page = async function (props: { params: { id: string } }) {
     initial_logs = [];
   }
 
-  console.log(1111111111111111, initial_logs);
-  console.log(2222222222222222, companyDetail);
-
   return (
     <CompanyDetail
       initialLogs={JSON.parse(JSON.stringify(initial_logs))}

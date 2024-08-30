@@ -21,8 +21,6 @@ export const AuthContext = createContext<AuthContextType | undefined>(
 
 export function SupabaseSessionProvider(props: SupabaseSessionProviderProps) {
   const { user, userInfo } = props;
-  console.log("SupabaseSessionProvider user", user);
-  console.log("SupabaseSessionProvider userInfo", userInfo);
 
   return (
     <AuthContext.Provider value={{ getSession: () => user, user, userInfo }}>

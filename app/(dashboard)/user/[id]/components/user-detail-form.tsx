@@ -71,8 +71,6 @@ export const useUserDetailFormContext = () => {
 export const UserDetailForm = React.memo((props: UserDetailFormType) => {
   const { data } = props;
 
-  console.log("============ USER DETAIL FORM", data);
-
   const inputRef = React.useRef<HTMLInputElement>();
   const isFirstRender = useIsFirstRender();
 
