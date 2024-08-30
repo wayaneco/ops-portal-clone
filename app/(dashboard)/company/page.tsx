@@ -4,34 +4,38 @@ import { headers } from "next/headers";
 import { CompanyListTable } from "./components/company-list-table";
 
 const getCompany = async () => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company`,
-    {
-      method: "GET",
-      headers: headers(),
-      next: {
-        tags: ["company_list"],
-      },
-      cache: "no-cache",
-    }
-  );
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company`,
+      {
+        method: "GET",
+        headers: new Headers(headers()),
+        next: {
+          tags: ["company_list"],
+        },
+        cache: "no-store",
+      }
+    );
 
-  return response;
+    if (!response.ok) {
+      return <div>Error fetching data</div>;
+    }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return error;
+  }
 };
 
 const Page = async function () {
-  const response = await getCompany();
-
-  if (!response.ok) {
-    return <div>Error fetching data</div>;
-  }
-
-  const clientList = await response.json();
+  const clients = await getCompany();
 
   return (
     <div className="py-16">
       <Card>
-        <CompanyListTable data={clientList} />
+        <CompanyListTable data={JSON.parse(JSON.stringify(clients))} />
       </Card>
     </div>
   );

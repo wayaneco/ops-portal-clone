@@ -10,47 +10,69 @@ import {
 import CompanyDetail from "../components/company-detail";
 
 const getCompanyDetails = async (id: string) => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company/${id}`,
-    {
-      method: "GET",
-      headers: headers(),
-      next: {
-        tags: ["company_details"],
-        revalidate: 0,
-      },
-    }
-  );
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/company/${id}`,
+      {
+        method: "GET",
+        headers: new Headers(headers()),
+        next: {
+          tags: ["company_details"],
+        },
+        cache: "no-store",
+      }
+    );
 
-  return response;
+    if (!response.ok) {
+      throw new Error(`Failed to fetch company ${id}`);
+    }
+
+    const data = await response.json();
+
+    return data;
+  } catch (error) {
+    return error;
+  }
+};
+
+const getInitialLogs = async (web_address: string) => {
+  try {
+    const provisionResponse = await axios.get<any>(
+      `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`
+    );
+
+    return provisionResponse?.data?.log_content;
+  } catch (error) {
+    return error;
+  }
 };
 
 const Page = async function (props: { params: { id: string } }) {
-  const response = await getCompanyDetails(props?.params?.id);
+  const companyDetail = await getCompanyDetails(props?.params?.id);
 
-  if (!response.ok) {
-    throw new Error(`Failed to fetch company ${props?.params.id}`);
-  }
-
-  const data = await response.json();
-
-  let log_content;
+  let initial_logs;
 
   if (
-    [STATUS_IN_PROGRESS, STATUS_COMPLETED].includes(data?.provisioning_status)
+    [STATUS_COMPLETED, STATUS_IN_PROGRESS]?.includes(
+      companyDetail?.provisioning_status
+    )
   ) {
-    const provisionResponse: {
-      data: {
-        log_content: Array<{ event: string; status: STATUS_PROVISION }>;
-      };
-    } = await axios.get<any>(
-      `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${data?.web_address}&bucket_name=ee-provision-dev`
-    );
+    const response = await getInitialLogs(companyDetail?.web_address);
 
-    log_content = provisionResponse?.data?.log_content;
+    initial_logs = response;
+  } else {
+    initial_logs = [];
   }
 
-  return <CompanyDetail initialLogs={log_content} companyInfo={data} />;
+  console.log(1111111111111111, initial_logs);
+  console.log(2222222222222222, companyDetail);
+
+  return (
+    <CompanyDetail
+      initialLogs={JSON.parse(JSON.stringify(initial_logs))}
+      companyInfo={JSON.parse(JSON.stringify(companyDetail))}
+    />
+  );
 };
 
 export default Page;

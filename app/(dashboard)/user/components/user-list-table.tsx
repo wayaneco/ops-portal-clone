@@ -23,11 +23,10 @@ import {
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import { UserDetailType, ClientsType } from "@/app/types";
 import { TableSkeleton } from "@/app/components/Skeleton";
-
-import { AddUser } from "./add-user";
-import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
+
+import { AddUser } from "./add-user";
 
 type UserListTableProps = {
   data: Array<UserDetailType>;
@@ -56,12 +55,6 @@ export const UserListTable = (props: UserListTableProps) => {
     useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
-
-  // useEffect(() => {
-  //   if (data) {
-  //     setUserList(data);
-  //   }
-  // }, [data]);
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;

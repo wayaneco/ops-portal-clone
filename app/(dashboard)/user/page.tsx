@@ -4,34 +4,41 @@ import { headers } from "next/headers";
 import { UserListTable } from "./components/user-list-table";
 
 const getUsers = async () => {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user`,
-    {
-      method: "GET",
-      headers: headers(),
-      next: {
-        tags: ["user_list"],
-      },
-      cache: "no-cache",
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user`,
+      {
+        method: "GET",
+        headers: new Headers(headers()),
+        next: {
+          tags: ["user_list"],
+        },
+        cache: "no-store",
+      }
+    );
+
+    if (!response.ok) {
+      throw new Error("Error fetching user list!");
     }
-  );
 
-  return response;
-};
-export default async function Page() {
-  const response = await getUsers();
+    const data = await response.json();
 
-  if (!response.ok) {
-    throw new Error("Error fetching user list!");
+    return data;
+  } catch (error) {
+    return error;
   }
+};
 
-  const usersList = await response.json();
+const Page = async () => {
+  const users = await getUsers();
 
   return (
     <div className="pt-16 pb-12">
       <Card>
-        <UserListTable data={usersList} />
+        <UserListTable data={JSON.parse(JSON.stringify(users))} />
       </Card>
     </div>
   );
-}
+};
+
+export default Page;

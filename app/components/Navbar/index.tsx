@@ -39,6 +39,7 @@ const Navbar = () => {
         expectedPrivilege?.includes(current)
       );
     };
+
     return (
       <>
         {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
@@ -69,7 +70,7 @@ const Navbar = () => {
             Company
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_AGENT]) && (
+        {isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) && (
           <FBNavbar.Link
             as={Link}
             active={pathname === "/kiosk"}
@@ -159,7 +160,7 @@ const Navbar = () => {
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        {<MenuList currentPrivilege={currentPrivilege} />}
+        <MenuList currentPrivilege={currentPrivilege} />
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"

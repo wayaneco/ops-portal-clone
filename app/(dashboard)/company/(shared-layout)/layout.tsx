@@ -1,12 +1,12 @@
 "use client";
 
 import { PropsWithChildren } from "react";
+import { redirect } from "next/navigation";
 
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 import SidebarProvider from "./context";
-import { redirect } from "next/navigation";
 
 export default function Layout(props: PropsWithChildren) {
   const { currentPrivilege } = useUserClientProviderContext();
