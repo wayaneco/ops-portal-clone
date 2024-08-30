@@ -31,7 +31,7 @@ export const upsertCompanyDetails = async (
     update = false,
     currentPrivilege,
   }: { update: boolean; currentPrivilege: Array<string> }
-): Promise<{ isError: boolean; message: string }> => {
+) => {
   const supabase = createClient();
 
   try {
@@ -76,10 +76,7 @@ export const upsertCompanyDetails = async (
     );
 
     if (error_update_clients) {
-      return {
-        isError: true,
-        message: `Failed to ${update ? "update" : "create"} clients.`,
-      };
+      throw error_update_clients;
     }
 
     if (params.logo && params?.logo?.includes("base64")) {
@@ -93,10 +90,7 @@ export const upsertCompanyDetails = async (
           });
 
       if (error_upload_file) {
-        return {
-          isError: true,
-          message: `Failed to upload file.`,
-        };
+        throw error_upload_file;
       }
 
       filePath = `${supabaseUrl}/storage/v1/object/public/client_logos/${file_data?.path}`;
@@ -109,26 +103,12 @@ export const upsertCompanyDetails = async (
       })
       .eq("id", client_id || params?.client_id);
 
-    if (currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
-      revalidateTag("company_list");
-      revalidatePath("(dashboard)/company", "page");
-    }
-
     if (error_logo) {
-      return {
-        isError: true,
-        message: `Failed to ${update ? "update" : "create"} client logo url.`,
-      };
+      throw error_logo;
     }
 
-    return {
-      isError: false,
-      message: "Success",
-    };
+    return client_id;
   } catch (error) {
-    return {
-      isError: true,
-      message: error as string,
-    };
+    return error;
   }
 };

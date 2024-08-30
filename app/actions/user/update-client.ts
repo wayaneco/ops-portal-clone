@@ -21,14 +21,8 @@ export async function updateUserRoles(params: {
   });
 
   if (error) {
-    return {
-      isError: true,
-      message: `Failed to update user roles.`,
-    };
+    return error;
   }
-
-  revalidateTag("user_details");
-  revalidatePath("(dashboard)/user/[id]", "layout");
 
   return data;
 }

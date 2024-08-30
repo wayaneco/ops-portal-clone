@@ -1,4 +1,7 @@
+"use client";
+
 import { Card } from "flowbite-react";
+
 import { headers } from "next/headers";
 
 import { CompanyListTable } from "./components/company-list-table";

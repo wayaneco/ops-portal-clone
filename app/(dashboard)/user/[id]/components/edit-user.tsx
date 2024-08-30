@@ -42,19 +42,20 @@ export const EditUser = () => {
       setIsSubmitting(true);
       const isEmailChanged = watchUserEmail !== user?.email;
 
-      const response: { isError: boolean; message: string } =
-        await updateUserInfo({
-          ...getValues("edit_user"),
-          user_id: user?.user_id,
-          photo_url: user?.photo_url,
-          staff_id: userInfo?.user_id,
-          isEmailChanged,
+      const response = await updateUserInfo({
+        ...getValues("edit_user"),
+        user_id: user?.user_id,
+        photo_url: user?.photo_url,
+        staff_id: userInfo?.user_id,
+        isEmailChanged,
+      })
+        .then(() => {
+          setToast(<div>User updated successfully!</div>);
+          closeDialog();
+        })
+        .catch(() => {
+          throw response;
         });
-
-      if (response.isError) throw new Error(response?.message);
-
-      setToast(<div>User updated successfully!</div>);
-      closeDialog();
     } catch (error: any) {
       setIsSubmitting(false);
       setToast(<div>{error?.message}</div>, true);

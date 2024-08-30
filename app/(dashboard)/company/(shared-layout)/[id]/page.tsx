@@ -1,11 +1,9 @@
+"use client";
+
 import axios from "axios";
 import { headers } from "next/headers";
 
-import {
-  STATUS_COMPLETED,
-  STATUS_IN_PROGRESS,
-  STATUS_PROVISION,
-} from "@/app/constant";
+import { STATUS_COMPLETED, STATUS_IN_PROGRESS } from "@/app/constant";
 
 import CompanyDetail from "../components/company-detail";
 

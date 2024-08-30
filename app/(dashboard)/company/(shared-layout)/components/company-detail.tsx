@@ -18,7 +18,7 @@ import Confetti from "react-confetti";
 import { SidebarContext, SidebarContextType } from "../context";
 import { Controller, FormProvider, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-import { useRouter } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { schema } from "../schema";
 import { AddClientForm } from "../components/form";
@@ -34,6 +34,9 @@ import {
   STATUS_PROVISION,
 } from "@/app/constant";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+import { useIsFirstRender } from "@/app/hooks/isFirstRender";
+
+import LoadingSkeleton from "../loading";
 
 type CompanyDetailType = {
   initialLogs?: Array<{ event: string; status: STATUS_PROVISION }>;
@@ -90,6 +93,7 @@ const CompanyDetail = function ({
   const [_, startTransition] = useTransition();
 
   const router = useRouter();
+  const path = usePathname();
 
   const { user } = useSupabaseSessionContext();
   const { currentPrivilege } = useUserClientProviderContext();
@@ -98,8 +102,10 @@ const CompanyDetail = function ({
   )!;
   const inputRef = useRef<HTMLInputElement>();
 
+  const isFirstRender = useIsFirstRender();
+
   const methods = useForm({
-    defaultValues: {
+    values: {
       logo: companyInfo?.logo_url ?? null,
       name: companyInfo?.name ?? "",
       web_address: companyInfo?.web_address ?? "",
@@ -134,61 +140,56 @@ const CompanyDetail = function ({
     setIsSubmitting(true);
     startTransition(async () => {
       try {
-        const response: { isError: boolean; message: string } =
-          await upsertCompanyDetails(
-            {
-              logo: data?.logo as string,
-              name: data?.name,
-              web_address: data?.web_address,
-              longitude: data?.longitude,
-              latitude: data?.latitude,
-              is_enabled: data?.is_enabled,
-              provisioning_status: data?.provisioning_status,
-              service_provided: data?.service_provided,
-              tags: data?.tags,
-              provider_types: data?.provider_types,
-              staff_id: user?.id,
-              client_id: companyInfo?.client_id,
-            },
-            {
-              currentPrivilege,
-              update: !!companyInfo,
+        const response = await upsertCompanyDetails(
+          {
+            logo: data?.logo as string,
+            name: data?.name,
+            web_address: data?.web_address,
+            longitude: data?.longitude,
+            latitude: data?.latitude,
+            is_enabled: data?.is_enabled,
+            provisioning_status: data?.provisioning_status,
+            service_provided: data?.service_provided,
+            tags: data?.tags,
+            provider_types: data?.provider_types,
+            staff_id: user?.id,
+            client_id: companyInfo?.client_id,
+          },
+          {
+            currentPrivilege,
+            update: !!companyInfo,
+          }
+        )
+          .then(() => {
+            setToastState({
+              show: true,
+              message: (
+                <div>
+                  <strong>{watchName}</strong>{" "}
+                  {!!companyInfo
+                    ? "is updated successfully."
+                    : "is added successfully."}
+                </div>
+              ),
+            });
+
+            if (!currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
+              setIsSubmitting(false);
             }
-          );
 
-        if (response.isError) throw new Error(response?.message);
-
-        setToastState({
-          show: true,
-          message: (
-            <div>
-              <strong>{watchName}</strong>{" "}
-              {!!companyInfo
-                ? "is updated successfully."
-                : "is added successfully."}
-            </div>
-          ),
-        });
-
-        if (!currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
-          setIsSubmitting(false);
-        }
-
-        currentPrivilege?.includes(ROLE_NETWORK_ADMIN) &&
-          setTimeout(() => {
-            router.push("/company");
-          }, 3000);
-      } catch (_) {
+            currentPrivilege?.includes(ROLE_NETWORK_ADMIN) &&
+              setTimeout(() => {
+                router.push("/company");
+              }, 3000);
+          })
+          .catch((error) => {
+            throw error;
+          });
+      } catch (error: any) {
         setIsSubmitting(false);
         setToastState({
           show: true,
-          message: (
-            <div>
-              {!!companyInfo
-                ? "Field to update client."
-                : "Field to add client."}
-            </div>
-          ),
+          message: <div>{error.message}</div>,
           isError: true,
         });
       }
@@ -327,7 +328,9 @@ const CompanyDetail = function ({
   useEffect(() => {
     const getLogs = async () => {
       const { data } = await axios.get<any>(
-        `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
+        `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${
+          watchWebAddress || companyInfo?.web_address
+        }&bucket_name=ee-provision-dev`
       );
 
       if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
@@ -349,6 +352,10 @@ const CompanyDetail = function ({
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [companyInfo?.provisioning_status]);
+
+  if (isFirstRender || (!companyInfo && path !== "/company/add")) {
+    return <LoadingSkeleton />;
+  }
 
   return (
     <ProvisionLoggingContext.Provider
