@@ -1,7 +1,7 @@
 "use client";
 
 import moment from "moment";
-import { ChangeEvent, LegacyRef, useState, useRef } from "react";
+import { ChangeEvent, LegacyRef, useState, useRef, useEffect } from "react";
 import {
   Controller,
   FieldValues,
@@ -16,19 +16,23 @@ import {
   Label,
   Datepicker,
 } from "flowbite-react";
+import Select from "react-tailwindcss-select";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
-
+import { createClient } from "@/utils/supabase/client";
 import { addUser } from "@/app/actions/user/add-user";
 import { UserDetailType } from "@/app/types";
 
 import { ToastStateType } from "./user-list-table";
-import { schema } from "./schema";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+import { useRetriggerContextProvider } from "@/app/components/Context/RetriggerProvider";
+import { ROLE_NETWORK_ADMIN, ROLE_PRIMARY_CONTACT } from "@/app/constant";
+
+import { schema } from "./schema";
 
 type AddUserProps = {
   close: () => void;
@@ -37,13 +41,22 @@ type AddUserProps = {
 
 export const AddUser = (props: AddUserProps) => {
   const { close, setToast } = props;
+  const supabase = createClient();
   const inputRef = useRef<HTMLInputElement>();
+
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const [roles, setRoles] = useState<Array<{ value: string; label: string }>>(
+    []
+  );
+
   const { user } = useSupabaseSessionContext();
   const { selectedClient } = useUserClientProviderContext();
+  const { refreshUserListFunc } = useRetriggerContextProvider();
+  const { hasAdminRole } = useUserClientProviderContext();
 
   const methods = useForm({
     defaultValues: {
+      role: "",
       photo_url: null,
       first_name: "",
       last_name: "",
@@ -76,15 +89,32 @@ export const AddUser = (props: AddUserProps) => {
     if (!isFieldsValid) return;
     setIsSubmitting(true);
     try {
-      const response: { isError: boolean; error: string } = await addUser({
-        ...(getValues() as UserDetailType),
+      const { role, ...payload } = getValues() as UserDetailType & {
+        role: {
+          value: string;
+          label: string;
+        };
+      };
+
+      const response: { isError: boolean; message: string } = await addUser({
+        ...payload,
+        role_id: role?.value,
+        isNetworkAdmin: role?.label === ROLE_NETWORK_ADMIN,
         staff_id: user?.id,
         client_id: selectedClient,
-        birth_date: "2024-08-13",
       });
 
-      if (response.isError) throw new Error(response?.error);
+      if (response.isError) {
+        setToast({
+          show: true,
+          message: <div>{response?.message}</div>,
+          isError: true,
+        });
+        setIsSubmitting(false);
+        return;
+      }
 
+      refreshUserListFunc();
       setIsSubmitting(false);
       setToast({ show: true, message: <div>User is added successfully.</div> });
       close();
@@ -97,6 +127,37 @@ export const AddUser = (props: AddUserProps) => {
       });
     }
   };
+
+  useEffect(() => {
+    const getRoleList = async () => {
+      setIsSubmitting(true);
+      supabase
+        .from("roles")
+        .select()
+        .then((result) => {
+          const filteredRoles = result?.data?.filter((role) => {
+            if (!hasAdminRole) {
+              return ![ROLE_NETWORK_ADMIN, ROLE_PRIMARY_CONTACT]?.includes(
+                role?.name
+              );
+            }
+
+            return ![ROLE_PRIMARY_CONTACT]?.includes(role?.name);
+          });
+
+          const formattedRoles = filteredRoles?.map((role) => ({
+            value: role?.id,
+            label: role?.name,
+          }));
+
+          setRoles(formattedRoles as Array<{ label: string; value: string }>);
+          setIsSubmitting(false);
+        });
+    };
+    getRoleList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <>
       <FormProvider {...methods}>
@@ -109,6 +170,7 @@ export const AddUser = (props: AddUserProps) => {
               </div>
             </div>
           )}
+
           <div className="flex flex-col gap-y-2">
             <div className="flex gap-2">
               <div className="flex flex-col gap-2 flex-1">
@@ -236,6 +298,37 @@ export const AddUser = (props: AddUserProps) => {
                 </div>
               </div>
             </div>
+            <Controller
+              control={control}
+              name="role"
+              render={({ field: { value, onChange } }) => (
+                <div>
+                  <Label className="text-xs">Role</Label>
+                  <Select
+                    classNames={{
+                      menuButton: () =>
+                        "flex py-[2px] text-sm text-gray-900 border border-primary-500 rounded-lg shadow-sm bg-gray-50 focus:ring-1 focus:ring-primary-600",
+                      listItem: ({ isSelected }: any) =>
+                        `block transition duration-200 px-2 py-2 cursor-pointer select-none truncate rounded hover:bg-primary-500 hover:text-white ${
+                          isSelected
+                            ? "bg-primary-500 text-white"
+                            : "text-gray-600"
+                        } `,
+                    }}
+                    placeholder="Select Role"
+                    primaryColor="primary"
+                    options={roles}
+                    value={value as any}
+                    onChange={onChange}
+                  />
+                  {(errors as FieldValues)?.role?.message && (
+                    <small className="text-red-500 mb-1">
+                      {(errors as FieldValues)?.role?.message}
+                    </small>
+                  )}
+                </div>
+              )}
+            />
             <Controller
               control={control}
               name="preferred_name"

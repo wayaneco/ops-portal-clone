@@ -109,7 +109,7 @@ export const UserListTable = (props: UserListTableProps) => {
     }
   }, [data, search, selectedClient, isShowAllUsers]);
 
-  if (isFirstRender || !data?.length) return <TableSkeleton />;
+  if (isFirstRender) return <TableSkeleton />;
 
   return (
     <>

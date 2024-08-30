@@ -38,6 +38,7 @@ export const AddClient = () => {
       createClient()
         .from("clients")
         .select()
+        .eq("is_enabled", true)
         .then((result) => {
           setValue("dropdowns.clientList", result?.data);
           setClientList(result?.data as Array<any>);
@@ -249,6 +250,14 @@ export const AddClient = () => {
                       primaryColor="primary-500"
                       classNames={{
                         menu: `relative z-10 w-full bg-white shadow-lg border rounded py-1 mt-1.5 text-sm text-gray-700`,
+                        menuButton: () =>
+                          "flex py-[2px] text-sm text-gray-900 border border-primary-500 rounded-lg shadow-sm bg-gray-50 focus:ring-1 focus:ring-primary-600",
+                        listItem: ({ isSelected }: any) =>
+                          `block transition duration-200 px-2 py-2 cursor-pointer select-none truncate rounded hover:bg-primary-500 hover:text-white ${
+                            isSelected
+                              ? "bg-primary-500 text-white"
+                              : "text-gray-600"
+                          } `,
                       }}
                       placeholder="Select client role"
                       isMultiple

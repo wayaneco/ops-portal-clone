@@ -43,7 +43,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
     return data;
   }, [data, search]);
 
-  if (isFirstRender || !data?.length) {
+  if (isFirstRender) {
     return <TableSkeleton />;
   }
 

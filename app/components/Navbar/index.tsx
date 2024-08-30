@@ -98,27 +98,36 @@ const Navbar = () => {
 
     switch (true) {
       case clientList?.length > 1:
-        component = (
-          <div className="flex items-center gap-x-2 text-gray-600">
-            <strong>{userInfo?.email}</strong>
-            <div className="">in behalf of</div>
-            <Select
-              ref={selectRef}
-              color="primary"
-              className="w-36"
-              value={selectedClient}
-              onChange={(event) => {
-                changeClient(event?.target?.value);
-              }}
-            >
-              {clientList?.map((client: ClientsType, index: number) => (
-                <option key={index} value={client?.id}>
-                  {client?.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-        );
+        if (hasAdminRole && REGEX_COMPANY_PAGE.test(pathname)) {
+          component = (
+            <div className="flex items-center gap-x-2 text-gray-600">
+              <strong>{userInfo?.email}</strong> as{" "}
+              <strong>Network Admin</strong>
+            </div>
+          );
+        } else {
+          component = (
+            <div className="flex items-center gap-x-2 text-gray-600">
+              <strong>{userInfo?.email}</strong>
+              <div className="">in behalf of</div>
+              <Select
+                ref={selectRef}
+                color="primary"
+                className="w-36"
+                value={selectedClient}
+                onChange={(event) => {
+                  changeClient(event?.target?.value);
+                }}
+              >
+                {clientList?.map((client: ClientsType, index: number) => (
+                  <option key={index} value={client?.id}>
+                    {client?.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          );
+        }
         break;
       case clientList?.length === 1:
         component = (

@@ -1,7 +1,7 @@
 "use client";
 
 import { UserDetailType } from "@/app/types";
-import { Session, User } from "@supabase/supabase-js";
+import { User } from "@supabase/supabase-js";
 import { createContext, PropsWithChildren, useContext } from "react";
 
 export type AuthContextType = {
