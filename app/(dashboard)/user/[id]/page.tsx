@@ -9,7 +9,11 @@ const getUserDetail = async (id: string) => {
       `${process.env.NEXT_PUBLIC_APP_BASE_URL}/api/user/${id}`,
       {
         method: "GET",
-        headers: new Headers(headers()),
+        headers: new Headers({
+          ...headers(),
+          "Content-Type": "application/json",
+          "Content-Length": "10mb",
+        }),
         next: {
           tags: ["user_details"],
         },
@@ -32,7 +36,7 @@ const getUserDetail = async (id: string) => {
 const Page = async ({ params: { id } }: { params: { id: string } }) => {
   const user = await getUserDetail(id);
 
-  console.log("================", user);
+  console.log("======== USER ID", user);
   return (
     <div className="py-8 bg-gray-200">
       <UserDetailForm data={JSON.parse(JSON.stringify(user))} />
