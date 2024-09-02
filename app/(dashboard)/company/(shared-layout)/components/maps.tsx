@@ -2,13 +2,15 @@
 we need to make this component client rendered as well*/
 "use client";
 
-import { NEXT_PUBLIC_GOOGLE_MAP_API } from "@/app/constant";
+import { useState } from "react";
+import { useFormContext } from "react-hook-form";
+import { TextInput, Button, Toast } from "flowbite-react";
 //Map component Component from library
 import { GoogleMap, Marker } from "@react-google-maps/api";
-import { TextInput, Button, Toast } from "flowbite-react";
-import { useEffect, useState } from "react";
-import { useFormContext } from "react-hook-form";
 
+import { useToastContext } from "@/app/components/Context/ToastProvider";
+
+import { NEXT_PUBLIC_GOOGLE_MAP_API } from "@/app/constant";
 //Map's styling
 const defaultMapContainerStyle = {
   width: "100%",
@@ -41,11 +43,8 @@ const MapComponent = () => {
     lng: Number(watchLongitude) || 74.006,
   });
   const [addressSearch, setAddressSearch] = useState<string>("");
-  const [toastState, setToastState] = useState({
-    show: false,
-    message: "",
-    isError: false,
-  });
+
+  const { showToast } = useToastContext();
 
   const onMarkerDragEnd = (event: {
     latLng: { lat: () => any; lng: () => any };
@@ -72,27 +71,12 @@ const MapComponent = () => {
       setValue("latitude", location.lat, { shouldDirty: true });
       setValue("longitude", location.lng, { shouldDirty: true });
     } else {
-      setToastState({
-        show: true,
+      showToast({
         message: "Location not found!",
-        isError: true,
+        error: true,
       });
     }
   };
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (toastState.show) {
-      timeout = setTimeout(() => {
-        setToastState({ show: false, message: "", isError: false });
-      }, 5000);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [toastState.show]);
 
   return (
     <div className="w-full relative ">
@@ -142,23 +126,6 @@ const MapComponent = () => {
             </div>
           </div>
         </div>
-      )}
-      {toastState?.show && (
-        <Toast
-          className={`absolute right-5 top-5 z-[9999] ${
-            toastState?.isError ? "bg-red-600" : "bg-primary-500"
-          }`}
-        >
-          <div className="ml-3 text-sm font-normal text-white">
-            {toastState?.message}
-          </div>
-          <Toast.Toggle
-            className={toastState?.isError ? "bg-red-600" : "bg-primary-500"}
-            onClick={() =>
-              setToastState({ show: false, message: "", isError: false })
-            }
-          />
-        </Toast>
       )}
     </div>
   );

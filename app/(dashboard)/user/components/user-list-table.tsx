@@ -1,11 +1,10 @@
 /* eslint-disable react/display-name */
 "use client";
 
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  TextInput,
   Button,
   Table,
   TableHead,
@@ -15,7 +14,6 @@ import {
   TableCell,
   Badge,
   Modal,
-  Toast,
   Checkbox,
   Label,
   FloatingLabel,
@@ -34,50 +32,18 @@ type UserListTableProps = {
   refetch: () => void;
 };
 
-export type ToastStateType = {
-  show: boolean;
-  message: string | ReactNode;
-  isError?: boolean;
-};
-
 export const UserListTable = (props: UserListTableProps) => {
   const { data = [], refetch } = props;
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
   const [isShowAllUsers, setIsShowAllUsers] = useState<boolean>(false);
-  const [toastState, setToastState] = useState<ToastStateType>({
-    show: false,
-    message: "",
-    isError: false,
-  });
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const { currentPrivilege, selectedClient, hasAdminRole } =
     useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (toastState.show) {
-      timeout = setTimeout(() => {
-        handleResetToast();
-      }, 5000);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [toastState.show]);
-
-  const handleResetToast = () =>
-    setToastState({
-      show: false,
-      message: "",
-      isError: false,
-    });
 
   const userList = useMemo(() => {
     if (isShowAllUsers) {
@@ -224,24 +190,8 @@ export const UserListTable = (props: UserListTableProps) => {
               refetch();
               setShowModal(false);
             }}
-            setToast={setToastState}
           />
         </Modal>
-      )}
-      {toastState.show && (
-        <Toast
-          className={`fixed right-5 top-5 z-[9999] ${
-            toastState?.isError ? "bg-red-500" : "bg-primary-500"
-          }`}
-        >
-          <div className="ml-3 text-sm font-normal text-white">
-            {toastState?.message}
-          </div>
-          <Toast.Toggle
-            className={toastState?.isError ? "bg-red-500" : "bg-primary-500"}
-            onClick={handleResetToast}
-          />
-        </Toast>
       )}
     </>
   );

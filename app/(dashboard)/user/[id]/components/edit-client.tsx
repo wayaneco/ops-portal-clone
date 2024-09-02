@@ -4,10 +4,11 @@ import { createClient } from "@/utils/supabase/client";
 import { useEffect, useState } from "react";
 
 import { updateUserRoles } from "app/actions/user/update-client";
-import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
-import { Privileges, RoleType } from "@/app/types";
+import { RoleType } from "@/app/types";
 import { useUserDetailFormContext } from "./user-detail-form";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
+import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 export const EditClient = () => {
@@ -22,9 +23,10 @@ export const EditClient = () => {
     clearErrors,
     formState: { errors, isDirty },
   } = useFormContext();
+  const { showToast } = useToastContext();
   const { user: userContext } = useSupabaseSessionContext();
   const { currentPrivilege } = useUserClientProviderContext();
-  const { setToast, closeDialog } = useUserDetailFormContext();
+  const { closeDialog } = useUserDetailFormContext();
 
   const { user, client } = watch("info");
   const roleList = watch("dropdowns.roleList");
@@ -72,15 +74,17 @@ export const EditClient = () => {
 
       if (!response.ok) throw response?.message;
 
-      setToast(
-        <div>
-          Editing of privileges for <strong>{client?.name}</strong> was
-          successful.
-        </div>
-      );
+      showToast({
+        message: (
+          <div>
+            Editing of privileges for <strong>{client?.name}</strong> was
+            successful.
+          </div>
+        ),
+      });
       closeDialog();
     } catch (error: any) {
-      setToast(<div>{error}</div>, true);
+      showToast({ message: error, error: true });
       setIsSubmitting(false);
     }
   };
