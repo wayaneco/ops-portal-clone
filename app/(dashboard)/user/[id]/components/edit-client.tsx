@@ -62,28 +62,26 @@ export const EditClient = () => {
         (role: RoleType) => role?.name === "Primary Contact"
       );
 
-      const resp = await updateUserRoles({
+      const response = await updateUserRoles({
         user_id: user?.user_id,
         client_id: client?.id,
         role_ids: roleIds,
         staff_id: userContext?.id,
         is_primary_contact: roleIds?.includes(isPrimaryContactId),
-      })
-        .then(() => {
-          setToast(
-            <div>
-              <strong>{client?.name}</strong> privileges is successfully update.
-            </div>
-          );
-          closeDialog();
-          return;
-        })
-        .catch(() => {
-          throw resp;
-        });
+      });
+
+      if (!response.ok) throw response?.message;
+
+      setToast(
+        <div>
+          Editing of privileges for <strong>{client?.name}</strong> was
+          successful.
+        </div>
+      );
+      closeDialog();
     } catch (error: any) {
       setIsSubmitting(false);
-      return setToast(<div>{error?.message}</div>, true);
+      setToast(<div>{error}</div>, true);
     }
   };
 

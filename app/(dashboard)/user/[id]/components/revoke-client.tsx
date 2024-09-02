@@ -41,13 +41,15 @@ export const RevokeClient = () => {
           color="primary"
           className="w-[150px] mx-auto"
           onClick={async () => {
+            setIsSubmitting(true);
             try {
-              setIsSubmitting(true);
-              await revokePrivilege({
+              const response = await revokePrivilege({
                 user_id: user?.user_id,
                 client_id: client?.id,
                 staff_id: userContext?.id,
               });
+
+              if (!response.ok) throw response?.message;
 
               setToast(
                 <div>
@@ -55,12 +57,10 @@ export const RevokeClient = () => {
                   <strong>{user?.email}</strong>
                 </div>
               );
-
               closeDialog();
             } catch (error) {
-              setToast(<div>Failed to revoke</div>, true);
-
               setIsSubmitting(false);
+              setToast(<div>Failed to revoke</div>, true);
             }
           }}
         >
