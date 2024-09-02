@@ -6,9 +6,11 @@ import { InferType } from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { CustomTextInput } from "@/app/components/TextInput";
 
 import schema from "./schema";
+import { useState } from "react";
 
 type LoginFormProps = {
   loginUser: (payload: InferType<typeof schema>) => any;
@@ -21,30 +23,33 @@ const defaultValues = {
 
 export function LoginForm({ loginUser }: LoginFormProps) {
   const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { showToast } = useToastContext();
 
-  const {
-    control,
-    handleSubmit,
-    formState: { isSubmitting },
-  } = useForm({
+  const { control, handleSubmit } = useForm({
     defaultValues,
     resolver: yupResolver(schema),
     mode: "onChange",
   });
 
-  console.log(isSubmitting);
   return (
     <form
       onSubmit={handleSubmit(async (data: InferType<typeof schema>) => {
         try {
+          setIsSubmitting(true);
           const response = await loginUser(data);
 
           if (!response.ok) throw response?.message;
 
-          console.log(response);
+          showToast({
+            error: false,
+            message: "Login successfully.",
+          });
+
           router?.replace(response?.message);
         } catch (error) {
-          console.log(error);
+          showToast({ error: true, message: "Invalid username and password." });
+          setIsSubmitting(false);
         }
       })}
     >
@@ -54,6 +59,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
           control={control}
           render={({ field, fieldState: { error } }) => (
             <CustomTextInput
+              disabled={isSubmitting}
               required
               label="Email"
               placeholder="Email"
@@ -73,7 +79,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
                   <path
                     fillRule="evenodd"
                     d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   />
                 </svg>
               }
@@ -86,8 +92,10 @@ export function LoginForm({ loginUser }: LoginFormProps) {
           control={control}
           render={({ field, fieldState: { error } }) => (
             <CustomTextInput
+              disabled={isSubmitting}
               required
               label="Password"
+              type="password"
               placeholder="Password"
               error={error?.message}
               rightIcon={
@@ -105,7 +113,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
                   <path
                     fillRule="evenodd"
                     d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
-                    clip-rule="evenodd"
+                    clipRule="evenodd"
                   />
                 </svg>
               }
@@ -115,8 +123,8 @@ export function LoginForm({ loginUser }: LoginFormProps) {
         />
       </div>
       <div className="mt-8">
-        <Button type="submit" color="primary" fullSized>
-          Login
+        <Button type="submit" color="primary" disabled={isSubmitting} fullSized>
+          {isSubmitting ? "Logging in..." : "Login"}
         </Button>
       </div>
     </form>

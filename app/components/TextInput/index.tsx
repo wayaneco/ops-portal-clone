@@ -3,11 +3,13 @@
 import { Field, FieldValues } from "react-hook-form";
 
 import { Label, TextInput } from "flowbite-react";
+import { HTMLInputTypeAttribute } from "react";
 
 type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & {
   error?: string;
   label: string;
   name?: string;
+  type?: HTMLInputTypeAttribute;
   required?: boolean;
   disabled?: boolean;
   value?: any;
@@ -16,8 +18,15 @@ type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & {
 };
 
 export const CustomTextInput = (props: TextFieldProps) => {
-  const { label, placeholder, error, required, rightIcon, ...otherInputProps } =
-    props;
+  const {
+    label,
+    placeholder,
+    type = "text",
+    error,
+    required,
+    rightIcon,
+    ...otherInputProps
+  } = props;
 
   return (
     <div className="flex-1">
@@ -30,6 +39,7 @@ export const CustomTextInput = (props: TextFieldProps) => {
         {label}
       </Label>
       <TextInput
+        type={type}
         placeholder={placeholder}
         color={error ? "error" : "primary"}
         helperText={
