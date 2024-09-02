@@ -48,8 +48,8 @@ export const EditUser = () => {
       setToast(<div>User updated successfully!</div>);
       closeDialog();
     } catch (error: any) {
-      setIsSubmitting(false);
       setToast(<div>{error?.message}</div>, true);
+      setIsSubmitting(false);
     }
   };
 

@@ -76,9 +76,6 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
   const isFirstRender = useIsFirstRender();
 
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
-  const [profilePhoto, setProfilePhoto] = React.useState<string>(
-    data?.photo_url
-  );
   const [toast, setToast] = React.useState<ToastType>({
     show: false,
     message: "",
@@ -191,10 +188,10 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
           <div className="flex">
             <div className="w-56 h-64">
               <div className="relative border h-full w-full overflow-hidden rounded-md bg-gray-100 group">
-                {profilePhoto ? (
+                {data?.photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={profilePhoto}
+                    src={data?.photo_url}
                     alt="Tonis Kitchen"
                     className="w-full h-full object-cover"
                   />
@@ -235,19 +232,25 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                         event.currentTarget?.files[0]
                       );
 
-                      const photo_url = await uploadFile({
+                      const response = await uploadFile({
                         user_id: data?.user_id,
                         base64_file: base64 as string,
                       });
 
-                      setProfilePhoto(photo_url as string);
+                      if (!response.ok) throw response?.message;
+
                       setToast({
                         show: true,
                         message: "Update photo successfully",
                         error: false,
                       });
                       setIsSubmitting(false);
-                    } catch (err) {
+                    } catch (error) {
+                      setToast({
+                        show: true,
+                        message: error as string,
+                        error: false,
+                      });
                       setIsSubmitting(false);
                     }
                   }}

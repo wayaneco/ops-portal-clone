@@ -120,8 +120,8 @@ export const AddClient = () => {
       );
       closeDialog();
     } catch (error: any) {
-      setIsSubmitting(false);
       setToast(<div>{error}</div>, true);
+      setIsSubmitting(false);
     }
   };
 
