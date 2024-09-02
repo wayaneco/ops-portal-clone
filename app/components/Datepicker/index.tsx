@@ -27,9 +27,7 @@ export const CustomerDatepicker = (props: CustomerDatepickerProps) => {
       <Datepicker
         placeholder={placeholder}
         color={error ? "error" : "primary"}
-        onSelectedDateChanged={(date) =>
-          onChange(moment(date).format("YYYY-MM-DD"))
-        }
+        onSelectedDateChanged={(date) => onChange(moment(date).format(""))}
         maxDate={moment().toDate()}
         showTodayButton={false}
         showClearButton={false}

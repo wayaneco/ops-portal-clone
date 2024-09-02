@@ -27,7 +27,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 export const upsertCompanyDetails = async (
   params: UpsertCompanyDetailsType,
   { update = false }: { update: boolean }
-) => {
+): Promise<{ ok: boolean; message: string }> => {
   const supabase = createClient();
 
   try {
@@ -71,9 +71,7 @@ export const upsertCompanyDetails = async (
       upsertClientParams
     );
 
-    if (error_update_clients) {
-      throw error_update_clients;
-    }
+    if (error_update_clients) throw error_update_clients?.message;
 
     if (params.logo && params?.logo?.includes("base64")) {
       const file = convertBase64toFile(params.logo!, params?.name);
@@ -85,9 +83,7 @@ export const upsertCompanyDetails = async (
             upsert: true,
           });
 
-      if (error_upload_file) {
-        throw error_upload_file;
-      }
+      if (error_upload_file) throw error_upload_file?.message;
 
       filePath = `${supabaseUrl}/storage/v1/object/public/client_logos/${file_data?.path}`;
     }
@@ -99,9 +95,7 @@ export const upsertCompanyDetails = async (
       })
       .eq("id", client_id || params?.client_id);
 
-    if (error_logo) {
-      throw error_logo;
-    }
+    if (error_logo) throw error_logo?.message;
 
     if (!update) {
       revalidatePath("(dashboard)/company", "page");
@@ -109,12 +103,12 @@ export const upsertCompanyDetails = async (
 
     return {
       ok: true,
-      data: client_id,
+      message: "Success",
     };
   } catch (error) {
     return {
       ok: false,
-      error,
+      message: error as string,
     };
   }
 };

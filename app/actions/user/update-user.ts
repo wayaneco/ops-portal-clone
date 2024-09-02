@@ -46,7 +46,7 @@ export async function updateUserInfo(
     }
 
     const payload = {
-      birth_date: params?.birth_date ?? "",
+      birth_date: params?.birth_date || null,
       city: params?.city ?? "",
       first_name: params?.first_name ?? "",
       last_name: params?.last_name ?? "",
@@ -77,6 +77,7 @@ export async function updateUserInfo(
       message: "Success.",
     };
   } catch (error) {
+    console.log(error);
     return {
       ok: false,
       message: error as string,
