@@ -43,7 +43,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
     return data;
   }, [data, search]);
 
-  if (isFirstRender || !data?.length) {
+  if (isFirstRender) {
     return <TableSkeleton />;
   }
 
@@ -125,7 +125,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
           </div>
         </div>
       </div>
-      <div className="mt-5">
+      <div className="mt-5 w-fit">
         <Link href="/company/add">
           <Button color="primary">Add new</Button>
         </Link>

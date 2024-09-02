@@ -1,21 +1,18 @@
-// src/services/userService.js
-
 import { createClient } from "@supabase/supabase-js";
-
-// import { config as dotenvConfig } from "dotenv";
-// dotenvConfig();
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 const supabaseRoleKey = process.env.SUPABASE_API_KEY_SERVICE_ROLE;
 
-// console.log(supabaseUrl, supabaseRoleKey);
-
-const supabase = createClient(supabaseUrl as string, supabaseRoleKey as string, {
-  auth: {
-    autoRefreshToken: false,
-    persistSession: false,
-  },
-});
+const supabase = createClient(
+  supabaseUrl as string,
+  supabaseRoleKey as string,
+  {
+    auth: {
+      autoRefreshToken: false,
+      persistSession: false,
+    },
+  }
+);
 
 export const create = async (username: string, userFullName: string) => {
   const { data, error } = await supabase.auth.admin.createUser({

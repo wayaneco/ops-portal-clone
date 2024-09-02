@@ -23,14 +23,14 @@ import {
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import { UserDetailType, ClientsType } from "@/app/types";
 import { TableSkeleton } from "@/app/components/Skeleton";
-
-import { AddUser } from "./add-user";
-import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN } from "@/app/constant";
 
+import { AddUser } from "./add-user";
+
 type UserListTableProps = {
   data: Array<UserDetailType>;
+  refetch: () => void;
 };
 
 export type ToastStateType = {
@@ -40,7 +40,7 @@ export type ToastStateType = {
 };
 
 export const UserListTable = (props: UserListTableProps) => {
-  const { data = [] } = props;
+  const { data = [], refetch } = props;
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
@@ -56,12 +56,6 @@ export const UserListTable = (props: UserListTableProps) => {
     useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
-
-  // useEffect(() => {
-  //   if (data) {
-  //     setUserList(data);
-  //   }
-  // }, [data]);
 
   useEffect(() => {
     let timeout: ReturnType<typeof setTimeout>;
@@ -116,7 +110,7 @@ export const UserListTable = (props: UserListTableProps) => {
     }
   }, [data, search, selectedClient, isShowAllUsers]);
 
-  if (isFirstRender || !data?.length) return <TableSkeleton />;
+  if (isFirstRender) return <TableSkeleton />;
 
   return (
     <>
@@ -222,7 +216,13 @@ export const UserListTable = (props: UserListTableProps) => {
 
       {showModal && (
         <Modal show={showModal} onClose={() => setShowModal(false)}>
-          <AddUser close={() => setShowModal(false)} setToast={setToastState} />
+          <AddUser
+            close={() => {
+              refetch();
+              setShowModal(false);
+            }}
+            setToast={setToastState}
+          />
         </Modal>
       )}
       {toastState.show && (

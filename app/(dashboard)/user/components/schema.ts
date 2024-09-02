@@ -1,6 +1,18 @@
 import * as Yup from "yup";
 
 export const schema = Yup.object().shape({
+  role: Yup.lazy((value: any) => {
+    if (value === "") {
+      return Yup.string().required("This field is required.");
+    }
+
+    return Yup.object()
+      .shape({
+        label: Yup.string(),
+        value: Yup.string(),
+      })
+      .required("This field is required.");
+  }),
   photo_url: Yup.lazy((value: null) => {
     return Yup.mixed().nullable();
   }),
@@ -19,4 +31,5 @@ export const schema = Yup.object().shape({
   zip_code: Yup.string(),
   country: Yup.string(),
   state_province_region: Yup.string(),
+  isNetworkAdmin: Yup.boolean(),
 });

@@ -39,6 +39,7 @@ export const UserClientContextProvider = memo(
       PropsWithChildren
   ) => {
     const { children, clientLists, hasAdminRole } = props;
+
     const selectRef = useRef<HTMLSelectElement>();
     const { userInfo } = useSupabaseSessionContext();
 

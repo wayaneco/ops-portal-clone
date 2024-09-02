@@ -39,6 +39,7 @@ const Navbar = () => {
         expectedPrivilege?.includes(current)
       );
     };
+
     return (
       <>
         {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
@@ -69,7 +70,7 @@ const Navbar = () => {
             Company
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_AGENT]) && (
+        {isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) && (
           <FBNavbar.Link
             as={Link}
             active={pathname === "/kiosk"}
@@ -97,27 +98,36 @@ const Navbar = () => {
 
     switch (true) {
       case clientList?.length > 1:
-        component = (
-          <div className="flex items-center gap-x-2 text-gray-600">
-            <strong>{userInfo?.email}</strong>
-            <div className="">in behalf of</div>
-            <Select
-              ref={selectRef}
-              color="primary"
-              className="w-36"
-              value={selectedClient}
-              onChange={(event) => {
-                changeClient(event?.target?.value);
-              }}
-            >
-              {clientList?.map((client: ClientsType, index: number) => (
-                <option key={index} value={client?.id}>
-                  {client?.name}
-                </option>
-              ))}
-            </Select>
-          </div>
-        );
+        if (hasAdminRole && REGEX_COMPANY_PAGE.test(pathname)) {
+          component = (
+            <div className="flex items-center gap-x-2 text-gray-600">
+              <strong>{userInfo?.email}</strong> as{" "}
+              <strong>Network Admin</strong>
+            </div>
+          );
+        } else {
+          component = (
+            <div className="flex items-center gap-x-2 text-gray-600">
+              <strong>{userInfo?.email}</strong>
+              <div className="">in behalf of</div>
+              <Select
+                ref={selectRef}
+                color="primary"
+                className="w-36"
+                value={selectedClient}
+                onChange={(event) => {
+                  changeClient(event?.target?.value);
+                }}
+              >
+                {clientList?.map((client: ClientsType, index: number) => (
+                  <option key={index} value={client?.id}>
+                    {client?.name}
+                  </option>
+                ))}
+              </Select>
+            </div>
+          );
+        }
         break;
       case clientList?.length === 1:
         component = (
@@ -159,7 +169,7 @@ const Navbar = () => {
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">
-        {<MenuList currentPrivilege={currentPrivilege} />}
+        <MenuList currentPrivilege={currentPrivilege} />
         <FBNavbar.Link
           href="/auth"
           className="text-base md:text-lg block md:hidden"

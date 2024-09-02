@@ -1,7 +1,8 @@
 "use server";
 
+import { revalidatePath } from "next/cache";
+
 import { createClient } from "@/utils/supabase/server";
-import { revalidateTag, revalidatePath } from "next/cache";
 
 export async function revokePrivilege(params: {
   user_id: string;
@@ -23,8 +24,7 @@ export async function revokePrivilege(params: {
     };
   }
 
-  revalidateTag("user_details");
-  revalidatePath("(dashboard)/user/[id]", "layout");
+  revalidatePath("(dashboard)/user/[id]", "page");
 
   return data;
 }

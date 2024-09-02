@@ -1,18 +1,23 @@
 "use server";
 
+import moment from "moment";
+import { revalidatePath } from "next/cache";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
-import { revalidatePath, revalidateTag } from "next/cache";
 
 import { createClient } from "utils/supabase/server";
-import { createClient as createAdminClient } from "@supabase/supabase-js";
+import {
+  createClient as createAdminClient,
+  PostgrestSingleResponse,
+} from "@supabase/supabase-js";
 import {
   SUPABASE_URL,
   DEFAULT_PASSWORD,
   SUPABASE_SERVICE_ROLE_KEY,
-  ROLE_AGENT,
 } from "@/constant/index";
 
 type UpdateUserInfoType = {
+  role_id: string;
+  isNetworkAdmin: boolean;
   photo_url: string;
   first_name: string;
   last_name: string;
@@ -61,12 +66,6 @@ export async function addUser(params: UpdateUserInfoType) {
       }
     }
 
-    const { data: agentId } = await supabase
-      .from("roles")
-      .select("id")
-      .eq("name", ROLE_AGENT)
-      .single();
-
     const {
       data: { user: authUser },
       error: error_create_user,
@@ -84,31 +83,37 @@ export async function addUser(params: UpdateUserInfoType) {
     } else {
       if (authUser) {
         const payload = {
-          birth_date: params?.birth_date ?? "",
+          birth_date: params?.birth_date || null,
           city: params?.city ?? "",
           first_name: params?.first_name ?? "",
           last_name: params?.last_name ?? "",
           line_1: params?.addr_line_1 ?? "",
           line_2: params?.addr_line_2 ?? "",
           middle_name: params?.middle_name ?? "",
-          p_client_id: params?.client_id ?? "",
-          p_role_id: agentId, // DEFAULT TO AGENT
           p_user_id: authUser.id ?? "",
           preferred_name: params?.preferred_name ?? "",
           primary_email: params?.email ?? "",
           primary_phone: params?.primary_phone ?? "",
-          profile_url: "",
+          profile_url: photoUrl,
           staff_id: params?.staff_id ?? "",
           state_province_region: params?.state_province_region ?? "",
           zip_code: params?.zip_code ?? "",
+          ...(!params?.isNetworkAdmin && {
+            p_client_id:
+              (params?.isNetworkAdmin ? "" : params?.client_id) ?? "",
+            p_role_id: params?.role_id,
+          }),
         };
 
-        const { error } = await supabase.rpc("add_admin_user", payload);
+        const { error } = await supabase.rpc(
+          params?.isNetworkAdmin ? "add_network_admin_user" : "add_admin_user",
+          payload
+        );
 
         if (error) {
           return {
             isError: true,
-            message: `Failed to create user`,
+            message: `Failed to create user.`,
           };
         } else {
           if (params?.photo_url && params?.photo_url?.includes("base64")) {
@@ -151,9 +156,6 @@ export async function addUser(params: UpdateUserInfoType) {
       }
     }
 
-    revalidateTag("user_list");
-    revalidatePath("(dashboard)/user", "page");
-    revalidatePath("(dashboard)/user", "layout");
     return {
       isError: false,
       error: null,

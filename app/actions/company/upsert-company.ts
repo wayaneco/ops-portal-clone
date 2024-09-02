@@ -1,8 +1,7 @@
 "use server";
 
-import { ROLE_NETWORK_ADMIN } from "@/app/constant";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { createClient } from "utils/supabase/server";
 
 type UpsertCompanyDetailsType = {
@@ -27,10 +26,7 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 export const upsertCompanyDetails = async (
   params: UpsertCompanyDetailsType,
-  {
-    update = false,
-    currentPrivilege,
-  }: { update: boolean; currentPrivilege: Array<string> }
+  { update = false }: { update: boolean }
 ) => {
   const supabase = createClient();
 
@@ -107,8 +103,18 @@ export const upsertCompanyDetails = async (
       throw error_logo;
     }
 
-    return client_id;
+    if (!update) {
+      revalidatePath("(dashboard)/company", "page");
+    }
+
+    return {
+      ok: true,
+      data: client_id,
+    };
   } catch (error) {
-    return error;
+    return {
+      ok: false,
+      error,
+    };
   }
 };

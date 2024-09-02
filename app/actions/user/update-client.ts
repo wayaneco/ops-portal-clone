@@ -1,6 +1,6 @@
 "use server";
 
-import { revalidatePath, revalidateTag } from "next/cache";
+import { revalidatePath } from "next/cache";
 import { createClient } from "utils/supabase/server";
 
 export async function updateUserRoles(params: {
@@ -23,6 +23,8 @@ export async function updateUserRoles(params: {
   if (error) {
     return error;
   }
+
+  revalidatePath("(dashboard)/user/[id]", "page");
 
   return data;
 }
