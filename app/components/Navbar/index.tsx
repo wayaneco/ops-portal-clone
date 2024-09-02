@@ -1,13 +1,14 @@
 "use client";
 
 import React from "react";
-import { Button, Navbar as FBNavbar, Select } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Button, Navbar as FBNavbar, Select } from "flowbite-react";
 import { usePathname, useRouter } from "next/navigation";
 
 import { useSupabaseSessionContext } from "../Context/SupabaseSessionProvider";
 import { useUserClientProviderContext } from "../Context/UserClientContext";
+
 import { ClientsType } from "@/app/types";
 import {
   ROLE_NETWORK_ADMIN,
@@ -15,6 +16,8 @@ import {
   ROLE_AGENT,
 } from "@/app/constant";
 import { logOutUser } from "@/app/actions/login/logout-user";
+
+import * as EverestEffect from "public/everest-effect.svg";
 
 const Navbar = () => {
   const router = useRouter();
@@ -161,11 +164,7 @@ const Navbar = () => {
         href="/"
         className="w-[100px] h-[80px] relative mr-10"
       >
-        <Image
-          src="https://www.everesteffect.com/img/ee_logo_dark.svg"
-          alt="Everest Effect Logo"
-          fill
-        />
+        <Image src={EverestEffect} alt="Everest Effect Logo" fill />
       </FBNavbar.Brand>
       <FBNavbar.Toggle />
       <FBNavbar.Collapse className="flex-none md:flex-1">

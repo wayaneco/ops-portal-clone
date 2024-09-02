@@ -4,6 +4,7 @@ import { Button, Modal, Spinner } from "flowbite-react";
 import { useFormContext } from "react-hook-form";
 
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 
 import { revokePrivilege } from "app/actions/user/revoke-privilege";
 import { useState } from "react";
@@ -12,8 +13,9 @@ import { useUserDetailFormContext } from "./user-detail-form";
 export const RevokeClient = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  const { showToast } = useToastContext();
   const { user: userContext } = useSupabaseSessionContext();
-  const { setToast, closeDialog } = useUserDetailFormContext();
+  const { closeDialog } = useUserDetailFormContext();
   const { watch } = useFormContext();
 
   const { user, client } = watch("info");
@@ -51,16 +53,21 @@ export const RevokeClient = () => {
 
               if (!response.ok) throw response?.message;
 
-              setToast(
-                <div>
-                  <strong>{client?.name}</strong> has been revoke on{" "}
-                  <strong>{user?.email}</strong>
-                </div>
-              );
+              showToast({
+                message: (
+                  <>
+                    <strong>{client?.name}</strong> has been revoke on{" "}
+                    <strong>{user?.email}</strong>
+                  </>
+                ),
+              });
               closeDialog();
             } catch (error) {
               setIsSubmitting(false);
-              setToast(<div>Failed to revoke</div>, true);
+              showToast({
+                message: "Failed to revoke.",
+                error: true,
+              });
             }
           }}
         >

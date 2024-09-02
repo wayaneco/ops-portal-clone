@@ -41,6 +41,7 @@ export const ToastProvider = (props: PropsWithChildren) => {
     return () => {
       clearTimeout(timeout);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [!!toastState?.message]);
 
   return (

@@ -34,6 +34,7 @@ import {
   STATUS_IN_PROGRESS,
   STATUS_PROVISION,
 } from "@/app/constant";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 
@@ -88,16 +89,12 @@ const CompanyDetail = function ({
   const [isCompleted, setIsCompleted] = useState(
     companyInfo?.provisioning_status === STATUS_COMPLETED
   );
-  const [toastState, setToastState] = useState<ToastType>({
-    show: false,
-    message: "",
-    isError: false,
-  });
   const [_, startTransition] = useTransition();
 
   const router = useRouter();
   const path = usePathname();
 
+  const { showToast } = useToastContext();
   const { user } = useSupabaseSessionContext();
   const { currentPrivilege } = useUserClientProviderContext();
   const { pathname } = useContext<SidebarContextType | undefined>(
@@ -165,8 +162,7 @@ const CompanyDetail = function ({
 
         if (!response.ok) throw response.message;
 
-        setToastState({
-          show: true,
+        showToast({
           message: (
             <div>
               <strong>{watchName}</strong>{" "}
@@ -186,10 +182,9 @@ const CompanyDetail = function ({
             router.push("/company");
           }, 3000);
       } catch (error: any) {
-        setToastState({
-          show: true,
-          message: <div>{error}</div>,
-          isError: true,
+        showToast({
+          message: error,
+          error: true,
         });
         setIsSubmitting(false);
       }
@@ -261,20 +256,6 @@ const CompanyDetail = function ({
       clearTimeout(timeout);
     };
   }, [showConfetti]);
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (toastState.show) {
-      timeout = setTimeout(() => {
-        setToastState({ show: false, message: "", isError: false });
-      }, 5000);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [toastState.show]);
 
   useEffect(() => {
     if (startLogging) {
@@ -464,23 +445,6 @@ const CompanyDetail = function ({
             </div>
           </div>
         </form>
-        {toastState.show && (
-          <Toast
-            className={`absolute right-5 top-5 z-[9999] ${
-              toastState?.isError ? "bg-red-600" : "bg-primary-500"
-            }`}
-          >
-            <div className="ml-3 text-sm font-normal text-white">
-              {toastState?.message}
-            </div>
-            <Toast.Toggle
-              className={toastState?.isError ? "bg-red-600" : "bg-primary-500"}
-              onClick={() =>
-                setToastState({ show: false, message: "", isError: false })
-              }
-            />
-          </Toast>
-        )}
         {showConfetti && (
           <Confetti
             className="fixed inset-0 !z-10"

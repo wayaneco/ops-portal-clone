@@ -1,6 +1,5 @@
 "use client";
 
-import moment from "moment";
 import { ChangeEvent, LegacyRef, useState, useRef, useEffect } from "react";
 import {
   Controller,
@@ -26,7 +25,7 @@ import { createClient } from "@/utils/supabase/client";
 import { addUser } from "@/app/actions/user/add-user";
 import { UserDetailType } from "@/app/types";
 
-import { ToastStateType } from "./user-list-table";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { ROLE_NETWORK_ADMIN, ROLE_PRIMARY_CONTACT } from "@/app/constant";
 
@@ -37,11 +36,10 @@ import { CustomerDatepicker } from "@/app/components/Datepicker";
 
 type AddUserProps = {
   close: () => void;
-  setToast: (state: ToastStateType) => void;
 };
 
 export const AddUser = (props: AddUserProps) => {
-  const { close, setToast } = props;
+  const { close } = props;
   const supabase = createClient();
   const inputRef = useRef<HTMLInputElement>();
 
@@ -50,6 +48,7 @@ export const AddUser = (props: AddUserProps) => {
     []
   );
 
+  const { showToast } = useToastContext();
   const { user } = useSupabaseSessionContext();
   const { selectedClient } = useUserClientProviderContext();
   const { hasAdminRole } = useUserClientProviderContext();
@@ -108,14 +107,13 @@ export const AddUser = (props: AddUserProps) => {
       if (!response.ok) throw response?.message;
 
       setIsSubmitting(false);
-      setToast({ show: true, message: <div>{response?.message}</div> });
+      showToast({ message: response?.message });
       close();
     } catch (error: any) {
       setIsSubmitting(false);
-      setToast({
-        show: true,
-        message: <div>{error}</div>,
-        isError: true,
+      showToast({
+        message: error,
+        error: true,
       });
     }
   };

@@ -27,7 +27,7 @@ import {
 
 import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
-import { CustomTextInput } from "@/app/components/TextInput";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -40,14 +40,7 @@ type HandleOpenModalType = {
 };
 
 type UserDetailFormContextType = {
-  setToast: (message: ToastType["message"], isError?: boolean) => void;
   closeDialog: () => void;
-};
-
-type ToastType = {
-  show: boolean;
-  message: string | React.ReactNode;
-  error: boolean;
 };
 
 const UserDetailFormContext = React.createContext<
@@ -76,11 +69,6 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
   const isFirstRender = useIsFirstRender();
 
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
-  const [toast, setToast] = React.useState<ToastType>({
-    show: false,
-    message: "",
-    error: false,
-  });
   const [modalOptions, setModalOptions] = React.useState<any>({
     show: false,
     modalContent: null,
@@ -88,6 +76,7 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
     client: null,
   });
 
+  const { showToast } = useToastContext();
   const { selectedClient, hasAdminRole, currentPrivilege } =
     useUserClientProviderContext();
   const { user: currentLoggedInUser } = useSupabaseSessionContext();
@@ -116,39 +105,11 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
     });
   };
 
-  const handleSetToast = (
-    message: string | React.ReactNode,
-    isError?: boolean
-  ) => {
-    setToast({
-      show: true,
-      message,
-      error: isError ?? false,
-    });
-  };
-
-  const handleResetToast = () =>
-    setToast({ show: false, message: "", error: false });
-
   const isEnable = (expectedPrivilege: Array<any>) => {
     return currentPrivilege?.some((current) =>
       expectedPrivilege?.includes(current)
     );
   };
-
-  React.useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (toast.show) {
-      timeout = setTimeout(() => {
-        handleResetToast();
-      }, 5000);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [toast.show]);
 
   const showActionColumn = (client: ClientsType) => {
     return (
@@ -170,9 +131,6 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
   return (
     <UserDetailFormContext.Provider
       value={{
-        setToast: (message: ToastType["message"], isError?: boolean) => {
-          handleSetToast(message, isError);
-        },
         closeDialog: handleResetModal,
       }}
     >
@@ -239,15 +197,13 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
 
                       if (!response.ok) throw response?.message;
 
-                      setToast({
-                        show: true,
+                      showToast({
                         message: "Update photo successfully",
                         error: false,
                       });
                       setIsSubmitting(false);
                     } catch (error) {
-                      setToast({
-                        show: true,
+                      showToast({
                         message: error as string,
                         error: false,
                       });
@@ -473,21 +429,6 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                 <Spinner color="primary" />
               </div>
             </div>
-          )}
-          {toast.show && (
-            <Toast
-              className={`fixed right-5 top-5 z-[9999] ${
-                toast?.error ? "bg-red-600" : "bg-primary-500"
-              }`}
-            >
-              <div className="ml-3 text-sm font-normal text-white">
-                {toast?.message}
-              </div>
-              <Toast.Toggle
-                className={toast?.error ? "bg-red-600" : "bg-primary-500"}
-                onClick={handleResetToast}
-              />
-            </Toast>
           )}
           {modalOptions?.show && (
             <UserDetailModal

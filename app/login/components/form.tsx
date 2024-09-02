@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Button } from "flowbite-react";
 import { useRouter } from "next/navigation";
 import { InferType } from "yup";
@@ -10,7 +11,6 @@ import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { CustomTextInput } from "@/app/components/TextInput";
 
 import schema from "./schema";
-import { useState } from "react";
 
 type LoginFormProps = {
   loginUser: (payload: InferType<typeof schema>) => any;
