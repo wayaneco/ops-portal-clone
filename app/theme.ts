@@ -12,14 +12,26 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
         "text-white bg-primary-500 hover:bg-primary-600 focus:outline-primary-400",
     },
   },
+  label: {
+    root: {
+      base: "text-sm font-medium",
+      disabled: "opacity-50",
+      colors: {
+        primary: "text-gray-900",
+        error: "text-red-500",
+      },
+    },
+  },
   textInput: {
     base: "relative w-full",
     field: {
       input: {
-        base: "block w-full border border-primary-500 disabled:cursor-not-allowed disabled:border-none",
+        base: "block w-full border disabled:bg-gray-100 disabled:cursor-not-allowed",
         colors: {
           primary:
             "border-primary-500 bg-gray-50 text-gray-900 focus:border-primary-600 focus:ring-primary-600",
+          error:
+            "border-red-500 bg-gray-50 text-gray-900 focus:border-red-600 focus:ring-red-600 placeholder-red-400",
         },
       },
     },
@@ -49,6 +61,7 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
         items: {
           item: {
             selected: "bg-primary-500 text-white hover:bg-primary-600",
+            disabled: "text-gray-500 cursor-not-allowed",
           },
         },
       },

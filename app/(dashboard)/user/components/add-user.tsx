@@ -16,7 +16,6 @@ import {
   Label,
   Datepicker,
 } from "flowbite-react";
-import Select from "react-tailwindcss-select";
 
 import { yupResolver } from "@hookform/resolvers/yup";
 
@@ -32,6 +31,9 @@ import { useUserClientProviderContext } from "@/app/components/Context/UserClien
 import { ROLE_NETWORK_ADMIN, ROLE_PRIMARY_CONTACT } from "@/app/constant";
 
 import { schema } from "./schema";
+import { CustomTextInput } from "@/app/components/TextInput";
+import { CustomerSelect } from "@/app/components/Select";
+import { CustomerDatepicker } from "@/app/components/Datepicker";
 
 type AddUserProps = {
   close: () => void;
@@ -78,6 +80,7 @@ export const AddUser = (props: AddUserProps) => {
     control,
     trigger,
     getValues,
+    setFocus,
     formState: { errors },
   } = methods;
 
@@ -174,58 +177,41 @@ export const AddUser = (props: AddUserProps) => {
                 <Controller
                   control={control}
                   name="first_name"
-                  render={({ field }) => (
-                    <div>
-                      <Label className="text-xs">First Name</Label>
-                      <TextInput
+                  render={({ field, fieldState: { error } }) => (
+                    <>
+                      <CustomTextInput
+                        required
+                        label="First Name"
                         placeholder="First Name"
-                        color="primary"
+                        error={error?.message}
                         {...field}
                       />
-                      {(errors as FieldValues)?.first_name?.message && (
-                        <small className="text-red-500 mb-1">
-                          {(errors as FieldValues)?.first_name?.message}
-                        </small>
-                      )}
-                    </div>
+                    </>
                   )}
                 />
                 <Controller
                   control={control}
                   name="middle_name"
-                  render={({ field }) => (
-                    <div>
-                      <Label className="text-xs">Middle Name</Label>
-                      <TextInput
-                        placeholder="Middle Name"
-                        color="primary"
-                        {...field}
-                      />
-                      {(errors as FieldValues)?.middle_name?.message && (
-                        <small className="text-red-500 mb-1">
-                          {(errors as FieldValues)?.middle_name?.message}
-                        </small>
-                      )}
-                    </div>
+                  render={({ field, fieldState: { error } }) => (
+                    <CustomTextInput
+                      label="Middle Name"
+                      placeholder="Middle Name"
+                      error={error?.message}
+                      {...field}
+                    />
                   )}
                 />
                 <Controller
                   control={control}
                   name="last_name"
-                  render={({ field }) => (
-                    <div>
-                      <Label className="text-xs">Last Name</Label>
-                      <TextInput
-                        placeholder="Last Name"
-                        color="primary"
-                        {...field}
-                      />
-                      {(errors as FieldValues)?.last_name?.message && (
-                        <small className="text-red-500 mb-1">
-                          {(errors as FieldValues)?.last_name?.message}
-                        </small>
-                      )}
-                    </div>
+                  render={({ field, fieldState: { error } }) => (
+                    <CustomTextInput
+                      required
+                      label="Last Name"
+                      placeholder="Last Name"
+                      error={error?.message}
+                      {...field}
+                    />
                   )}
                 />
               </div>
@@ -245,7 +231,7 @@ export const AddUser = (props: AddUserProps) => {
                               xmlns="http://www.w3.org/2000/svg"
                             >
                               <path
-                                fill-rule="evenodd"
+                                fillRule="evenodd"
                                 d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
                                 clip-rule="evenodd"
                               ></path>
@@ -298,188 +284,124 @@ export const AddUser = (props: AddUserProps) => {
             <Controller
               control={control}
               name="role"
-              render={({ field: { value, onChange } }) => (
-                <div>
-                  <Label className="text-xs">Role</Label>
-                  <Select
-                    classNames={{
-                      menuButton: () =>
-                        "flex py-[2px] text-sm text-gray-900 border border-primary-500 rounded-lg shadow-sm bg-gray-50 focus:ring-1 focus:ring-primary-600",
-                      listItem: ({ isSelected }: any) =>
-                        `block transition duration-200 px-2 py-2 cursor-pointer select-none truncate rounded hover:bg-primary-500 hover:text-white ${
-                          isSelected
-                            ? "bg-primary-500 text-white"
-                            : "text-gray-600"
-                        } `,
-                    }}
-                    placeholder="Select Role"
-                    primaryColor="primary"
-                    options={roles}
-                    value={value as any}
-                    onChange={onChange}
-                  />
-                  {(errors as FieldValues)?.role?.message && (
-                    <small className="text-red-500 mb-1">
-                      {(errors as FieldValues)?.role?.message}
-                    </small>
-                  )}
-                </div>
+              render={({
+                field: { value, onChange },
+                fieldState: { error },
+              }) => (
+                <CustomerSelect
+                  label="Role"
+                  value={value}
+                  onChange={onChange}
+                  options={roles}
+                  error={error?.message}
+                />
               )}
             />
             <Controller
               control={control}
               name="preferred_name"
-              render={({ field }) => (
-                <div>
-                  <Label className="text-xs">Preferred Name</Label>
-                  <TextInput
-                    placeholder="Preferred Name"
-                    color="primary"
-                    {...field}
-                  />
-                  {(errors as FieldValues)?.preferred_name?.message && (
-                    <small className="text-red-500 mb-1">
-                      {(errors as FieldValues)?.preferred_name?.message}
-                    </small>
-                  )}
-                </div>
+              render={({ field, fieldState: { error } }) => (
+                <CustomTextInput
+                  label="Preferred Name"
+                  placeholder="Preferred Name"
+                  error={error?.message}
+                  {...field}
+                />
               )}
             />
             <Controller
               control={control}
               name="birth_date"
               render={({ field: { value, onChange } }) => (
-                <div>
-                  <Label className="text-xs">Date of Birth</Label>
-                  <Datepicker
-                    placeholder="Date of Birth"
-                    color="primary"
-                    onSelectedDateChanged={(date) =>
-                      onChange(moment(date).format("YYYY-MM-DD"))
-                    }
-                    maxDate={moment().toDate()}
-                    showTodayButton={false}
-                    showClearButton={false}
-                    value={value ? moment(value).format("MMMM DD, YYYY") : ""}
-                  />
-                </div>
+                <CustomerDatepicker
+                  label="Birth Date"
+                  placeholder="Birth Date"
+                  value={value}
+                  onChange={onChange}
+                />
               )}
             />
             <Controller
               control={control}
               name="email"
-              render={({ field }) => (
-                <div>
-                  <Label className="text-xs">Email</Label>
-                  <TextInput
-                    placeholder="Email Address"
-                    color="primary"
-                    {...field}
-                  />
-                  {(errors as FieldValues)?.email?.message && (
-                    <small className="text-red-500 mb-1">
-                      {(errors as FieldValues)?.email?.message}
-                    </small>
-                  )}
-                </div>
+              render={({ field, fieldState: { error } }) => (
+                <CustomTextInput
+                  required
+                  label="Email"
+                  placeholder="Email"
+                  error={error?.message}
+                  {...field}
+                />
               )}
             />
             <Controller
               control={control}
               name="primary_phone"
-              render={({ field }) => (
-                <div>
-                  <Label className="text-xs">Phone Number</Label>
-                  <TextInput
-                    placeholder="Phone Number"
-                    color="primary"
+              render={({ field, fieldState: { error } }) => (
+                <CustomTextInput
+                  label="Phone Number"
+                  placeholder="Phone Number"
+                  error={error?.message}
+                  {...field}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="addr_line_1"
+              render={({ field, fieldState: { error } }) => (
+                <CustomTextInput
+                  label="Address Line 1"
+                  placeholder="Address Line 1"
+                  error={error?.message}
+                  {...field}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="addr_line_2"
+              render={({ field, fieldState: { error } }) => (
+                <CustomTextInput
+                  label="Address Line 2"
+                  placeholder="Address Line 2"
+                  error={error?.message}
+                  {...field}
+                />
+              )}
+            />
+            <div className="flex gap-x-2">
+              <Controller
+                control={control}
+                name="city"
+                render={({ field, fieldState: { error } }) => (
+                  <CustomTextInput
+                    label="City"
+                    placeholder="City"
+                    error={error?.message}
                     {...field}
                   />
-                  {(errors as FieldValues)?.primary_phone?.message && (
-                    <small className="text-red-500 mb-1">
-                      {(errors as FieldValues)?.primary_phone?.message}
-                    </small>
-                  )}
-                </div>
-              )}
-            />
-            <div className="flex flex-row gap-2">
-              <Controller
-                control={control}
-                name="addr_line_1"
-                render={({ field }) => (
-                  <div className="flex-1">
-                    <Label className="text-xs">Address Line 1</Label>
-                    <TextInput
-                      placeholder="Address Line 1"
-                      color="primary"
-                      {...field}
-                    />
-                    {(errors as FieldValues)?.addr_line_1?.message && (
-                      <small className="text-red-500 mb-1">
-                        {(errors as FieldValues)?.addr_line_1?.message}
-                      </small>
-                    )}
-                  </div>
                 )}
               />
               <Controller
                 control={control}
-                name="addr_line_2"
-                render={({ field }) => (
-                  <div className="flex-1">
-                    <Label className="text-xs">Address Line 2</Label>
-                    <TextInput
-                      placeholder="Address Line 2"
-                      color="primary"
-                      {...field}
-                    />
-                    {(errors as FieldValues)?.addr_line_2?.message && (
-                      <small className="text-red-500 mb-1">
-                        {(errors as FieldValues)?.addr_line_2?.message}
-                      </small>
-                    )}
-                  </div>
+                name="state_province_region"
+                render={({ field, fieldState: { error } }) => (
+                  <CustomTextInput
+                    label="State/Province/Region"
+                    placeholder="State/Province/Region"
+                    error={error?.message}
+                    {...field}
+                  />
                 )}
               />
-            </div>
-            <Controller
-              control={control}
-              name="city"
-              render={({ field }) => (
-                <div>
-                  <Label className="text-xs">City</Label>
-                  <TextInput placeholder="City" color="primary" {...field} />
-                  {(errors as FieldValues)?.city?.message && (
-                    <small className="text-red-500 mb-1">
-                      {(errors as FieldValues)?.city?.message}
-                    </small>
-                  )}
-                </div>
-              )}
-            />
-            <Controller
-              control={control}
-              name="country"
-              render={({ field }) => (
-                <div>
-                  <Label className="text-xs">Country</Label>
-                  <TextInput placeholder="Country" color="primary" {...field} />
-                  {(errors as FieldValues)?.country?.message && (
-                    <small className="text-red-500 mb-1">
-                      {(errors as FieldValues)?.country?.message}
-                    </small>
-                  )}
-                </div>
-              )}
-            />
-            <Controller
-              control={control}
-              name="zip_code"
-              render={({ field }) => (
-                <div>
-                  <Label className="text-xs">Zip Code</Label>
-                  <TextInput
+              <Controller
+                control={control}
+                name="zip_code"
+                render={({ field, fieldState: { error } }) => (
+                  <CustomTextInput
+                    label="Zip Code"
+                    placeholder="Zip Code"
                     onKeyPress={(event) => {
                       event.persist();
 
@@ -487,35 +409,22 @@ export const AddUser = (props: AddUserProps) => {
                         event.preventDefault();
                       }
                     }}
-                    placeholder="Zip Code"
-                    color="primary"
+                    error={error?.message}
                     {...field}
                   />
-                  {(errors as FieldValues)?.zip_code?.message && (
-                    <small className="text-red-500 mb-1">
-                      {(errors as FieldValues)?.zip_code?.message}
-                    </small>
-                  )}
-                </div>
-              )}
-            />
+                )}
+              />
+            </div>
             <Controller
               control={control}
-              name="state_province_region"
-              render={({ field }) => (
-                <div>
-                  <Label className="text-xs">State/Province/Region</Label>
-                  <TextInput
-                    placeholder="State/Province/Region"
-                    color="primary"
-                    {...field}
-                  />
-                  {(errors as FieldValues)?.state_province_region?.message && (
-                    <small className="text-red-500 mb-1">
-                      {(errors as FieldValues)?.state_province_region?.message}
-                    </small>
-                  )}
-                </div>
+              name="country"
+              render={({ field, fieldState: { error } }) => (
+                <CustomTextInput
+                  label="Country"
+                  placeholder="Country"
+                  error={error?.message}
+                  {...field}
+                />
               )}
             />
           </div>

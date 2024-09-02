@@ -5,12 +5,12 @@ import Link from "next/link";
 import { UserDetailType, ClientsType } from "@/app/types/UserDetail";
 import {
   Button,
-  TextInput,
   Table,
   Badge,
   Toast,
   Card,
   Spinner,
+  FloatingLabel,
 } from "flowbite-react";
 
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
@@ -27,6 +27,7 @@ import {
 
 import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
+import { CustomTextInput } from "@/app/components/TextInput";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -205,7 +206,7 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
                       clip-rule="evenodd"
                     ></path>
@@ -256,15 +257,29 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
             <div className="flex-1 mx-10">
               <form>
                 <div className="flex flex-col gap-y-2">
-                  <TextInput
+                  <FloatingLabel
+                    variant="outlined"
+                    label="Name"
                     value={`${data?.first_name || ""} ${
                       data?.middle_name || ""
                     } ${data?.last_name || ""}`}
                     disabled
                   />
-                  <TextInput value={data?.email} disabled />
-                  <TextInput value={data?.primary_phone} disabled />
-                  <TextInput
+                  <FloatingLabel
+                    variant="outlined"
+                    label="Email"
+                    value={data?.email}
+                    disabled
+                  />
+                  <FloatingLabel
+                    variant="outlined"
+                    label="Phone Number"
+                    value={data?.primary_phone}
+                    disabled
+                  />
+                  <FloatingLabel
+                    variant="outlined"
+                    label="Address"
                     value={`${data?.addr_line_1 || ""} ${
                       data?.addr_line_2 || ""
                     } ${data?.city || ""} ${data?.state_province_region || ""}`}
