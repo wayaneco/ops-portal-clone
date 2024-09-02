@@ -163,7 +163,7 @@ const CompanyDetail = function ({
           }
         );
 
-        if (!response.ok) throw response.error;
+        if (!response.ok) throw response.message;
 
         setToastState({
           show: true,
@@ -186,12 +186,12 @@ const CompanyDetail = function ({
             router.push("/company");
           }, 3000);
       } catch (error: any) {
-        setIsSubmitting(false);
         setToastState({
           show: true,
-          message: <div>{error.message || error}</div>,
+          message: <div>{error}</div>,
           isError: true,
         });
+        setIsSubmitting(false);
       }
     });
   };

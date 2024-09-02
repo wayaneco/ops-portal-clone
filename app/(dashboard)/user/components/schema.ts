@@ -1,5 +1,7 @@
 import * as Yup from "yup";
 
+import { REGEX_EMAIL } from "@/app/constant";
+
 export const schema = Yup.object().shape({
   role: Yup.lazy((value: any) => {
     if (value === "") {
@@ -22,8 +24,8 @@ export const schema = Yup.object().shape({
   birth_date: Yup.string().nullable(),
   preferred_name: Yup.string(),
   email: Yup.string()
-    .email("Email is invalid")
-    .required("This field is required."),
+    .required("This field is required.")
+    .matches(REGEX_EMAIL, "Invalid email address"),
   primary_phone: Yup.string(),
   addr_line_1: Yup.string(),
   addr_line_2: Yup.string(),
