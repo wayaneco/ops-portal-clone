@@ -27,7 +27,9 @@ type UpdateUserInfoType = {
   isEmailChanged: boolean;
 };
 
-export async function updateUserInfo(params: UpdateUserInfoType) {
+export async function updateUserInfo(
+  params: UpdateUserInfoType
+): Promise<{ ok: boolean; message: string }> {
   const supabase = createClient();
   const supabaseAdmin = createAdminClient(BASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
@@ -40,12 +42,7 @@ export async function updateUserInfo(params: UpdateUserInfoType) {
           email: params?.email,
         });
 
-      if (update_email_error) {
-        return {
-          isError: true,
-          message: `Failed to update email.`,
-        };
-      }
+      if (update_email_error) throw update_email_error?.message;
     }
 
     const payload = {
@@ -71,14 +68,18 @@ export async function updateUserInfo(params: UpdateUserInfoType) {
       payload
     );
 
-    if (update_user_info_error) {
-      throw update_user_info_error;
-    }
+    if (update_user_info_error) throw update_user_info_error?.message;
 
     revalidatePath("(dashboard)/user/[id]", "page");
 
-    return data;
+    return {
+      ok: true,
+      message: "Success.",
+    };
   } catch (error) {
-    return error;
+    return {
+      ok: false,
+      message: error as string,
+    };
   }
 }

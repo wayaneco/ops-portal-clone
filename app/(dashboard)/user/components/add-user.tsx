@@ -97,7 +97,7 @@ export const AddUser = (props: AddUserProps) => {
         };
       };
 
-      const response: { isError: boolean; message: string } = await addUser({
+      const response = await addUser({
         ...payload,
         role_id: role?.value,
         isNetworkAdmin: role?.label === ROLE_NETWORK_ADMIN,
@@ -105,24 +105,16 @@ export const AddUser = (props: AddUserProps) => {
         client_id: selectedClient,
       });
 
-      if (response.isError) {
-        setToast({
-          show: true,
-          message: <div>{response?.message}</div>,
-          isError: true,
-        });
-        setIsSubmitting(false);
-        return;
-      }
+      if (!response.ok) throw response?.message;
 
       setIsSubmitting(false);
-      setToast({ show: true, message: <div>User is added successfully.</div> });
+      setToast({ show: true, message: <div>{response?.message}</div> });
       close();
     } catch (error: any) {
       setIsSubmitting(false);
       setToast({
         show: true,
-        message: <div>Field to add user.</div>,
+        message: <div>{error}</div>,
         isError: true,
       });
     }

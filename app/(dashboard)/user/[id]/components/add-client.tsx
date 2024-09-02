@@ -88,13 +88,15 @@ export const AddClient = () => {
 
       setIsSubmitting(true);
 
-      await updateUserRoles({
+      const response = await updateUserRoles({
         client_id,
         user_id: user.user_id,
         staff_id: userContext?.id,
         role_ids: role_ids?.map((role: { value: string }) => role?.value),
         is_primary_contact: false,
       });
+
+      if (!response.ok) throw response?.message;
 
       const clientName = clientListDropdown?.find(
         (client: ClientsType) => client?.client_id === client_id
@@ -119,7 +121,7 @@ export const AddClient = () => {
       closeDialog();
     } catch (error: any) {
       setIsSubmitting(false);
-      setToast(<div>{error?.message}</div>, true);
+      setToast(<div>{error}</div>, true);
     }
   };
 

@@ -1,18 +1,9 @@
-import { useState, useRef, ChangeEvent, LegacyRef } from "react";
-import { Controller, FieldValues, useFormContext } from "react-hook-form";
-import {
-  Modal,
-  TextInput,
-  Spinner,
-  Select,
-  Button,
-  Label,
-  Datepicker,
-} from "flowbite-react";
+import { useState } from "react";
+import { Controller, useFormContext } from "react-hook-form";
+import { Modal, Spinner, Button } from "flowbite-react";
 
 import { useUserDetailFormContext } from "./user-detail-form";
 import { updateUserInfo } from "@/app/actions/user/update-user";
-import moment from "moment";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import { CustomTextInput } from "@/app/components/TextInput";
 import { CustomerDatepicker } from "@/app/components/Datepicker";
@@ -50,14 +41,12 @@ export const EditUser = () => {
         photo_url: user?.photo_url,
         staff_id: userInfo?.user_id,
         isEmailChanged,
-      })
-        .then(() => {
-          setToast(<div>User updated successfully!</div>);
-          closeDialog();
-        })
-        .catch(() => {
-          throw response;
-        });
+      });
+
+      if (!response.ok) throw response?.message;
+
+      setToast(<div>User updated successfully!</div>);
+      closeDialog();
     } catch (error: any) {
       setIsSubmitting(false);
       setToast(<div>{error?.message}</div>, true);

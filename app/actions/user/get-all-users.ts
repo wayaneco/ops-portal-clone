@@ -15,7 +15,7 @@ export const getAllUsers = async () => {
         p_user_id: user?.id,
       });
 
-    if (error_is_network_admin) throw error_is_network_admin;
+    if (error_is_network_admin) throw error_is_network_admin?.message;
 
     const { data, error } = await supabase
       .from(
@@ -25,7 +25,7 @@ export const getAllUsers = async () => {
       )
       .select(`user_id, first_name, middle_name, last_name, email, clients`);
 
-    if (error) throw error;
+    if (error) throw error?.message;
 
     return data;
   } catch (error) {
