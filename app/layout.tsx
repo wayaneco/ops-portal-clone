@@ -3,6 +3,7 @@ import { Inter } from "next/font/google";
 import { Flowbite } from "flowbite-react";
 
 import FlowbiteTheme from "./theme";
+import { ToastProvider } from "./components/Context/ToastProvider";
 
 import "./globals.css";
 
@@ -21,9 +22,11 @@ export default async function RootLayout({
   return (
     <html lang="en">
       <Flowbite theme={{ theme: FlowbiteTheme }}>
-        <body className={inter.className}>
-          <main className="bg-gray-200">{children}</main>
-        </body>
+        <ToastProvider>
+          <body className={inter.className}>
+            <main className="bg-gray-200">{children}</main>
+          </body>
+        </ToastProvider>
       </Flowbite>
     </html>
   );
