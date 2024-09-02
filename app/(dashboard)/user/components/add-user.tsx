@@ -107,7 +107,13 @@ export const AddUser = (props: AddUserProps) => {
       if (!response.ok) throw response?.message;
 
       setIsSubmitting(false);
-      showToast({ message: response?.message });
+      showToast({
+        message: (
+          <>
+            <strong>{payload?.email}</strong> is added successfully.
+          </>
+        ),
+      });
       close();
     } catch (error: any) {
       setIsSubmitting(false);

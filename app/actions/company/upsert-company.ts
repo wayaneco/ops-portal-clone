@@ -97,9 +97,8 @@ export const upsertCompanyDetails = async (
 
     if (error_logo) throw error_logo?.message;
 
-    if (!update) {
-      revalidatePath("(dashboard)/company", "page");
-    }
+    revalidatePath("(dashboard)/company", "page");
+    revalidatePath("(dashboard)/company/(shared-layout)/[id]", "page");
 
     return {
       ok: true,

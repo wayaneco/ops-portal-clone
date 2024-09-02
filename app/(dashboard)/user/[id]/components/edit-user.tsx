@@ -48,7 +48,11 @@ export const EditUser = () => {
       if (!response.ok) throw response?.message;
 
       showToast({
-        message: <div>User updated successfully!</div>,
+        message: (
+          <>
+            <strong>{watchUserEmail}</strong> updated successfully.
+          </>
+        ),
       });
       closeDialog();
     } catch (error: any) {

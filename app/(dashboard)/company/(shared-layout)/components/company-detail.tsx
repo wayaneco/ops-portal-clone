@@ -173,14 +173,7 @@ const CompanyDetail = function ({
           ),
         });
 
-        if (!currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
-          setIsSubmitting(false);
-        }
-
-        currentPrivilege?.includes(ROLE_NETWORK_ADMIN) &&
-          setTimeout(() => {
-            router.push("/company");
-          }, 3000);
+        router.push("/company");
       } catch (error: any) {
         showToast({
           message: error,
@@ -194,12 +187,14 @@ const CompanyDetail = function ({
   const handleProvision = async () => {
     try {
       if (watchWebAddress !== companyInfo?.web_address) {
-        await supabase
+        const { error: error_update_web_address } = await supabase
           .from("clients")
           .update({
             web_address: watchWebAddress,
           })
           .eq("id", companyInfo?.client_id);
+
+        if (error_update_web_address) throw error_update_web_address?.message;
       }
 
       const response = await fetch(`${provisionApiEnv}/provision`, {
@@ -216,31 +211,23 @@ const CompanyDetail = function ({
         }),
       });
 
-      const { data, error } = await supabase
+      const { data, error: error_update_provision_status } = await supabase
         .from("clients")
         .update({
           provisioning_status: STATUS_IN_PROGRESS,
         })
         .eq("id", companyInfo?.client_id);
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error_update_provision_status)
+        throw error_update_provision_status?.message;
 
       setStartLogging(true);
       return {
         ...response,
         data,
       };
-    } catch (err) {
-      // await supabase
-      //   .from("clients")
-      //   .update({
-      //     provisioning_status: "FAILED",
-      //   })
-      //   .eq("id", companyInfo?.client_id);
-
-      return err;
+    } catch (error) {
+      return error;
     }
   };
 
@@ -297,7 +284,7 @@ const CompanyDetail = function ({
 
       const intervalId = setInterval(() => {
         fetchData();
-      }, 10000); // 10 seconds
+      }, 8000); // 8 seconds
 
       // Clean up interval on component unmount
       return () => clearInterval(intervalId);
@@ -307,22 +294,29 @@ const CompanyDetail = function ({
 
   useEffect(() => {
     const getLogs = async () => {
-      const { data } = await axios.get<any>(
-        `${provisionApiEnv}/provision-logs?provider_name=${
-          watchWebAddress || companyInfo?.web_address
-        }&bucket_name=ee-provision-dev`
-      );
+      try {
+        const { data } = await axios.get<any>(
+          `${provisionApiEnv}/provision-logs?provider_name=${
+            watchWebAddress || companyInfo?.web_address
+          }&bucket_name=ee-provision-dev`
+        );
 
-      if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
-        await supabase
-          .from("clients")
-          .update({
-            provisioning_status: STATUS_COMPLETED,
-          })
-          .eq("id", companyInfo?.client_id);
+        if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
+          const { error: error_update_provision_status } = await supabase
+            .from("clients")
+            .update({
+              provisioning_status: STATUS_COMPLETED,
+            })
+            .eq("id", companyInfo?.client_id);
+
+          if (error_update_provision_status)
+            throw error_update_provision_status?.message;
+        }
+
+        setLogs(data?.log_content);
+      } catch (error) {
+        console.log(error);
       }
-
-      setLogs(data?.log_content);
     };
 
     if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
