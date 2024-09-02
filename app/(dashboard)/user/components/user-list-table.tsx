@@ -1,11 +1,10 @@
 /* eslint-disable react/display-name */
 "use client";
 
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
-  TextInput,
   Button,
   Table,
   TableHead,
@@ -15,9 +14,9 @@ import {
   TableCell,
   Badge,
   Modal,
-  Toast,
   Checkbox,
   Label,
+  FloatingLabel,
 } from "flowbite-react";
 
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
@@ -33,50 +32,18 @@ type UserListTableProps = {
   refetch: () => void;
 };
 
-export type ToastStateType = {
-  show: boolean;
-  message: string | ReactNode;
-  isError?: boolean;
-};
-
 export const UserListTable = (props: UserListTableProps) => {
   const { data = [], refetch } = props;
   const router = useRouter();
 
   const [search, setSearch] = useState<string>("");
   const [isShowAllUsers, setIsShowAllUsers] = useState<boolean>(false);
-  const [toastState, setToastState] = useState<ToastStateType>({
-    show: false,
-    message: "",
-    isError: false,
-  });
   const [showModal, setShowModal] = useState<boolean>(false);
 
   const { currentPrivilege, selectedClient, hasAdminRole } =
     useUserClientProviderContext();
 
   const isFirstRender = useIsFirstRender();
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (toastState.show) {
-      timeout = setTimeout(() => {
-        handleResetToast();
-      }, 5000);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [toastState.show]);
-
-  const handleResetToast = () =>
-    setToastState({
-      show: false,
-      message: "",
-      isError: false,
-    });
 
   const userList = useMemo(() => {
     if (isShowAllUsers) {
@@ -115,15 +82,17 @@ export const UserListTable = (props: UserListTableProps) => {
   return (
     <>
       <div className="flex justify-between items-center">
-        <TextInput
-          placeholder="Search by name"
-          color="primary"
-          className="w-[450px]"
-          value={search}
-          onChange={(event) => {
-            setSearch(event.target.value);
-          }}
-        />
+        <div className="w-[450px]">
+          <FloatingLabel
+            variant="outlined"
+            label="Search"
+            className="text-primary-500 border-primary-500 focus:border-primary-500 peer-focus:text-primary-500"
+            value={search}
+            onChange={(event) => {
+              setSearch(event.target.value);
+            }}
+          />
+        </div>
         {hasAdminRole && (
           <div className="flex items-center gap-2">
             <Checkbox
@@ -144,7 +113,7 @@ export const UserListTable = (props: UserListTableProps) => {
           </div>
         )}
       </div>
-      <div className="mt-10 overflow-x-auto overflow-y-auto border border-gray-100">
+      <div className="mt-5 overflow-x-auto overflow-y-auto border border-gray-100">
         <div className="max-h-[calc(100vh-440px)]">
           <Table hoverable>
             <TableHead>
@@ -221,24 +190,8 @@ export const UserListTable = (props: UserListTableProps) => {
               refetch();
               setShowModal(false);
             }}
-            setToast={setToastState}
           />
         </Modal>
-      )}
-      {toastState.show && (
-        <Toast
-          className={`fixed right-5 top-5 z-[9999] ${
-            toastState?.isError ? "bg-red-500" : "bg-primary-500"
-          }`}
-        >
-          <div className="ml-3 text-sm font-normal text-white">
-            {toastState?.message}
-          </div>
-          <Toast.Toggle
-            className={toastState?.isError ? "bg-red-500" : "bg-primary-500"}
-            onClick={handleResetToast}
-          />
-        </Toast>
       )}
     </>
   );

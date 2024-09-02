@@ -4,6 +4,7 @@ import { Button, Modal, Spinner } from "flowbite-react";
 import { useFormContext } from "react-hook-form";
 
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 
 import { revokePrivilege } from "app/actions/user/revoke-privilege";
 import { useState } from "react";
@@ -12,8 +13,9 @@ import { useUserDetailFormContext } from "./user-detail-form";
 export const RevokeClient = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
 
+  const { showToast } = useToastContext();
   const { user: userContext } = useSupabaseSessionContext();
-  const { setToast, closeDialog } = useUserDetailFormContext();
+  const { closeDialog } = useUserDetailFormContext();
   const { watch } = useFormContext();
 
   const { user, client } = watch("info");
@@ -41,26 +43,31 @@ export const RevokeClient = () => {
           color="primary"
           className="w-[150px] mx-auto"
           onClick={async () => {
+            setIsSubmitting(true);
             try {
-              setIsSubmitting(true);
-              await revokePrivilege({
+              const response = await revokePrivilege({
                 user_id: user?.user_id,
                 client_id: client?.id,
                 staff_id: userContext?.id,
               });
 
-              setToast(
-                <div>
-                  <strong>{client?.name}</strong> has been revoke on{" "}
-                  <strong>{user?.email}</strong>
-                </div>
-              );
+              if (!response.ok) throw response?.message;
 
+              showToast({
+                message: (
+                  <>
+                    <strong>{client?.name}</strong> has been revoke on{" "}
+                    <strong>{user?.email}</strong>
+                  </>
+                ),
+              });
               closeDialog();
             } catch (error) {
-              setToast(<div>Failed to revoke</div>, true);
-
               setIsSubmitting(false);
+              showToast({
+                message: "Failed to revoke.",
+                error: true,
+              });
             }
           }}
         >

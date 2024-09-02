@@ -5,6 +5,7 @@ import {
   ROLE_PRIMARY_CONTACT,
 } from "./roles";
 import { STATUS_COMPLETED, STATUS_IN_PROGRESS } from "./status";
+import { REGEX_EMAIL } from "./regex";
 
 export type STATUS_PROVISION = "pending" | "completed";
 
@@ -33,6 +34,7 @@ export {
   BASE_URL,
   DEFAULT_PASSWORD,
   NEXT_PUBLIC_GOOGLE_MAP_API,
+  REGEX_EMAIL,
   ROLE_COMPANY_ADMIN,
   ROLE_NETWORK_ADMIN,
   ROLE_AGENT,

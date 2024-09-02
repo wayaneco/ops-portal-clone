@@ -7,12 +7,12 @@ import moment from "moment";
 import { useRouter } from "next/navigation";
 
 import {
-  TextInput,
   Table,
   Button,
   TableCell,
   TableHeadCell,
   Badge,
+  FloatingLabel,
 } from "flowbite-react";
 
 import { ClientsType } from "@/app/types";
@@ -49,15 +49,17 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
 
   return (
     <>
-      <TextInput
-        placeholder="Search by company"
-        color="primary"
-        className="w-[450px]"
-        value={search}
-        onChange={(event) => {
-          setSearch(event.target.value);
-        }}
-      />
+      <div className="w-[450px]">
+        <FloatingLabel
+          variant="outlined"
+          label="Search"
+          className="text-primary-500 border-primary-500 focus:border-primary-500 peer-focus:text-primary-500"
+          value={search}
+          onChange={(event) => {
+            setSearch(event.target.value);
+          }}
+        />
+      </div>
       <div className="mt-5">
         <div className="overflow-auto bg-gray-100 border border-gray-100">
           <div className="max-h-[calc(100vh-440px)]">

@@ -1,86 +1,132 @@
 "use client";
 
-import { TextInput } from "flowbite-react";
-import { useFormState } from "react-dom";
-import { SubmitButton } from "./submitButton";
+import { useState } from "react";
+import { Button } from "flowbite-react";
+import { useRouter } from "next/navigation";
+import { InferType } from "yup";
+import { useForm, Controller } from "react-hook-form";
+import { yupResolver } from "@hookform/resolvers/yup";
+
+import { useToastContext } from "@/app/components/Context/ToastProvider";
+import { CustomTextInput } from "@/app/components/TextInput";
+
+import schema from "./schema";
+
 type LoginFormProps = {
-  loginUser: (prevState: any, formData: FormData) => any;
+  loginUser: (payload: InferType<typeof schema>) => any;
 };
 
-const initialState = {
+const defaultValues = {
   email: "",
   password: "",
 };
 
 export function LoginForm({ loginUser }: LoginFormProps) {
-  const [message, formAction] = useFormState(loginUser, initialState);
+  const router = useRouter();
+  const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
+  const { showToast } = useToastContext();
+
+  const { control, handleSubmit } = useForm({
+    defaultValues,
+    resolver: yupResolver(schema),
+    mode: "onChange",
+  });
 
   return (
-    <form action={formAction}>
-      <TextInput
-        className="mb-3"
-        color={message?.email ? "failure" : "primary"}
-        name="email"
-        placeholder="Email"
-        rightIcon={() => (
-          <svg
-            className="w-6 h-6 text-gray-800 dark:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-              clip-rule="evenodd"
-            />
-          </svg>
-        )}
-        helperText={
-          message?.email && (
-            <>
-              <span className="font-medium">{message?.email}</span>
-            </>
-          )
+    <form
+      onSubmit={handleSubmit(async (data: InferType<typeof schema>) => {
+        try {
+          setIsSubmitting(true);
+          const response = await loginUser(data);
+
+          if (!response.ok) throw response?.message;
+
+          showToast({
+            error: false,
+            message: "Login successfully.",
+          });
+
+          router?.replace(response?.message);
+        } catch (error) {
+          showToast({ error: true, message: "Invalid username and password." });
+          setIsSubmitting(false);
         }
-      />
-      <TextInput
-        placeholder="Password"
-        color={message?.password ? "failure" : "primary"}
-        name="password"
-        type="password"
-        rightIcon={() => (
-          <svg
-            className="w-6 h-6 text-gray-800 dark:text-white"
-            aria-hidden="true"
-            xmlns="http://www.w3.org/2000/svg"
-            width="24"
-            height="24"
-            fill="currentColor"
-            viewBox="0 0 24 24"
-          >
-            <path
-              fill-rule="evenodd"
-              d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
-              clip-rule="evenodd"
+      })}
+    >
+      <div className="flex flex-col gap-y-4">
+        <Controller
+          name="email"
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <CustomTextInput
+              disabled={isSubmitting}
+              required
+              label="Email"
+              placeholder="Email"
+              error={error?.message}
+              rightIcon={
+                <svg
+                  className={`w-6 h-6 ${
+                    error ? "text-red-500" : "text-gray-800"
+                  }`}
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              }
+              {...field}
             />
-          </svg>
-        )}
-        helperText={
-          message?.password && (
-            <>
-              <span className="font-medium">{message?.password}</span>
-            </>
-          )
-        }
-      />
-      {message?.invalid && (
-        <span className="font-xs font- text-red-500">{message?.invalid}</span>
-      )}
-      <SubmitButton />
+          )}
+        />
+        <Controller
+          name="password"
+          control={control}
+          render={({ field, fieldState: { error } }) => (
+            <CustomTextInput
+              disabled={isSubmitting}
+              required
+              label="Password"
+              type="password"
+              placeholder="Password"
+              error={error?.message}
+              rightIcon={
+                <svg
+                  className={`w-6 h-6 ${
+                    error ? "text-red-500" : "text-gray-800"
+                  }`}
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  fill="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    fillRule="evenodd"
+                    d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
+                    clipRule="evenodd"
+                  />
+                </svg>
+              }
+              {...field}
+            />
+          )}
+        />
+      </div>
+      <div className="mt-8">
+        <Button type="submit" color="primary" disabled={isSubmitting} fullSized>
+          {isSubmitting ? "Logging in..." : "Login"}
+        </Button>
+      </div>
     </form>
   );
 }

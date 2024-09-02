@@ -5,12 +5,12 @@ import Link from "next/link";
 import { UserDetailType, ClientsType } from "@/app/types/UserDetail";
 import {
   Button,
-  TextInput,
   Table,
   Badge,
   Toast,
   Card,
   Spinner,
+  FloatingLabel,
 } from "flowbite-react";
 
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
@@ -27,6 +27,7 @@ import {
 
 import { UserDetailModal } from "./client-modal";
 import { ModalContentType } from "../types";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 
 type UserDetailFormType = {
   data: UserDetailType;
@@ -39,14 +40,7 @@ type HandleOpenModalType = {
 };
 
 type UserDetailFormContextType = {
-  setToast: (message: ToastType["message"], isError?: boolean) => void;
   closeDialog: () => void;
-};
-
-type ToastType = {
-  show: boolean;
-  message: string | React.ReactNode;
-  error: boolean;
 };
 
 const UserDetailFormContext = React.createContext<
@@ -75,14 +69,6 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
   const isFirstRender = useIsFirstRender();
 
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
-  const [profilePhoto, setProfilePhoto] = React.useState<string>(
-    data?.photo_url
-  );
-  const [toast, setToast] = React.useState<ToastType>({
-    show: false,
-    message: "",
-    error: false,
-  });
   const [modalOptions, setModalOptions] = React.useState<any>({
     show: false,
     modalContent: null,
@@ -90,6 +76,7 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
     client: null,
   });
 
+  const { showToast } = useToastContext();
   const { selectedClient, hasAdminRole, currentPrivilege } =
     useUserClientProviderContext();
   const { user: currentLoggedInUser } = useSupabaseSessionContext();
@@ -118,39 +105,11 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
     });
   };
 
-  const handleSetToast = (
-    message: string | React.ReactNode,
-    isError?: boolean
-  ) => {
-    setToast({
-      show: true,
-      message,
-      error: isError ?? false,
-    });
-  };
-
-  const handleResetToast = () =>
-    setToast({ show: false, message: "", error: false });
-
   const isEnable = (expectedPrivilege: Array<any>) => {
     return currentPrivilege?.some((current) =>
       expectedPrivilege?.includes(current)
     );
   };
-
-  React.useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (toast.show) {
-      timeout = setTimeout(() => {
-        handleResetToast();
-      }, 5000);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [toast.show]);
 
   const showActionColumn = (client: ClientsType) => {
     return (
@@ -172,9 +131,6 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
   return (
     <UserDetailFormContext.Provider
       value={{
-        setToast: (message: ToastType["message"], isError?: boolean) => {
-          handleSetToast(message, isError);
-        },
         closeDialog: handleResetModal,
       }}
     >
@@ -190,10 +146,10 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
           <div className="flex">
             <div className="w-56 h-64">
               <div className="relative border h-full w-full overflow-hidden rounded-md bg-gray-100 group">
-                {profilePhoto ? (
+                {data?.photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={profilePhoto}
+                    src={data?.photo_url}
                     alt="Tonis Kitchen"
                     className="w-full h-full object-cover"
                   />
@@ -205,9 +161,9 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                     xmlns="http://www.w3.org/2000/svg"
                   >
                     <path
-                      fill-rule="evenodd"
+                      fillRule="evenodd"
                       d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clip-rule="evenodd"
+                      clipRule="evenodd"
                     ></path>
                   </svg>
                 )}
@@ -234,19 +190,23 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                         event.currentTarget?.files[0]
                       );
 
-                      const photo_url = await uploadFile({
+                      const response = await uploadFile({
                         user_id: data?.user_id,
                         base64_file: base64 as string,
                       });
 
-                      setProfilePhoto(photo_url as string);
-                      setToast({
-                        show: true,
+                      if (!response.ok) throw response?.message;
+
+                      showToast({
                         message: "Update photo successfully",
                         error: false,
                       });
                       setIsSubmitting(false);
-                    } catch (err) {
+                    } catch (error) {
+                      showToast({
+                        message: error as string,
+                        error: false,
+                      });
                       setIsSubmitting(false);
                     }
                   }}
@@ -256,15 +216,29 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
             <div className="flex-1 mx-10">
               <form>
                 <div className="flex flex-col gap-y-2">
-                  <TextInput
+                  <FloatingLabel
+                    variant="outlined"
+                    label="Name"
                     value={`${data?.first_name || ""} ${
                       data?.middle_name || ""
                     } ${data?.last_name || ""}`}
                     disabled
                   />
-                  <TextInput value={data?.email} disabled />
-                  <TextInput value={data?.primary_phone} disabled />
-                  <TextInput
+                  <FloatingLabel
+                    variant="outlined"
+                    label="Email"
+                    value={data?.email}
+                    disabled
+                  />
+                  <FloatingLabel
+                    variant="outlined"
+                    label="Phone Number"
+                    value={data?.primary_phone}
+                    disabled
+                  />
+                  <FloatingLabel
+                    variant="outlined"
+                    label="Address"
                     value={`${data?.addr_line_1 || ""} ${
                       data?.addr_line_2 || ""
                     } ${data?.city || ""} ${data?.state_province_region || ""}`}
@@ -455,21 +429,6 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                 <Spinner color="primary" />
               </div>
             </div>
-          )}
-          {toast.show && (
-            <Toast
-              className={`fixed right-5 top-5 z-[9999] ${
-                toast?.error ? "bg-red-600" : "bg-primary-500"
-              }`}
-            >
-              <div className="ml-3 text-sm font-normal text-white">
-                {toast?.message}
-              </div>
-              <Toast.Toggle
-                className={toast?.error ? "bg-red-600" : "bg-primary-500"}
-                onClick={handleResetToast}
-              />
-            </Toast>
           )}
           {modalOptions?.show && (
             <UserDetailModal

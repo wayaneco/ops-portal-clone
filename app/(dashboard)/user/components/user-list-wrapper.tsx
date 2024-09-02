@@ -38,7 +38,7 @@ export const UserListWrapper = memo(
             `user_id, first_name, middle_name, last_name, email, clients`
           );
 
-        if (error) throw error;
+        if (error) throw error?.message;
 
         setUsers(data as Array<UserDetailType>);
         setIsRefetch(false);

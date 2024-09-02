@@ -1,59 +1,63 @@
+"use server";
+
 import {
   ROLE_NETWORK_ADMIN,
   ROLE_COMPANY_ADMIN,
   ROLE_AGENT,
 } from "@/app/constant";
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 
-export const loginUser = async (_: any, formData: FormData) => {
-  "use server";
+type LoginUserPayloadType = {
+  email: string;
+  password: string;
+};
+
+export const loginUser = async (
+  payload: LoginUserPayloadType
+): Promise<{ ok: boolean; message: string }> => {
   const supabase = createClient();
+  let redirectPath;
 
-  let errors = { email: "", password: "" };
+  try {
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.signInWithPassword(payload);
 
-  const payload = {
-    email: formData.get("email") as string,
-    password: formData.get("password") as string,
-  };
+    if (error) throw error?.message;
 
-  if (!payload?.email) errors.email = "This field is required";
-  if (!payload?.password) errors.password = "This field is required";
+    const { data: userAuth } = await supabase
+      .from("users_data_view")
+      .select("clients")
+      .eq("user_id", user?.id)
+      .single();
 
-  const hasError = Object.keys(errors).some(
-    (k) => !!errors[k as keyof typeof errors]
-  );
+    const currentPrivilege = userAuth?.clients?.[0]?.privileges;
 
-  if (hasError) return errors;
+    switch (true) {
+      case user && currentPrivilege?.includes(ROLE_NETWORK_ADMIN):
+      case user && currentPrivilege?.includes(ROLE_COMPANY_ADMIN):
+        redirectPath = "/user";
+        break;
+      case user && currentPrivilege?.includes(ROLE_AGENT):
+        redirectPath = "/kiosk";
+        break;
+      case user && !currentPrivilege?.length:
+        redirectPath = `/user/${user?.id}`;
+        break;
+      default:
+        redirectPath = "/login";
+        break;
+    }
 
-  const {
-    data: { user },
-    error,
-  } = await supabase.auth.signInWithPassword(payload);
-
-  if (error) {
     return {
-      invalid: "Invalid email and password.",
+      ok: true,
+      message: redirectPath,
     };
-  }
-
-  const { data: userAuth } = await supabase
-    .from("users_data_view")
-    .select("clients")
-    .eq("user_id", user?.id)
-    .single();
-
-  const currentPrivilege = userAuth?.clients?.[0]?.privileges;
-
-  switch (true) {
-    case user && currentPrivilege?.includes(ROLE_NETWORK_ADMIN):
-    case user && currentPrivilege?.includes(ROLE_COMPANY_ADMIN):
-      redirect("/user");
-    case user && currentPrivilege?.includes(ROLE_AGENT):
-      redirect("/kiosk");
-    case user && !currentPrivilege?.length:
-      redirect(`/user/${user?.id}`);
-    default:
-      redirect("/login");
+  } catch (error) {
+    return {
+      ok: false,
+      message: typeof error !== "string" ? "" : error,
+    };
   }
 };

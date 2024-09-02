@@ -9,7 +9,9 @@ import Select from "react-tailwindcss-select";
 import { updateUserRoles } from "app/actions/user/update-client";
 import { ClientsType, RoleType } from "@/app/types";
 import { useUserDetailFormContext } from "./user-detail-form";
+
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 
 export const AddClient = () => {
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -17,7 +19,8 @@ export const AddClient = () => {
   const [search, setSearch] = useState<string>("");
   const [clientList, setClientList] = useState<Array<ClientsType>>([]);
 
-  const { setToast, closeDialog } = useUserDetailFormContext();
+  const { showToast } = useToastContext();
+  const { closeDialog } = useUserDetailFormContext();
   const {
     setValue,
     watch,
@@ -88,13 +91,15 @@ export const AddClient = () => {
 
       setIsSubmitting(true);
 
-      await updateUserRoles({
+      const response = await updateUserRoles({
         client_id,
         user_id: user.user_id,
         staff_id: userContext?.id,
         role_ids: role_ids?.map((role: { value: string }) => role?.value),
         is_primary_contact: false,
       });
+
+      if (!response.ok) throw response?.message;
 
       const clientName = clientListDropdown?.find(
         (client: ClientsType) => client?.client_id === client_id
@@ -110,16 +115,19 @@ export const AddClient = () => {
         ?.map((zRole: RoleType) => zRole?.name)
         .join(",");
 
-      setToast(
-        <div>
-          <strong>{clientName}</strong> added on <strong>{user?.email}</strong>{" "}
-          with role <strong>{roleNameList}</strong>.
-        </div>
-      );
+      showToast({
+        message: (
+          <>
+            <strong>{clientName}</strong> added on{" "}
+            <strong>{user?.email}</strong> with role{" "}
+            <strong>{roleNameList}</strong>.
+          </>
+        ),
+      });
       closeDialog();
     } catch (error: any) {
+      showToast({ message: error, error: true });
       setIsSubmitting(false);
-      setToast(<div>{error?.message}</div>, true);
     }
   };
 

@@ -34,6 +34,7 @@ import {
   STATUS_IN_PROGRESS,
   STATUS_PROVISION,
 } from "@/app/constant";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 
@@ -88,16 +89,12 @@ const CompanyDetail = function ({
   const [isCompleted, setIsCompleted] = useState(
     companyInfo?.provisioning_status === STATUS_COMPLETED
   );
-  const [toastState, setToastState] = useState<ToastType>({
-    show: false,
-    message: "",
-    isError: false,
-  });
   const [_, startTransition] = useTransition();
 
   const router = useRouter();
   const path = usePathname();
 
+  const { showToast } = useToastContext();
   const { user } = useSupabaseSessionContext();
   const { currentPrivilege } = useUserClientProviderContext();
   const { pathname } = useContext<SidebarContextType | undefined>(
@@ -163,10 +160,9 @@ const CompanyDetail = function ({
           }
         );
 
-        if (!response.ok) throw response.error;
+        if (!response.ok) throw response.message;
 
-        setToastState({
-          show: true,
+        showToast({
           message: (
             <div>
               <strong>{watchName}</strong>{" "}
@@ -177,21 +173,13 @@ const CompanyDetail = function ({
           ),
         });
 
-        if (!currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
-          setIsSubmitting(false);
-        }
-
-        currentPrivilege?.includes(ROLE_NETWORK_ADMIN) &&
-          setTimeout(() => {
-            router.push("/company");
-          }, 3000);
+        router.push("/company");
       } catch (error: any) {
-        setIsSubmitting(false);
-        setToastState({
-          show: true,
-          message: <div>{error.message || error}</div>,
-          isError: true,
+        showToast({
+          message: error,
+          error: true,
         });
+        setIsSubmitting(false);
       }
     });
   };
@@ -199,12 +187,14 @@ const CompanyDetail = function ({
   const handleProvision = async () => {
     try {
       if (watchWebAddress !== companyInfo?.web_address) {
-        await supabase
+        const { error: error_update_web_address } = await supabase
           .from("clients")
           .update({
             web_address: watchWebAddress,
           })
           .eq("id", companyInfo?.client_id);
+
+        if (error_update_web_address) throw error_update_web_address?.message;
       }
 
       const response = await fetch(`${provisionApiEnv}/provision`, {
@@ -221,31 +211,23 @@ const CompanyDetail = function ({
         }),
       });
 
-      const { data, error } = await supabase
+      const { data, error: error_update_provision_status } = await supabase
         .from("clients")
         .update({
           provisioning_status: STATUS_IN_PROGRESS,
         })
         .eq("id", companyInfo?.client_id);
 
-      if (error) {
-        throw new Error(error.message);
-      }
+      if (error_update_provision_status)
+        throw error_update_provision_status?.message;
 
       setStartLogging(true);
       return {
         ...response,
         data,
       };
-    } catch (err) {
-      // await supabase
-      //   .from("clients")
-      //   .update({
-      //     provisioning_status: "FAILED",
-      //   })
-      //   .eq("id", companyInfo?.client_id);
-
-      return err;
+    } catch (error) {
+      return error;
     }
   };
 
@@ -261,20 +243,6 @@ const CompanyDetail = function ({
       clearTimeout(timeout);
     };
   }, [showConfetti]);
-
-  useEffect(() => {
-    let timeout: ReturnType<typeof setTimeout>;
-
-    if (toastState.show) {
-      timeout = setTimeout(() => {
-        setToastState({ show: false, message: "", isError: false });
-      }, 5000);
-    }
-
-    return () => {
-      clearTimeout(timeout);
-    };
-  }, [toastState.show]);
 
   useEffect(() => {
     if (startLogging) {
@@ -316,7 +284,7 @@ const CompanyDetail = function ({
 
       const intervalId = setInterval(() => {
         fetchData();
-      }, 10000); // 10 seconds
+      }, 8000); // 8 seconds
 
       // Clean up interval on component unmount
       return () => clearInterval(intervalId);
@@ -326,22 +294,29 @@ const CompanyDetail = function ({
 
   useEffect(() => {
     const getLogs = async () => {
-      const { data } = await axios.get<any>(
-        `${provisionApiEnv}/provision-logs?provider_name=${
-          watchWebAddress || companyInfo?.web_address
-        }&bucket_name=ee-provision-dev`
-      );
+      try {
+        const { data } = await axios.get<any>(
+          `${provisionApiEnv}/provision-logs?provider_name=${
+            watchWebAddress || companyInfo?.web_address
+          }&bucket_name=ee-provision-dev`
+        );
 
-      if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
-        await supabase
-          .from("clients")
-          .update({
-            provisioning_status: STATUS_COMPLETED,
-          })
-          .eq("id", companyInfo?.client_id);
+        if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
+          const { error: error_update_provision_status } = await supabase
+            .from("clients")
+            .update({
+              provisioning_status: STATUS_COMPLETED,
+            })
+            .eq("id", companyInfo?.client_id);
+
+          if (error_update_provision_status)
+            throw error_update_provision_status?.message;
+        }
+
+        setLogs(data?.log_content);
+      } catch (error) {
+        console.log(error);
       }
-
-      setLogs(data?.log_content);
     };
 
     if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
@@ -464,23 +439,6 @@ const CompanyDetail = function ({
             </div>
           </div>
         </form>
-        {toastState.show && (
-          <Toast
-            className={`absolute right-5 top-5 z-[9999] ${
-              toastState?.isError ? "bg-red-600" : "bg-primary-500"
-            }`}
-          >
-            <div className="ml-3 text-sm font-normal text-white">
-              {toastState?.message}
-            </div>
-            <Toast.Toggle
-              className={toastState?.isError ? "bg-red-600" : "bg-primary-500"}
-              onClick={() =>
-                setToastState({ show: false, message: "", isError: false })
-              }
-            />
-          </Toast>
-        )}
         {showConfetti && (
           <Confetti
             className="fixed inset-0 !z-10"
