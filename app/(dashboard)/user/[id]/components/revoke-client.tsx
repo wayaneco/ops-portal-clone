@@ -59,8 +59,8 @@ export const RevokeClient = () => {
               );
               closeDialog();
             } catch (error) {
-              setIsSubmitting(false);
               setToast(<div>Failed to revoke</div>, true);
+              setIsSubmitting(false);
             }
           }}
         >
