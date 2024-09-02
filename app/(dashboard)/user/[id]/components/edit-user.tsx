@@ -5,6 +5,7 @@ import { Modal, Spinner, Button } from "flowbite-react";
 import { useUserDetailFormContext } from "./user-detail-form";
 import { updateUserInfo } from "@/app/actions/user/update-user";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
+import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { CustomTextInput } from "@/app/components/TextInput";
 import { CustomerDatepicker } from "@/app/components/Datepicker";
 
@@ -15,10 +16,11 @@ export const EditUser = () => {
     control,
     watch,
     getValues,
-    formState: { errors, isDirty },
+    formState: { isDirty },
     trigger,
   } = useFormContext();
-  const { setToast, closeDialog } = useUserDetailFormContext();
+  const { showToast } = useToastContext();
+  const { closeDialog } = useUserDetailFormContext();
   const { userInfo } = useSupabaseSessionContext();
 
   const { user } = watch("info");
@@ -45,10 +47,19 @@ export const EditUser = () => {
 
       if (!response.ok) throw response?.message;
 
-      setToast(<div>User updated successfully!</div>);
+      showToast({
+        message: (
+          <>
+            <strong>{watchUserEmail}</strong> updated successfully.
+          </>
+        ),
+      });
       closeDialog();
     } catch (error: any) {
-      setToast(<div>{error?.message}</div>, true);
+      showToast({
+        message: <div>{error?.message}</div>,
+        error: true,
+      });
       setIsSubmitting(false);
     }
   };
