@@ -4,20 +4,20 @@ import React from "react";
 import { Button, Navbar as FBNavbar, Select } from "flowbite-react";
 import Image from "next/image";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 
 import { useSupabaseSessionContext } from "../Context/SupabaseSessionProvider";
-import { createClient } from "@/utils/supabase/client";
-import { ClientsType } from "@/app/types";
 import { useUserClientProviderContext } from "../Context/UserClientContext";
+import { ClientsType } from "@/app/types";
 import {
   ROLE_NETWORK_ADMIN,
   ROLE_COMPANY_ADMIN,
   ROLE_AGENT,
 } from "@/app/constant";
+import { logOutUser } from "@/app/actions/login/logout-user";
 
 const Navbar = () => {
-  const supabase = createClient();
+  const router = useRouter();
   const pathname = usePathname();
 
   const { user } = useSupabaseSessionContext();
@@ -184,7 +184,17 @@ const Navbar = () => {
             color="white"
             type="button"
             className="text-black hidden md:block"
-            onClick={() => supabase.auth.signOut()}
+            onClick={async () => {
+              try {
+                const response = await logOutUser();
+
+                if (!response.ok) throw response?.message;
+
+                router.replace("/login");
+              } catch (error) {
+                console.log(error);
+              }
+            }}
           >
             Logout
           </Button>

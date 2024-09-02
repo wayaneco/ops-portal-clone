@@ -1,5 +1,6 @@
 import { Card } from "flowbite-react";
 import { redirect } from "next/navigation";
+import Image from "next/image";
 
 import { LoginForm } from "./components/form";
 import { createClient } from "@/utils/supabase/server";
@@ -18,10 +19,15 @@ export default async function Page() {
   return (
     <div className="login bg-primary-600 h-screen w-screen">
       <div className="container mx-auto flex items-center h-full justify-center">
-        <Card className="p-6 backdrop-blur-md shadow-md w-[430px]">
-          <div className="text-xl font-medium text-center uppercase text-gray-600">
-            Login
+        <Card className="p-6 backdrop-blur-md shadow-md w-[450px]">
+          <div className="relative h-20 pb-10">
+            <Image
+              src="https://www.everesteffect.com/img/ee_logo_dark.svg"
+              alt="Everest Effect Logo"
+              fill
+            />
           </div>
+          <div className="my-4 h-px bg-gray-200"></div>
           <LoginForm loginUser={loginUser} />
         </Card>
       </div>

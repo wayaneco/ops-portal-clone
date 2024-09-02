@@ -12,10 +12,12 @@ type TextFieldProps = React.HTMLAttributes<HTMLInputElement> & {
   disabled?: boolean;
   value?: any;
   placeholder?: string;
+  rightIcon?: React.ReactNode;
 };
 
 export const CustomTextInput = (props: TextFieldProps) => {
-  const { label, placeholder, error, required, ...otherInputProps } = props;
+  const { label, placeholder, error, required, rightIcon, ...otherInputProps } =
+    props;
 
   return (
     <div className="flex-1">
@@ -30,9 +32,14 @@ export const CustomTextInput = (props: TextFieldProps) => {
       <TextInput
         placeholder={placeholder}
         color={error ? "error" : "primary"}
+        helperText={
+          error && <small className="text-red-500 mb-1">{error}</small>
+        }
+        {...(rightIcon && {
+          rightIcon: () => rightIcon,
+        })}
         {...otherInputProps}
       />
-      {error && <small className="text-red-500 mb-1">{error}</small>}
     </div>
   );
 };
