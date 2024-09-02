@@ -44,3 +44,5 @@ const Page = async function (props: { params: { id: string } }) {
 };
 
 export default Page;
+
+export const dynamic = "force-dynamic";
