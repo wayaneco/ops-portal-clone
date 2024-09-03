@@ -79,7 +79,7 @@ export const upsertCompanyDetails = async (
       const { data: file_data, error: error_upload_file } =
         await supabase.storage
           .from("client_logos")
-          .upload(`public/${client_id}`, file as File, {
+          .upload(`public/${params?.client_id || client_id}`, file as File, {
             upsert: true,
           });
 

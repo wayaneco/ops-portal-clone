@@ -97,7 +97,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                           <img
                             src={
                               !!client?.logo_url
-                                ? client?.logo_url
+                                ? `${client?.logo_url}?${new Date().getTime()}`
                                 : ImagePlaceholder.default.src
                             }
                             alt={`${client?.name} logo`}
