@@ -38,7 +38,9 @@ type UpdateUserInfoType = {
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
-export async function addUser(params: UpdateUserInfoType) {
+export async function addUser(
+  params: UpdateUserInfoType
+): Promise<{ ok: boolean; message: string }> {
   try {
     const supabase = createClient();
     const supabaseAdmin = createAdminClient(
@@ -58,12 +60,7 @@ export async function addUser(params: UpdateUserInfoType) {
 
       generatedEmail = publicEmail;
 
-      if (error_generate_email) {
-        return {
-          isError: true,
-          message: `Failed to generate email.`,
-        };
-      }
+      if (error_generate_email) throw error_generate_email?.message;
     }
 
     const {
@@ -75,97 +72,73 @@ export async function addUser(params: UpdateUserInfoType) {
       email_confirm: true,
     });
 
-    if (error_create_user) {
-      return {
-        isError: true,
-        message: `Failed to create admin user.`,
-      };
-    } else {
-      if (authUser) {
-        const payload = {
-          birth_date: params?.birth_date || null,
-          city: params?.city ?? "",
-          first_name: params?.first_name ?? "",
-          last_name: params?.last_name ?? "",
-          line_1: params?.addr_line_1 ?? "",
-          line_2: params?.addr_line_2 ?? "",
-          middle_name: params?.middle_name ?? "",
-          p_user_id: authUser.id ?? "",
-          preferred_name: params?.preferred_name ?? "",
-          primary_email: params?.email ?? "",
-          primary_phone: params?.primary_phone ?? "",
-          profile_url: photoUrl,
-          staff_id: params?.staff_id ?? "",
-          state_province_region: params?.state_province_region ?? "",
-          zip_code: params?.zip_code ?? "",
-          ...(!params?.isNetworkAdmin && {
-            p_client_id:
-              (params?.isNetworkAdmin ? "" : params?.client_id) ?? "",
-            p_role_id: params?.role_id,
-          }),
-        };
+    if (error_create_user) throw error_create_user?.message;
 
-        const { error } = await supabase.rpc(
-          params?.isNetworkAdmin ? "add_network_admin_user" : "add_admin_user",
-          payload
+    if (authUser) {
+      const payload = {
+        birth_date: params?.birth_date || null,
+        city: params?.city ?? "",
+        first_name: params?.first_name ?? "",
+        last_name: params?.last_name ?? "",
+        line_1: params?.addr_line_1 ?? "",
+        line_2: params?.addr_line_2 ?? "",
+        middle_name: params?.middle_name ?? "",
+        p_user_id: authUser.id ?? "",
+        preferred_name: params?.preferred_name ?? "",
+        primary_email: params?.email ?? "",
+        primary_phone: params?.primary_phone ?? "",
+        profile_url: photoUrl,
+        staff_id: params?.staff_id ?? "",
+        state_province_region: params?.state_province_region ?? "",
+        zip_code: params?.zip_code ?? "",
+        ...(!params?.isNetworkAdmin && {
+          p_client_id: (params?.isNetworkAdmin ? "" : params?.client_id) ?? "",
+          p_role_id: params?.role_id,
+        }),
+      };
+
+      const { error: error_update_user_info } = await supabase.rpc(
+        params?.isNetworkAdmin ? "add_network_admin_user" : "add_admin_user",
+        payload
+      );
+
+      if (error_update_user_info) throw error_update_user_info?.message;
+
+      if (params?.photo_url && params?.photo_url?.includes("base64")) {
+        const file = convertBase64toFile(
+          params.photo_url!,
+          params?.preferred_name
         );
 
-        if (error) {
-          return {
-            isError: true,
-            message: `Failed to create user.`,
-          };
-        } else {
-          if (params?.photo_url && params?.photo_url?.includes("base64")) {
-            const file = convertBase64toFile(
-              params.photo_url!,
-              params?.preferred_name
-            );
+        const { data: file_data, error: file_error } = await supabase.storage
+          .from("avatars")
+          .upload(`public/${authUser?.id}`, file as File, {
+            upsert: true,
+          });
 
-            const { data: file_data, error: file_error } =
-              await supabase.storage
-                .from("avatars")
-                .upload(`public/${authUser?.id}`, file as File, {
-                  upsert: true,
-                });
+        if (file_error) throw file_error?.message;
 
-            if (file_error) {
-              return {
-                isError: true,
-                message: `Failed to upload file.`,
-              };
-            }
-
-            photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
-          }
-
-          const { error: update_photo_error } = await supabase
-            .from("profile_photos")
-            .update({
-              photo_url: photoUrl,
-            })
-            .eq("user_id", authUser?.id);
-
-          if (update_photo_error) {
-            return {
-              isError: true,
-              message: `Failed to update user profile url.`,
-            };
-          }
-        }
+        photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
       }
+
+      const { error: update_photo_error } = await supabase
+        .from("profile_photos")
+        .update({
+          photo_url: photoUrl,
+        })
+        .eq("user_id", authUser?.id);
+
+      if (update_photo_error) throw update_photo_error?.message;
     }
 
     return {
-      isError: false,
-      error: null,
+      ok: true,
+      message: "Success.",
     };
   } catch (error) {
-    return JSON.parse(
-      JSON.stringify({
-        isError: true,
-        error,
-      })
-    );
+    return {
+      ok: false,
+      message: error as string,
+    };
   }
 }

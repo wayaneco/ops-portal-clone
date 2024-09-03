@@ -10,7 +10,9 @@ type UploadFileType = {
   base64_file: string;
   user_id: string;
 };
-export const uploadFile = async (params: UploadFileType) => {
+export const uploadFile = async (
+  params: UploadFileType
+): Promise<{ ok: boolean; message: string }> => {
   const supabase = createClient();
 
   try {
@@ -25,12 +27,7 @@ export const uploadFile = async (params: UploadFileType) => {
           upsert: true,
         });
 
-      if (file_error) {
-        return {
-          isError: true,
-          message: `Failed to upload file.`,
-        };
-      }
+      if (file_error) throw file_error?.message;
 
       photoUrl = `${supabaseUrl}/storage/v1/object/public/avatars/${file_data?.path}`;
 
@@ -41,18 +38,19 @@ export const uploadFile = async (params: UploadFileType) => {
         })
         .eq("user_id", params?.user_id);
 
-      if (update_profile_photo_error) {
-        return {
-          isError: true,
-          message: `Failed to update profile url.`,
-        };
-      }
+      if (update_profile_photo_error) throw update_profile_photo_error?.message;
     }
 
     revalidatePath("(dashboard)/user/[id]", "page");
 
-    return JSON.parse(JSON.stringify(params?.base64_file));
-  } catch (err) {
-    return JSON.parse(JSON.stringify(err));
+    return {
+      ok: true,
+      message: "Success.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error as string,
+    };
   }
 };

@@ -8,23 +8,27 @@ export async function revokePrivilege(params: {
   user_id: string;
   client_id: string;
   staff_id: string;
-}) {
+}): Promise<{ ok: boolean; message: string }> {
   const supabase = createClient();
+  try {
+    const { error } = await supabase.rpc("revoke_all_user_roles", {
+      p_user_id: params.user_id,
+      p_client_id: params.client_id,
+      staff_id: params.staff_id,
+    });
 
-  const { data, error } = await supabase.rpc("revoke_all_user_roles", {
-    p_user_id: params.user_id,
-    p_client_id: params.client_id,
-    staff_id: params.staff_id,
-  });
+    if (error) throw error?.message;
 
-  if (error) {
+    revalidatePath("(dashboard)/user/[id]", "page");
+
     return {
-      isError: true,
-      message: `Failed to revoke client.`,
+      ok: true,
+      message: "Success.",
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      message: error as string,
     };
   }
-
-  revalidatePath("(dashboard)/user/[id]", "page");
-
-  return data;
 }
