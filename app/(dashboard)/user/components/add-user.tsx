@@ -285,6 +285,7 @@ export const AddUser = (props: AddUserProps) => {
                 fieldState: { error },
               }) => (
                 <CustomerSelect
+                  required
                   label="Role"
                   value={value}
                   onChange={onChange}
