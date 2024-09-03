@@ -22,6 +22,7 @@ export default async function Layout(props: PropsWithChildren) {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
   const getHasRoleAdmin = async (id: string) => {
     try {
       const { data } = await supabase.rpc("has_admin_role", {
