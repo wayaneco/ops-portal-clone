@@ -1,5 +1,5 @@
+import { Metadata } from "next";
 import axios from "axios";
-import { headers } from "next/headers";
 
 import { STATUS_COMPLETED, STATUS_IN_PROGRESS } from "@/app/constant";
 
@@ -16,6 +16,10 @@ const getInitialLogs = async (web_address: string) => {
   } catch (error) {
     return error;
   }
+};
+
+export const metadata: Metadata = {
+  title: "Everest Effect Portal - Company Details",
 };
 
 const Page = async function (props: { params: { id: string } }) {

@@ -1,3 +1,4 @@
+import { Metadata } from "next";
 import { Card } from "flowbite-react";
 import { redirect } from "next/navigation";
 import Image from "next/image";
@@ -8,6 +9,10 @@ import { createClient } from "@/utils/supabase/server";
 import { loginUser } from "../actions/login/login-user";
 
 import * as EverestEffect from "public/everest-effect.svg";
+
+export const metadata: Metadata = {
+  title: "Everest Effect Portal - Login",
+};
 
 export default async function Page() {
   const supabase = createClient();
