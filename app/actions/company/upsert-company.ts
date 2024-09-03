@@ -78,14 +78,14 @@ export const upsertCompanyDetails = async (
 
       const { data: file_data, error: error_upload_file } =
         await supabase.storage
-          .from("client_logos")
+          .from("company_logos")
           .upload(`public/${client_id}`, file as File, {
             upsert: true,
           });
 
       if (error_upload_file) throw error_upload_file?.message;
 
-      filePath = `${supabaseUrl}/storage/v1/object/public/client_logos/${file_data?.path}`;
+      filePath = `${supabaseUrl}/storage/v1/object/public/company_logos/${file_data?.path}`;
     }
 
     const { error: error_logo } = await supabase
