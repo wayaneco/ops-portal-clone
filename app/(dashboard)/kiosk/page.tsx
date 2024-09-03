@@ -41,7 +41,9 @@ const Page = () => {
                   <Image
                     src={
                       currentClient?.data?.logo_url
-                        ? currentClient?.data?.logo_url
+                        ? `${
+                            currentClient?.data?.logo_url
+                          }?${new Date().getTime()}`
                         : (ImagePlaceholder.default.src as string)
                     }
                     alt={`User Profile`}
