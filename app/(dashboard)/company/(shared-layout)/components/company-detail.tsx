@@ -63,6 +63,7 @@ export const ProvisionLoggingContext = createContext<
 >(undefined);
 
 const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
+const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
 
 export const useProvisionLoggingContext = () => {
   const context = useContext<ProvisionLoggingContextType | undefined>(
@@ -202,6 +203,7 @@ const CompanyDetail = function ({
         mode: "no-cors", // Set to 'no-cors' to disable CORS handling
         headers: {
           "Content-Type": "application/json",
+          'x-api-key': xApiKey as string,
         },
         body: JSON.stringify({
           name: `${watchWebAddress}-execution-${moment()
