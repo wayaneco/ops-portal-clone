@@ -41,13 +41,14 @@ export function LoginForm({ loginUser }: LoginFormProps) {
     if (token_hash) {
       (async () => {
         try {
-          console.log(token_hash);
+          setIsSubmitting(true);
           const response = await loginWithTokenHash(token_hash as string);
-          console.log(response);
+
           if (!response.ok) throw response?.message;
 
           router?.replace(response?.message);
         } catch (error) {
+          setIsSubmitting(false);
           console.log(error);
           router?.replace("/login");
         }
@@ -65,11 +66,6 @@ export function LoginForm({ loginUser }: LoginFormProps) {
           const response = await loginUser(data);
 
           if (!response.ok) throw response?.message;
-
-          showToast({
-            error: false,
-            message: "Login successfully.",
-          });
 
           router?.replace(response?.message);
         } catch (error) {

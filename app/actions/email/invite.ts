@@ -11,6 +11,7 @@ const supabaseUrl = process.env["NEXT_PUBLIC_SUPABASE_URL"] as string;
 const supabaseRoleKey = process.env[
   "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY"
 ] as string;
+const baseUrl = process.env["NEXT_PUBLIC_APP_BASE_URL"] as string;
 
 type InviteUserTypes = {
   fullName: string;
@@ -33,24 +34,26 @@ export async function inviteUser({
       await supabaseAdmin.auth.admin.generateLink({
         type: "signup",
         email,
-        password: "123456",
+        password,
       });
 
     if (generate_link_error) throw generate_link_error?.message;
 
     const { error } = await resend.emails.send({
       from: "Everest Effect <onboarding@resend.dev>",
-      to: ["wayaneco29@gmail.com"],
+      to: [email],
       subject: "You have been invited",
       react: EmailTemplate({
+        email,
         fullName,
         client,
         role,
         password,
-        confirmationLink: `http://localhost:3000/login?token_hash=${data?.properties?.hashed_token}`,
+        confirmationLink: `${baseUrl}/login?token_hash=${data?.properties?.hashed_token}`,
       }),
     });
 
+    console.log("eeee", error);
     if (error) throw error?.message;
 
     return {

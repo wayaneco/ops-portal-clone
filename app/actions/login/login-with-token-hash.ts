@@ -12,16 +12,15 @@ export const loginWithTokenHash = async (token_hash: string) => {
   try {
     const supabase = createClient();
 
-    const { data, error } = await supabase.auth.verifyOtp({
-      type: "magiclink",
+    const {
+      data: { user },
+      error,
+    } = await supabase.auth.verifyOtp({
+      type: "signup",
       token_hash,
     });
 
     if (error) throw error?.message;
-
-    const {
-      data: { user },
-    } = await supabase.auth.getUser();
 
     const { data: userAuth } = await supabase
       .from("users_data_view")

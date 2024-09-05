@@ -56,7 +56,7 @@ export const RevokeClient = () => {
               showToast({
                 message: (
                   <>
-                    <strong>{client?.name}</strong> has been revoke on{" "}
+                    <strong>{client?.name}</strong> has been revoked on{" "}
                     <strong>{user?.email}</strong>
                   </>
                 ),

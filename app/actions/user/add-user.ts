@@ -50,10 +50,7 @@ export async function addUser(
       length: 10,
       numbers: true,
       uppercase: true,
-      symbols: true,
     });
-
-    console.log(password);
 
     const {
       data: { user: authUser },
