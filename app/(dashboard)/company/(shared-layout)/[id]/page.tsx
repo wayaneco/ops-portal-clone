@@ -16,6 +16,7 @@ const getInitialLogs = async (web_address: string) => {
         headers: {
           'Content-Type': 'application/json',
           'x-api-key': xApiKey,
+          "Access-Control-Allow-Origin": '*'
         },
       }
     );
