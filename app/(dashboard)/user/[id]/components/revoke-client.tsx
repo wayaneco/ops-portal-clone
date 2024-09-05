@@ -56,8 +56,9 @@ export const RevokeClient = () => {
               showToast({
                 message: (
                   <>
-                    <strong>{client?.name}</strong> has been revoke on{" "}
-                    <strong>{user?.email}</strong>
+                    Privileges successfully revoke from account
+                    <strong>{client?.name}</strong> for user
+                    <strong>{user?.first_name || user?.email}</strong>
                   </>
                 ),
               });
