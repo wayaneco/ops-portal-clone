@@ -41,7 +41,7 @@ export async function inviteUser({
 
     const { error } = await resend.emails.send({
       from: "Everest Effect <onboarding@resend.dev>",
-      to: [email],
+      to: email,
       subject: "You have been invited",
       react: EmailTemplate({
         email,
@@ -53,7 +53,6 @@ export async function inviteUser({
       }),
     });
 
-    console.log("eeee", error);
     if (error) throw error?.message;
 
     return {
