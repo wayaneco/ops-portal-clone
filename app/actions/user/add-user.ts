@@ -1,19 +1,13 @@
 "use server";
 
-import moment from "moment";
-import { revalidatePath } from "next/cache";
+import PasswordGenerator from "generate-password";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
 
 import { createClient } from "utils/supabase/server";
-import {
-  createClient as createAdminClient,
-  PostgrestSingleResponse,
-} from "@supabase/supabase-js";
-import {
-  SUPABASE_URL,
-  DEFAULT_PASSWORD,
-  SUPABASE_SERVICE_ROLE_KEY,
-} from "@/constant/index";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/constant/index";
+
+import { inviteUser } from "../email/invite";
 
 type UpdateUserInfoType = {
   role_id: string;
@@ -34,6 +28,8 @@ type UpdateUserInfoType = {
   state_province_region: string;
   staff_id: string;
   client_id: string;
+  role_name: string;
+  client_name: string;
 };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -49,28 +45,33 @@ export async function addUser(
     );
 
     let photoUrl = params?.photo_url ? params.photo_url : "";
-    const password = DEFAULT_PASSWORD;
 
-    let generatedEmail: any;
+    const password = PasswordGenerator.generate({
+      length: 10,
+      numbers: true,
+      uppercase: true,
+      symbols: true,
+    });
 
-    if (!params.email) {
-      const { data: publicEmail, error: error_generate_email } = await supabase
-        .rpc("generate_email")
-        .single();
-
-      generatedEmail = publicEmail;
-
-      if (error_generate_email) throw error_generate_email?.message;
-    }
+    console.log(password);
 
     const {
       data: { user: authUser },
       error: error_create_user,
     } = await supabaseAdmin.auth.admin.createUser({
-      email: params?.email ? params?.email : generatedEmail,
+      email: params?.email,
       password,
-      email_confirm: true,
     });
+
+    const response = await inviteUser({
+      fullName: `${params?.first_name} ${params?.last_name}`,
+      client: params?.client_name,
+      role: params?.role_name,
+      email: authUser?.email || params?.email,
+      password,
+    });
+
+    if (!response.ok) throw response?.message;
 
     if (error_create_user) throw error_create_user?.message;
 
