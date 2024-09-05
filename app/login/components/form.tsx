@@ -67,6 +67,11 @@ export function LoginForm({ loginUser }: LoginFormProps) {
 
           if (!response.ok) throw response?.message;
 
+          showToast({
+            error: false,
+            message: "Login succeeded.",
+          });
+
           router?.replace(response?.message);
         } catch (error) {
           showToast({ error: true, message: "Invalid username and password." });
