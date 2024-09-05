@@ -32,7 +32,7 @@ export const RevokeClient = () => {
               </div>
             </div>
           )}
-          <div className="text-center text-lg">
+          <div className="text-center text-lg text-gray-600">
             Do you want to revoke access to <strong>{client?.name}</strong> for{" "}
             <strong>{user?.email}</strong>?
           </div>
@@ -56,8 +56,9 @@ export const RevokeClient = () => {
               showToast({
                 message: (
                   <>
-                    <strong>{client?.name}</strong> has been revoke on{" "}
-                    <strong>{user?.email}</strong>
+                    Privileges successfully revoke from account
+                    <strong>{client?.name}</strong> for user
+                    <strong>{user?.first_name || user?.email}</strong>
                   </>
                 ),
               });

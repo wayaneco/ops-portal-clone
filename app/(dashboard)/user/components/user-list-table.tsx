@@ -1,7 +1,7 @@
 /* eslint-disable react/display-name */
 "use client";
 
-import { ReactNode, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import {
@@ -48,13 +48,19 @@ export const UserListTable = (props: UserListTableProps) => {
   const userList = useMemo(() => {
     if (isShowAllUsers) {
       if (search) {
-        return data?.filter((user: UserDetailType) =>
+        const searchByName = data?.filter((user: UserDetailType) =>
           `${user?.first_name || ""} ${user?.middle_name || ""} ${
             user?.last_name || ""
           }`
-            ?.toLowerCase()
-            .includes(search.toLowerCase())
+            .toLowerCase()
+            .includes(search)
         );
+
+        const searchByEmail = data?.filter((user: UserDetailType) =>
+          user?.email.toLowerCase().includes(search)
+        );
+
+        return Array.from(new Set([...searchByName, ...searchByEmail]));
       }
 
       return data;
@@ -64,13 +70,18 @@ export const UserListTable = (props: UserListTableProps) => {
       );
 
       if (search) {
-        return filteredByClient?.filter((user: UserDetailType) =>
+        const searchByName = filteredByClient?.filter((user: UserDetailType) =>
           `${user?.first_name || ""} ${user?.middle_name || ""} ${
             user?.last_name || ""
           }`
             ?.toLowerCase()
             .includes(search.toLowerCase())
         );
+        const searchByEmail = filteredByClient?.filter((user: UserDetailType) =>
+          user?.email?.toLowerCase().includes(search.toLowerCase())
+        );
+
+        return Array.from(new Set([...searchByName, ...searchByEmail]));
       }
 
       return filteredByClient;

@@ -149,8 +149,8 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                 {data?.photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={data?.photo_url}
-                    alt="Tonis Kitchen"
+                    src={`${data?.photo_url}?${new Date().getTime()}`}
+                    alt={`${data?.first_name} Profile Photo`}
                     className="w-full h-full object-cover"
                   />
                 ) : (

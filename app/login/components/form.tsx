@@ -43,7 +43,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
 
           showToast({
             error: false,
-            message: "Login successfully.",
+            message: "Login succeeded.",
           });
 
           router?.replace(response?.message);

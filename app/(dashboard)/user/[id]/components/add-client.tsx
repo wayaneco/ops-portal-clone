@@ -102,7 +102,7 @@ export const AddClient = () => {
       if (!response.ok) throw response?.message;
 
       const clientName = clientListDropdown?.find(
-        (client: ClientsType) => client?.client_id === client_id
+        (client: ClientsType) => client?.id === client_id
       )?.name;
 
       const roleNameList = roleListDropdown

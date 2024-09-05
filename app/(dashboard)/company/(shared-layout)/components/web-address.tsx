@@ -41,8 +41,8 @@ export const WebAddress = () => {
       });
       const { data } = await supabase
         .from("clients")
-        .select("name")
-        .ilike("name", value);
+        .select("web_address")
+        .ilike("web_address", value);
 
       if (data?.length) {
         setIsWebAddressExist(true);
@@ -102,19 +102,25 @@ export const WebAddress = () => {
             />
           )}
         />
-        <Button
-          color="primary"
-          disabled={isProvisionButtonDisabled}
-          onClick={() => {
-            setStartProvision(true);
-            handleProvision();
-          }}
-        >
-          <span>
-            {isProvisioning || startProvision ? "Provisioning..." : "Provision"}
-          </span>{" "}
-          {(isProvisioning || startProvision) && <Spinner className="ml-2" />}
-        </Button>
+        {!isCompleted ? (
+          <Button
+            color="primary"
+            disabled={isProvisionButtonDisabled}
+            onClick={() => {
+              setStartProvision(true);
+              handleProvision();
+            }}
+          >
+            <span>
+              {isProvisioning || startProvision
+                ? "Provisioning..."
+                : "Provision"}
+            </span>{" "}
+            {(isProvisioning || startProvision) && <Spinner className="ml-2" />}
+          </Button>
+        ) : (
+          <Button color="primary">Terminate</Button>
+        )}
       </div>
       <div className="text-sm mt-2 ml-2 text-black">
         {status.isDone && (
