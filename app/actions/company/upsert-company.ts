@@ -20,7 +20,10 @@ type UpsertCompanyDetailsType = {
   tags: Array<string>;
   service_provided: Array<string>;
   provider_types: Array<string>;
+  data_schema_id?: string;
 };
+
+const GenerateSchema = require('generate-schema');
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
@@ -32,6 +35,13 @@ export const upsertCompanyDetails = async (
 
   try {
     let filePath = params?.logo;
+
+    const generatedSchema = GenerateSchema.json(
+        params.web_address,
+        params.service_provided
+    );
+
+    console.log(params.service_provided, generatedSchema, 'params.service_provided, generatedSchema')
 
     const upsertClientParams = update
       ? {
@@ -72,6 +82,20 @@ export const upsertCompanyDetails = async (
     );
 
     if (error_update_clients) throw error_update_clients?.message;
+
+    const {
+      error: update_data_schema_error
+    } = await supabase.rpc('update_data_schema', {
+      p_data_schema_id: params.data_schema_id ? params.data_schema_id : null,
+      p_description: params.web_address,
+      p_identifier: params.web_address,
+      p_is_active: true,
+      p_schema: generatedSchema,
+      p_version_number: 0,
+      staff_id: params.staff_id
+    });
+
+    if(update_data_schema_error) throw update_data_schema_error.message;
 
     if (params.logo && params?.logo?.includes("base64")) {
       const file = convertBase64toFile(params.logo!, params?.name);
