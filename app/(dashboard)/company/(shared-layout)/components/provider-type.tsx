@@ -1,33 +1,45 @@
 "use client";
 
-import { TextInput, Button, Radio, Label } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { TextInput, Button } from "flowbite-react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import {
-  Controller,
-  FieldValues,
-  useFieldArray,
-  useFormContext,
-} from "react-hook-form";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
 export const ProviderType = () => {
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const {
-    setValue,
     watch,
     control,
     reset,
     getValues,
     trigger,
+    setValue,
     formState: { errors },
   } = useFormContext();
 
-  const providerTypes = watch("provider_types");
+  const provider_types = watch("provider_types");
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "provider_types",
   });
+
+  useEffect(() => {
+    return () => {
+      // REMOVE THE LAST ADDED PROVIDER TYPE IF EMPTY
+
+      if (provider_types?.length >= 1) {
+        const isLastProviderTypeEmpty =
+          !provider_types[provider_types?.length - 1].label;
+
+        if (isLastProviderTypeEmpty) {
+          remove(provider_types?.length - 1);
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider_types]);
 
   return (
     <div>
@@ -48,7 +60,7 @@ export const ProviderType = () => {
                     return;
 
                   const clonedProviderTypes = JSON.parse(
-                    JSON.stringify(providerTypes)
+                    JSON.stringify(provider_types)
                   );
 
                   const [item] = clonedProviderTypes.splice(source.index, 1);
@@ -99,17 +111,16 @@ export const ProviderType = () => {
                                           !isEditing ||
                                           fields?.length - 1 !== index
                                         }
-                                        placeholder="Enter tag"
+                                        placeholder="Provider Type"
                                         {...field}
                                       />
-                                      {(
-                                        errors?.provider_types as FieldValues
-                                      )?.[index]?.label?.message && (
+                                      {(errors?.provider_types as any)?.[index]
+                                        ?.label?.message && (
                                         <small className="text-red-500 mt-1">
                                           {
-                                            (
-                                              errors?.provider_types as FieldValues
-                                            )?.[index]?.label?.message
+                                            (errors?.provider_types as any)?.[
+                                              index
+                                            ]?.label?.message
                                           }
                                         </small>
                                       )}
@@ -117,7 +128,7 @@ export const ProviderType = () => {
                                   )}
                                 />
                                 {!isEditing && (
-                                  <div className="mt-2 flex">
+                                  <div className="mt-1.5 flex">
                                     <div
                                       {...draggableProvided.dragHandleProps}
                                       className="p-2 rounded-md text-black cursor-pointer hover:bg-primary-500 group"
@@ -144,7 +155,7 @@ export const ProviderType = () => {
                                       className="p-2 rounded-md text-black cursor-pointer hover:bg-red-500 group"
                                       onClick={() => {
                                         const clonedProviderTypes = JSON.parse(
-                                          JSON.stringify(providerTypes)
+                                          JSON.stringify(provider_types)
                                         );
 
                                         clonedProviderTypes.splice(index, 1);
@@ -176,25 +187,73 @@ export const ProviderType = () => {
                                   </div>
                                 )}
                                 {fields?.length - 1 === index && isEditing && (
-                                  <Button
-                                    color="primary"
-                                    onClick={() => {
-                                      const fieldLabel = watch(
-                                        `provider_types[${index}].label`
-                                      );
+                                  <div className="mt-1 5">
+                                    <div className="flex items-center gap-x-2">
+                                      <div
+                                        className={`p-2 rounded-md text-white bg-green-500 group cursor-pointer hover:bg-green-500"
+                                }`}
+                                        onClick={() => {
+                                          const fieldLabel = watch(
+                                            `provider_types[${index}].label`
+                                          );
 
-                                      if (!fieldLabel) {
-                                        trigger([
-                                          `provider_types[${index}].label`,
-                                        ]);
-                                        return;
-                                      }
+                                          if (!fieldLabel) {
+                                            trigger([
+                                              `provider_types[${index}].label`,
+                                            ]);
+                                            return;
+                                          }
 
-                                      setIsEditing(false);
-                                    }}
-                                  >
-                                    Save
-                                  </Button>
+                                          setIsEditing(false);
+                                        }}
+                                      >
+                                        <svg
+                                          className="w-4 h-4 text-white"
+                                          aria-hidden="true"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="24"
+                                          height="24"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M5 11.917 9.724 16.5 19 7.5"
+                                          />
+                                        </svg>
+                                      </div>
+                                      <div
+                                        className={`p-2 rounded-md text-white bg-red-500 group cursor-pointer hover:bg-red-500"
+                                }`}
+                                        onClick={() => {
+                                          remove(index);
+
+                                          setIsEditing(false);
+                                        }}
+                                      >
+                                        <svg
+                                          className="w-4 h-4 text-white dark:text-white"
+                                          aria-hidden="true"
+                                          xmlns="http://www.w3.org/2000/svg"
+                                          width="24"
+                                          height="24"
+                                          fill="none"
+                                          viewBox="0 0 24 24"
+                                        >
+                                          <path
+                                            stroke="currentColor"
+                                            strokeLinecap="round"
+                                            strokeLinejoin="round"
+                                            strokeWidth="2"
+                                            d="M6 18 17.94 6M18 18 6.06 6"
+                                          />
+                                        </svg>
+                                      </div>
+                                    </div>
+                                  </div>
                                 )}
                               </div>
                             )}

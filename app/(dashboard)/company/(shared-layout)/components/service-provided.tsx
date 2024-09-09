@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { TextInput, Button } from "flowbite-react";
-import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
@@ -23,6 +23,22 @@ export const ServiceProvided = () => {
     control,
     name: "service_provided",
   });
+
+  useEffect(() => {
+    return () => {
+      // REMOVE THE LAST SERVICE PROVIDED TAG IF EMPTY
+
+      if (serviceProvided?.length >= 1) {
+        const isLastServiceProvidedEmpty =
+          !serviceProvided[serviceProvided?.length - 1].label;
+
+        if (isLastServiceProvidedEmpty) {
+          remove(serviceProvided?.length - 1);
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceProvided]);
 
   return (
     <div>
@@ -209,25 +225,6 @@ export const ServiceProvided = () => {
                                   )}
                                   {fields?.length - 1 === index &&
                                     isEditing && (
-                                      //   <Button
-                                      //     color="primary"
-                                      //     onClick={() => {
-                                      //       const fieldLabel = watch(
-                                      //         `service_provided[${index}].label`
-                                      //       );
-
-                                      //       if (!fieldLabel) {
-                                      //         trigger([
-                                      //           `service_provided[${index}].label`,
-                                      //         ]);
-                                      //         return;
-                                      //       }
-
-                                      //       setIsEditing(false);
-                                      //     }}
-                                      //   >
-                                      //     Save
-                                      // </Button>
                                       <div className="mt-1 5">
                                         <div className="flex items-center gap-x-2">
                                           <div

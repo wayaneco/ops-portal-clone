@@ -40,10 +40,14 @@ export type ClientsType = {
   created_at: string;
   privileges?: Array<Privileges>;
   tags: Array<{
-    label: string;
+    id: string;
+    name: string;
+    slug: string;
   }>;
   provider_types: Array<{
-    label: string;
+    id: string;
+    name: string;
+    slug: string;
   }>;
   service_provided: Array<{
     // TODO:
