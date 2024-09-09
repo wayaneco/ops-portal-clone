@@ -5,8 +5,7 @@ import { Resend } from "resend";
 import { EmailTemplate } from "@/components/EmailTemplate";
 import { createClient } from "@supabase/supabase-js";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
-
+const resendApiKey = process.env["NEXT_PUBLIC_RESEND_API_KEY"];
 const supabaseUrl = process.env["NEXT_PUBLIC_SUPABASE_URL"] as string;
 const supabaseRoleKey = process.env[
   "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY"
@@ -28,6 +27,7 @@ export async function inviteUser({
   email,
   password,
 }: InviteUserTypes) {
+  const resend = new Resend(resendApiKey);
   const supabaseAdmin = createClient(supabaseUrl, supabaseRoleKey);
   try {
     const { data, error: generate_link_error } =
