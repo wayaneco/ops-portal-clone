@@ -23,6 +23,7 @@
       "@/components/*": ["./app/components/*"],
       "@/types/*": ["./app/types/*"],
       "@/hooks/*": ["./app/hooks/*"],
+      "@/actions/*": ["./app/actions/*"],
       "@/constant/*": ["./app/constant/*"]
     }
   },
