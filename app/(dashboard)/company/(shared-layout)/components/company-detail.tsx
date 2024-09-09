@@ -253,9 +253,7 @@ const CompanyDetail = function ({
             `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`,
             {
               headers: {
-                "Content-Type": "application/json",
                 "x-api-key": xApiKey,
-                "Access-Control-Allow-Origin": "*",
               },
             }
           );
@@ -287,9 +285,7 @@ const CompanyDetail = function ({
           console.log(err);
         }
       };
-
-      // fetchData(); // Initial fetch
-
+      fetchData(); // Initial fetch
       const intervalId = setInterval(() => {
         fetchData();
       }, 8000); // 8 seconds
@@ -297,7 +293,6 @@ const CompanyDetail = function ({
       // Clean up interval on component unmount
       return () => clearInterval(intervalId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startLogging]);
 
   useEffect(() => {
@@ -309,9 +304,7 @@ const CompanyDetail = function ({
           }&bucket_name=ee-provision-dev`,
           {
             headers: {
-              "Content-Type": "application/json",
               "x-api-key": xApiKey,
-              "Access-Control-Allow-Origin": "*",
             },
           }
         );
