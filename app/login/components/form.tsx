@@ -1,14 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 import { InferType } from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { CustomTextInput } from "@/app/components/TextInput";
+import { loginWithTokenHash } from "@/app/actions/login/login-with-token-hash";
 
 import schema from "./schema";
 
@@ -22,7 +23,11 @@ const defaultValues = {
 };
 
 export function LoginForm({ loginUser }: LoginFormProps) {
+  const searchParams = useSearchParams();
   const router = useRouter();
+
+  const token_hash = searchParams.get("token_hash");
+
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { showToast } = useToastContext();
 
@@ -31,6 +36,27 @@ export function LoginForm({ loginUser }: LoginFormProps) {
     resolver: yupResolver(schema),
     mode: "onChange",
   });
+
+  useEffect(() => {
+    if (token_hash) {
+      (async () => {
+        try {
+          setIsSubmitting(true);
+          const response = await loginWithTokenHash(token_hash as string);
+
+          if (!response.ok) throw response?.message;
+
+          router?.replace(response?.message);
+        } catch (error) {
+          setIsSubmitting(false);
+          console.log(error);
+          router?.replace("/login");
+        }
+      })();
+    }
+
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token_hash]);
 
   return (
     <form
