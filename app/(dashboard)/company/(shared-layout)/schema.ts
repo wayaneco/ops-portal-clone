@@ -26,4 +26,5 @@ export const schema = Yup.object().shape({
   provisioning_status: Yup.string(),
   isUpdate: Yup.boolean(),
   isWebAddressValid: Yup.boolean(),
+  isDirty: Yup.boolean(),
 });

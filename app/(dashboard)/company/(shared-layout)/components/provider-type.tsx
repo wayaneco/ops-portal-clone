@@ -70,6 +70,7 @@ export const ProviderType = () => {
                     ...getValues(),
                     provider_types: clonedProviderTypes,
                   });
+                  setValue("isDirty", true);
                 }}
               >
                 <Droppable droppableId="1">
@@ -164,6 +165,7 @@ export const ProviderType = () => {
                                           ...getValues(),
                                           provider_types: clonedProviderTypes,
                                         });
+                                        setValue("isDirty", true);
                                       }}
                                     >
                                       <svg

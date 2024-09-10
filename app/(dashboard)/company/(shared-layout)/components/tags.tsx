@@ -14,6 +14,7 @@ export const Tags = () => {
     reset,
     getValues,
     trigger,
+    setValue,
     formState: { errors },
   } = useFormContext();
 
@@ -66,6 +67,7 @@ export const Tags = () => {
                     ...getValues(),
                     tags: clonedTags,
                   });
+                  setValue("isDirty", true);
                 }}
               >
                 <Droppable droppableId="1">
@@ -159,6 +161,7 @@ export const Tags = () => {
                                           ...getValues(),
                                           tags: clonedTags,
                                         });
+                                        setValue("isDirty", true);
                                       }}
                                     >
                                       <svg
