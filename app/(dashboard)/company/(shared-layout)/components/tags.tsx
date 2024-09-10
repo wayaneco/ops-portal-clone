@@ -22,7 +22,6 @@ export const Tags = () => {
     reset,
     getValues,
     clearErrors,
-    trigger,
     setValue,
     setError,
     formState: { errors },
@@ -51,8 +50,6 @@ export const Tags = () => {
 
     return !!isExisting;
   };
-
-  console.log(errors);
 
   useEffect(() => {
     return () => {
