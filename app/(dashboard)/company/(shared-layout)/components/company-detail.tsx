@@ -104,6 +104,16 @@ const CompanyDetail = function ({
 
   const isFirstRender = useIsFirstRender();
 
+  const companyTags = companyInfo?.tags
+    ?.filter((tag) => !!tag?.name)
+    ?.map((tag) => ({ label: tag?.name }));
+
+  const companyProviderType = companyInfo?.provider_types
+    ?.filter((provider_type) => !!provider_type?.name)
+    ?.map((provider_type) => ({
+      label: provider_type?.name,
+    }));
+
   const methods = useForm({
     values: {
       logo: companyInfo?.logo_url ?? null,
@@ -115,22 +125,24 @@ const CompanyDetail = function ({
       service_provided: companyInfo?.service_provided_data ?? [
         { label: "Meals", type: "count" },
       ],
-      tags: [], // TODO: companyInfo?.tags should be a Array not an string
-      provider_types: companyInfo?.provider_types ?? [],
+      tags: companyTags,
+      provider_types: companyProviderType,
       provisioning_status: companyInfo?.provisioning_status ?? "DRAFT",
       isUpdate: !!companyInfo,
       isWebAddressValid: !!companyInfo,
+      isDirty: false,
     },
     resolver: yupResolver(schema),
     mode: "onChange",
   });
 
+  const watchIsDirty = methods.watch("isDirty");
   const watchName = methods.watch("name");
   const watchWebAddress = methods.watch("web_address");
   const watchIsWebAddressValid = methods.watch("isWebAddressValid");
 
   const isSubmitButtonDisabled =
-    !methods?.formState?.isDirty ||
+    (!watchIsDirty && !methods?.formState?.isDirty) ||
     startLogging ||
     !watchIsWebAddressValid ||
     !watchName ||
@@ -140,6 +152,13 @@ const CompanyDetail = function ({
     setIsSubmitting(true);
     startTransition(async () => {
       try {
+        const tagPayload = data?.tags?.map(
+          (tag: { label: string }) => tag.label
+        );
+        const providerTypePayload = data?.provider_types?.map(
+          (provider_type: { label: string }) => provider_type.label
+        );
+
         const response = await upsertCompanyDetails(
           {
             logo: data?.logo as string,
@@ -150,8 +169,8 @@ const CompanyDetail = function ({
             is_enabled: data?.is_enabled,
             provisioning_status: data?.provisioning_status,
             service_provided: data?.service_provided,
-            tags: data?.tags,
-            provider_types: data?.provider_types,
+            tags: tagPayload,
+            provider_types: providerTypePayload,
             staff_id: user?.id,
             client_id: companyInfo?.client_id,
           },

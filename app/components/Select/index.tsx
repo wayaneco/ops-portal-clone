@@ -9,13 +9,15 @@ type CustomSelectProps = {
   error?: string;
   label: string;
   required?: boolean;
+  placeholder?: string;
   options: Options;
   onChange: (newValue: any) => void;
   value: any;
 };
 
 export const CustomerSelect = (props: CustomSelectProps) => {
-  const { error, label, value, options, required, onChange } = props;
+  const { error, label, value, options, placeholder, required, onChange } =
+    props;
 
   return (
     <div>
@@ -35,12 +37,13 @@ export const CustomerSelect = (props: CustomSelectProps) => {
                 ? "border-red-500 text-red-500 focus:ring-red-600"
                 : "border-primary-500 focus:ring-primary-600"
             }`,
+          menu: `menu-item absolute w-full z-10 bg-white shadow-lg border rounded py-1 mt-1.5 text-sm text-gray-700`,
           listItem: ({ isSelected }: any) =>
             `block transition duration-200 px-2 py-2 cursor-pointer select-none truncate rounded hover:bg-primary-500 hover:text-white ${
               isSelected ? "bg-primary-500 text-white" : "text-gray-600"
             } `,
         }}
-        placeholder="Select Role"
+        placeholder={placeholder}
         primaryColor="primary"
         options={options}
         value={value as any}

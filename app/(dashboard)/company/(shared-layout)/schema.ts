@@ -15,15 +15,16 @@ export const schema = Yup.object().shape({
   ),
   tags: Yup.array().of(
     Yup.object().shape({
-      label: Yup.string(),
+      label: Yup.string().required("This field is required."),
     })
   ),
   provider_types: Yup.array().of(
     Yup.object().shape({
-      label: Yup.string(),
+      label: Yup.string().required("This field is required."),
     })
   ),
   provisioning_status: Yup.string(),
   isUpdate: Yup.boolean(),
   isWebAddressValid: Yup.boolean(),
+  isDirty: Yup.boolean(),
 });
