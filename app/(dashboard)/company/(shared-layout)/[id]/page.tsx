@@ -9,14 +9,13 @@ import { getCompanyById } from "@/app/actions/company/get-company-by-id";
 const getInitialLogs = async (web_address: string) => {
   const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
   const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
+  const bucketName = process.env["NEXT_PUBLIC_PROVISION_BUCKET_NAME"];
   try {
     const provisionResponse = await axios.get<any>(
-      `${provisionApiEnv}/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`,
+      `${provisionApiEnv}/provision-logs?provider_name=${web_address}&bucket_name=${bucketName}`,
       {
         headers: {
-          'Content-Type': 'application/json',
-          'x-api-key': xApiKey,
-          "Access-Control-Allow-Origin": '*'
+          "x-api-key": xApiKey,
         },
       }
     );
