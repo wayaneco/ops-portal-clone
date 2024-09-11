@@ -90,7 +90,9 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                     <Table.Row
                       key={client?.client_id}
                       className="bg-white cursor-pointer"
-                      onClick={() => router.push(`/company/${client?.id}`)}
+                      onClick={() =>
+                        router.push(`/company/${client?.client_id}`)
+                      }
                     >
                       <Table.Cell>
                         <div className="relative h-10 w-full">
