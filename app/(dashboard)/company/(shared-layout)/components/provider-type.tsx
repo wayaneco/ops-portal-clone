@@ -147,10 +147,6 @@ export const ProviderType = () => {
                         </div>
                       ) : (
                         fields.map((_, index: number) => {
-                          const fieldLabel = watch(
-                            `provider_types[${index}].label`
-                          );
-
                           return (
                             <Draggable
                               key={`draggable-${index}`}

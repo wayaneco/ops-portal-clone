@@ -138,8 +138,6 @@ export const Tags = () => {
                         </div>
                       ) : (
                         fields.map((_, index: number) => {
-                          const fieldLabel = watch(`tags[${index}].label`);
-
                           return (
                             <Draggable
                               key={`draggable-${index}`}
