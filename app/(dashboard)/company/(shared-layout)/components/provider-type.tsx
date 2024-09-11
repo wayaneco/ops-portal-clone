@@ -147,10 +147,6 @@ export const ProviderType = () => {
                         </div>
                       ) : (
                         fields.map((_, index: number) => {
-                          const fieldLabel = watch(
-                            `provider_types[${index}].label`
-                          );
-
                           return (
                             <Draggable
                               key={`draggable-${index}`}
@@ -185,7 +181,7 @@ export const ProviderType = () => {
                                               <div className="w-[450px]">
                                                 <Select
                                                   color="primary"
-                                                  disabled={!!fieldLabel}
+                                                  disabled={!!providerTypeInput}
                                                   value={selectedProviderType}
                                                   onChange={(event) => {
                                                     checkDuplicates(

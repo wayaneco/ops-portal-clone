@@ -154,12 +154,12 @@ const CompanyDetail = function ({
     setIsSubmitting(true);
     startTransition(async () => {
       try {
-        const tagPayload = data?.tags?.map(
-          (tag: { label: string }) => tag.label
-        );
-        const providerTypePayload = data?.provider_types?.map(
-          (provider_type: { label: string }) => provider_type.label
-        );
+        const tagPayload =
+          data?.tags?.map((tag: { label: string }) => tag.label) || [];
+        const providerTypePayload =
+          data?.provider_types?.map(
+            (provider_type: { label: string }) => provider_type.label
+          ) || [];
 
         const response = await upsertCompanyDetails(
           {

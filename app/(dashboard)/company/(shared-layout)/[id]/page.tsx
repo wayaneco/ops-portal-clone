@@ -22,7 +22,7 @@ const getInitialLogs = async (web_address: string) => {
 
     return provisionResponse?.data?.log_content;
   } catch (error) {
-    return error;
+    return [];
   }
 };
 

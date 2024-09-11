@@ -96,8 +96,8 @@ export const AddUser = (props: AddUserProps) => {
       };
 
       const client_name =
-        clientLists?.find((client) => client?.id === selectedClient)?.name ||
-        "";
+        clientLists?.find((client) => client?.client_id === selectedClient)
+          ?.name || "";
 
       const response = await addUser({
         ...payload,

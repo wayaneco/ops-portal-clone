@@ -14,6 +14,7 @@ export const ServiceProvided = () => {
     reset,
     getValues,
     trigger,
+    setValue,
     formState: { errors },
   } = useFormContext();
 
@@ -69,6 +70,7 @@ export const ServiceProvided = () => {
                     ...getValues(),
                     service_provided: clonedServiceProvided,
                   });
+                  setValue("isDirty", true);
                 }}
               >
                 <Droppable droppableId="1">
@@ -201,6 +203,7 @@ export const ServiceProvided = () => {
                                             service_provided:
                                               clonedServiceProvided,
                                           });
+                                          setValue("isDirty", true);
                                         }}
                                       >
                                         <svg
