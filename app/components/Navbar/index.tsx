@@ -35,6 +35,7 @@ const Navbar = () => {
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
   const REGEX_USER_PAGE = new RegExp(/^\/user?(\/\w)?.+/);
+  const REGEX_USER_ID_PAGE = new RegExp(/^\/user\/\w/);
 
   const MenuList = ({ currentPrivilege }: { currentPrivilege: Array<any> }) => {
     const isEnable = (expectedPrivilege: Array<any>) => {
@@ -101,7 +102,11 @@ const Navbar = () => {
 
     switch (true) {
       case clientList?.length > 1:
-        if (hasAdminRole && REGEX_COMPANY_PAGE.test(pathname)) {
+        if (
+          hasAdminRole &&
+          (REGEX_COMPANY_PAGE.test(pathname) ||
+            REGEX_USER_ID_PAGE.test(pathname))
+        ) {
           component = (
             <div className="flex items-center gap-x-2 text-gray-600">
               <strong>{userInfo?.email}</strong> as{" "}

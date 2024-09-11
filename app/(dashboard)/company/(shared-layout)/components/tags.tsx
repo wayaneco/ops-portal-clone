@@ -174,7 +174,7 @@ export const Tags = () => {
                                               <div className="w-[450px]">
                                                 <Select
                                                   color="primary"
-                                                  disabled={!!fieldLabel}
+                                                  disabled={!!tagInput}
                                                   value={selectedTag}
                                                   onChange={(event) => {
                                                     checkDuplicates(

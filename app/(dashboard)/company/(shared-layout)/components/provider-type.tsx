@@ -185,7 +185,7 @@ export const ProviderType = () => {
                                               <div className="w-[450px]">
                                                 <Select
                                                   color="primary"
-                                                  disabled={!!fieldLabel}
+                                                  disabled={!!providerTypeInput}
                                                   value={selectedProviderType}
                                                   onChange={(event) => {
                                                     checkDuplicates(
