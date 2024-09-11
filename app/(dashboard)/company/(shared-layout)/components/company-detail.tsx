@@ -64,6 +64,7 @@ export const ProvisionLoggingContext = createContext<
 
 const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
 const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
+const bucketName = process.env["NEXT_PUBLIC_PROVISION_BUCKET_NAME"];
 
 export const useProvisionLoggingContext = () => {
   const context = useContext<ProvisionLoggingContextType | undefined>(
@@ -269,7 +270,7 @@ const CompanyDetail = function ({
       const fetchData = async () => {
         try {
           const { data } = await axios.get<any>(
-            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`,
+            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=${bucketName}`,
             {
               headers: {
                 "x-api-key": xApiKey,
@@ -320,7 +321,7 @@ const CompanyDetail = function ({
         const { data } = await axios.get<any>(
           `${provisionApiEnv}/provision-logs?provider_name=${
             watchWebAddress || companyInfo?.web_address
-          }&bucket_name=ee-provision-dev`,
+          }&bucket_name=${bucketName}`,
           {
             headers: {
               "x-api-key": xApiKey,
