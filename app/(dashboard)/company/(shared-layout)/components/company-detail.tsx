@@ -63,6 +63,7 @@ export const ProvisionLoggingContext = createContext<
 >(undefined);
 
 const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
+const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
 
 export const useProvisionLoggingContext = () => {
   const context = useContext<ProvisionLoggingContextType | undefined>(
@@ -218,9 +219,9 @@ const CompanyDetail = function ({
 
       const response = await fetch(`${provisionApiEnv}/provision`, {
         method: "POST",
-        mode: "no-cors", // Set to 'no-cors' to disable CORS handling
         headers: {
           "Content-Type": "application/json",
+          "x-api-key": xApiKey as string,
         },
         body: JSON.stringify({
           name: `${watchWebAddress}-execution-${moment()
@@ -268,7 +269,12 @@ const CompanyDetail = function ({
       const fetchData = async () => {
         try {
           const { data } = await axios.get<any>(
-            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
+            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`,
+            {
+              headers: {
+                "x-api-key": xApiKey,
+              },
+            }
           );
 
           setLogs(data?.log_content);
@@ -295,12 +301,10 @@ const CompanyDetail = function ({
             clearInterval(intervalId);
           }
         } catch (err) {
-          fetchData();
+          console.log(err);
         }
       };
-
       fetchData(); // Initial fetch
-
       const intervalId = setInterval(() => {
         fetchData();
       }, 8000); // 8 seconds
@@ -308,7 +312,6 @@ const CompanyDetail = function ({
       // Clean up interval on component unmount
       return () => clearInterval(intervalId);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [startLogging]);
 
   useEffect(() => {
@@ -317,7 +320,12 @@ const CompanyDetail = function ({
         const { data } = await axios.get<any>(
           `${provisionApiEnv}/provision-logs?provider_name=${
             watchWebAddress || companyInfo?.web_address
-          }&bucket_name=ee-provision-dev`
+          }&bucket_name=ee-provision-dev`,
+          {
+            headers: {
+              "x-api-key": xApiKey,
+            },
+          }
         );
 
         if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {

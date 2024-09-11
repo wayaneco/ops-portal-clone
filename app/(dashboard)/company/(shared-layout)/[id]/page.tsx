@@ -7,9 +7,18 @@ import CompanyDetail from "../components/company-detail";
 import { getCompanyById } from "@/app/actions/company/get-company-by-id";
 
 const getInitialLogs = async (web_address: string) => {
+  const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
+  const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
   try {
     const provisionResponse = await axios.get<any>(
-      `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`
+      `${provisionApiEnv}/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`,
+      {
+        headers: {
+          'Content-Type': 'application/json',
+          'x-api-key': xApiKey,
+          "Access-Control-Allow-Origin": '*'
+        },
+      }
     );
 
     return provisionResponse?.data?.log_content;
