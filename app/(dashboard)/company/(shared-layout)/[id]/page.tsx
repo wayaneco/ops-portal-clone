@@ -9,7 +9,7 @@ import { getCompanyById } from "@/app/actions/company/get-company-by-id";
 const getInitialLogs = async (web_address: string) => {
   try {
     const provisionResponse = await axios.get<any>(
-      `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-dev`
+      `https://api-portal-dev.everesteffect.com/provision-logs?provider_name=${web_address}&bucket_name=ee-provision-demo`
     );
 
     return provisionResponse?.data?.log_content;

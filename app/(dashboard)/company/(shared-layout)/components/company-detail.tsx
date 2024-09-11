@@ -249,7 +249,7 @@ const CompanyDetail = function ({
       const fetchData = async () => {
         try {
           const { data } = await axios.get<any>(
-            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
+            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-demo`
           );
 
           setLogs(data?.log_content);
@@ -298,7 +298,7 @@ const CompanyDetail = function ({
         const { data } = await axios.get<any>(
           `${provisionApiEnv}/provision-logs?provider_name=${
             watchWebAddress || companyInfo?.web_address
-          }&bucket_name=ee-provision-dev`
+          }&bucket_name=ee-provision-demo`
         );
 
         if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
