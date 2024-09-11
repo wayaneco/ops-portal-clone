@@ -37,7 +37,7 @@ export default async function Layout(props: PropsWithChildren) {
   };
 
   const userInfo = await getUserById(user?.id);
-  const clientLists = await getAllCompany();
+  const clientLists = await getAllCompany(true);
   const hasAdminRole = await getHasRoleAdmin(user?.id);
 
   return (

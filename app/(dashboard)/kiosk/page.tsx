@@ -26,7 +26,7 @@ const Page = () => {
 
     return {
       length: data?.length,
-      data: data?.find((client) => client?.id === selectedClient),
+      data: data?.find((client) => client?.client_id === selectedClient),
     };
   }, [clientLists, userInfo, selectedClient, currentPrivilege]);
 
