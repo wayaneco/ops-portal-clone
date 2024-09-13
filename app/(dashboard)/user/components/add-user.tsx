@@ -50,7 +50,7 @@ export const AddUser = (props: AddUserProps) => {
 
   const { showToast } = useToastContext();
   const { user } = useSupabaseSessionContext();
-  const { selectedClient } = useUserClientProviderContext();
+  const { selectedClient, clientLists } = useUserClientProviderContext();
   const { hasAdminRole } = useUserClientProviderContext();
 
   const methods = useForm({
@@ -79,7 +79,6 @@ export const AddUser = (props: AddUserProps) => {
     control,
     trigger,
     getValues,
-    setFocus,
     formState: { errors },
   } = methods;
 
@@ -96,12 +95,18 @@ export const AddUser = (props: AddUserProps) => {
         };
       };
 
+      const client_name =
+        clientLists?.find((client) => client?.id === selectedClient)?.name ||
+        "";
+
       const response = await addUser({
         ...payload,
         role_id: role?.value,
+        role_name: role?.label,
         isNetworkAdmin: role?.label === ROLE_NETWORK_ADMIN,
         staff_id: user?.id,
         client_id: selectedClient,
+        client_name,
       });
 
       if (!response.ok) throw response?.message;
@@ -285,6 +290,7 @@ export const AddUser = (props: AddUserProps) => {
                 fieldState: { error },
               }) => (
                 <CustomerSelect
+                  required
                   label="Role"
                   value={value}
                   onChange={onChange}

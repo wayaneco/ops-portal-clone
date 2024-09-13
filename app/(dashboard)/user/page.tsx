@@ -1,8 +1,12 @@
+import { Metadata } from "next";
 import { Card } from "flowbite-react";
 
-import { UserListTable } from "./components/user-list-table";
 import { getAllUsers } from "@/app/actions/user/get-all-users";
 import { UserListWrapper } from "./components/user-list-wrapper";
+
+export const metadata: Metadata = {
+  title: "Everest Effect Portal - Users",
+};
 
 const Page = async () => {
   const users = await getAllUsers();

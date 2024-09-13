@@ -381,8 +381,12 @@ const CompanyDetail = function ({
                         ) : (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={value as string}
-                            alt="Tonis Kitchen"
+                            src={
+                              (value as string)?.includes("base64")
+                                ? (value as string)
+                                : `${value}?${new Date().getTime()}`
+                            }
+                            alt={`Company Logo`}
                             className="w-auto h-20"
                           />
                         )}
