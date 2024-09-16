@@ -10,6 +10,8 @@ const FlowbiteTheme: CustomFlowbiteTheme = {
     color: {
       primary:
         "text-white bg-primary-500 hover:bg-primary-600 focus:outline-primary-400",
+      primaryBordered:
+        "text-primary-500 border-primary-500 border border-solid",
     },
   },
   label: {
