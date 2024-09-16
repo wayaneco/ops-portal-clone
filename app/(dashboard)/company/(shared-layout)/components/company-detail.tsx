@@ -210,12 +210,6 @@ const CompanyDetail = function ({
     });
   };
 
-  const isEnable = (expectedPrivilege: Array<any>) => {
-    return currentPrivilege?.some((current) =>
-      expectedPrivilege?.includes(current)
-    );
-  };
-
   const handleProvision = async () => {
     try {
       if (watchWebAddress !== companyInfo?.web_address) {

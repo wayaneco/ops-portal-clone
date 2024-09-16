@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { createContext, PropsWithChildren, useState } from "react";
 import { Sidebar, SidebarItems, SidebarItemGroup } from "flowbite-react";
 
@@ -50,6 +51,7 @@ const SIDEBAR_ITEMS = [
 ];
 
 export default function SidebarContextProvider(props: PropsWithChildren) {
+  const router = useRouter();
   const { currentPrivilege } = useUserClientProviderContext();
 
   const [pathname, setPathname] = useState(() => {
@@ -60,6 +62,12 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
     return "serviceLocation";
   });
 
+  const isEnable = (expectedPrivilege: Array<any>) => {
+    return currentPrivilege?.some((current) =>
+      expectedPrivilege?.includes(current)
+    );
+  };
+
   return (
     <SidebarContext.Provider
       value={{
@@ -69,7 +77,7 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
     >
       <div className="h-[calc(100vh-100px)]">
         <div className="flex w-full h-full ">
-          <Sidebar className="fixed pt-[80px] z-10">
+          <Sidebar className="fixed h-[calc(100%-100px)] pt-[80px] z-10">
             <SidebarItems className="h-full flex flex-col">
               <SidebarItemGroup className="flex-1">
                 {SIDEBAR_ITEMS.map((item) => {
@@ -97,7 +105,13 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
               <div className="my-4 border-t-[1px] border-solid border-gray-200"></div>
               <div
                 className={` text-lg p-4 cursor-pointer rounded-md text-gray-600  hover:text-white transition-colors duration-200 hover:bg-primary-600`}
-                onClick={() => ""}
+                onClick={() =>
+                  router?.push(
+                    !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN])
+                      ? "/"
+                      : "/company"
+                  )
+                }
               >
                 <div className="flex items-center justify-between">
                   <span>Back</span>
