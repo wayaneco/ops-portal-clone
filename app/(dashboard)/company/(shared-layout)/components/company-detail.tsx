@@ -29,6 +29,7 @@ import { upsertCompanyDetails } from "@/app/actions/company/upsert-company";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { createClient } from "@/utils/supabase/client";
 import {
+  ROLE_COMPANY_ADMIN,
   ROLE_NETWORK_ADMIN,
   STATUS_COMPLETED,
   STATUS_IN_PROGRESS,
@@ -194,7 +195,10 @@ const CompanyDetail = function ({
           ),
         });
 
-        router.push("/company");
+        if (!companyInfo) {
+          router.push("/company");
+        }
+        setIsSubmitting(false);
       } catch (error: any) {
         showToast({
           message: error,
@@ -382,7 +386,7 @@ const CompanyDetail = function ({
           }}
         >
           <div className="absolute left-0 right-0 overflow-x-hidden">
-            <div className="relative z-10 bg-gray-50">
+            <div className="fixed w-full z-10 bg-gray-50">
               <div className="flex items-center">
                 <div className="min-w-64 w-64">
                   <Controller
@@ -467,7 +471,7 @@ const CompanyDetail = function ({
                 </div>
               </div>
             </div>
-            <div className="h-full w-full pl-64">
+            <div className="mt-28 h-full w-full pl-64 pb-8 bg-gray-200">
               <AddClientForm routeName={pathname} />
             </div>
           </div>
