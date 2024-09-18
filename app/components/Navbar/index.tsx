@@ -117,7 +117,7 @@ const Navbar = () => {
           component = (
             <div className="flex items-center gap-x-2 text-gray-600">
               <strong>{userInfo?.email}</strong>
-              <div className="">in behalf of</div>
+              <div className="">on behalf of</div>
               <Select
                 ref={selectRef}
                 color="primary"
@@ -141,7 +141,7 @@ const Navbar = () => {
         component = (
           <div className="flex items-center gap-x-2 text-gray-600">
             <strong>{userInfo?.email}</strong>
-            <div className="">in behalf of</div>
+            <div className="">on behalf of</div>
             <strong>{userInfo?.clients[0].name}</strong>
           </div>
         );

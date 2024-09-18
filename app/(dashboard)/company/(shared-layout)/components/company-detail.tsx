@@ -29,6 +29,7 @@ import { upsertCompanyDetails } from "@/app/actions/company/upsert-company";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { createClient } from "@/utils/supabase/client";
 import {
+  ROLE_AGENT,
   ROLE_COMPANY_ADMIN,
   ROLE_NETWORK_ADMIN,
   STATUS_COMPLETED,
@@ -99,7 +100,8 @@ const CompanyDetail = function ({
 
   const { showToast } = useToastContext();
   const { user } = useSupabaseSessionContext();
-  const { currentPrivilege } = useUserClientProviderContext();
+  const { currentPrivilege, selectedClient, hasAdminRole } =
+    useUserClientProviderContext();
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
   )!;
@@ -268,6 +270,24 @@ const CompanyDetail = function ({
       clearTimeout(timeout);
     };
   }, [showConfetti]);
+
+  useEffect(() => {
+    if (!!companyInfo && selectedClient && !hasAdminRole) {
+      switch (true) {
+        case currentPrivilege?.some((current) =>
+          [ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN].includes(current)
+        ):
+          router.replace(`/company/${selectedClient}`);
+          break;
+        case currentPrivilege?.includes(ROLE_AGENT):
+          router.replace("/");
+          break;
+        default:
+          null;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedClient]);
 
   useEffect(() => {
     if (startLogging) {

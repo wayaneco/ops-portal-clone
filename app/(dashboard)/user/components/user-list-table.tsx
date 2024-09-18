@@ -65,7 +65,6 @@ export const UserListTable = (props: UserListTableProps) => {
 
       return data;
     } else {
-      console.log({ selectedClient });
       const filteredByClient = data?.filter((user) =>
         user?.clients?.some((client) => client?.id === selectedClient)
       );
