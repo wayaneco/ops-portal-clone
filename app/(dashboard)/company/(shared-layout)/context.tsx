@@ -107,9 +107,7 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
                 className={` text-lg p-4 cursor-pointer rounded-md text-gray-600  hover:text-white transition-colors duration-200 hover:bg-primary-600`}
                 onClick={() =>
                   router?.push(
-                    !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN])
-                      ? "/"
-                      : "/company"
+                    !isEnable([ROLE_NETWORK_ADMIN]) ? "/" : "/company"
                   )
                 }
               >
