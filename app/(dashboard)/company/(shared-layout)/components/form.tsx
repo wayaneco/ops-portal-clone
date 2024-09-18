@@ -14,7 +14,7 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
   switch (routeName) {
     case "webAddress":
       component = (
-        <div className="m-8">
+        <div className="mt-20 p-8">
           <Card className="[&>div]:block max-h-[calc(100vh-245px)] overflow-hidden">
             <div className="p-8 self-start">
               <WebAddress />
@@ -26,15 +26,17 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
 
     case "serviceLocation":
       component = (
-        <MapProvider>
-          <MapComponent></MapComponent>
-        </MapProvider>
+        <div className="mt-20">
+          <MapProvider>
+            <MapComponent></MapComponent>
+          </MapProvider>
+        </div>
       );
       break;
 
     case "serviceProvided":
       component = (
-        <div className="m-8">
+        <div className="mt-20 p-8">
           <Card>
             <div className="p-8">
               <ServiceProvided />
@@ -46,7 +48,7 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
 
     case "tags":
       component = (
-        <div className="m-8">
+        <div className="mt-20 p-8">
           <Card>
             <div className="p-8">
               <Tags />
@@ -58,7 +60,7 @@ export const AddClientForm = ({ routeName }: AddClientFormType) => {
 
     case "providerType":
       component = (
-        <div className="m-8">
+        <div className="mt-20 p-8">
           <Card>
             <div className="p-8">
               <ProviderType />

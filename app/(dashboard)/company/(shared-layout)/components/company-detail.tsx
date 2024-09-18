@@ -471,7 +471,7 @@ const CompanyDetail = function ({
                 </div>
               </div>
             </div>
-            <div className="mt-28 h-full w-full pl-64 pb-8 bg-gray-200">
+            <div className="h-full w-full pl-64 bg-gray-200">
               <AddClientForm routeName={pathname} />
             </div>
           </div>
