@@ -4,12 +4,13 @@ import { Controller, useFormContext } from "react-hook-form";
 import { useDebouncedCallback } from "use-debounce";
 
 import { useProvisionLoggingContext } from "./company-detail";
-import { createClient } from "@/utils/supabase/client";
-import { STATUS_PROVISION } from "@/app/constant";
+
+import { REGEX_WEB_ADDRESS_FIELD, STATUS_PROVISION } from "@/app/constant";
+
+const provisionApiUrl = process.env["NEXT_PUBLIC_PROVISION_API"] as string;
+const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"] as string;
 
 export const WebAddress = () => {
-  const supabase = createClient();
-
   const inputRef = useRef();
   const [status, setStatus] = useState({
     isFetching: false,
@@ -17,9 +18,14 @@ export const WebAddress = () => {
   });
   const [isWebAddressExist, setIsWebAddressExist] = useState<boolean>(false);
   const [startProvision, setStartProvision] = useState<boolean>(false);
-  const { control, watch, setValue } = useFormContext();
+  const {
+    control,
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext();
 
-  const { logs, handleProvision, isProvisioning, isCompleted } =
+  const { logs, handleProvision, isProvisioning, isCompleted, companyInfo } =
     useProvisionLoggingContext();
 
   const watchWebAddress = watch("web_address");
@@ -34,23 +40,34 @@ export const WebAddress = () => {
     status?.isFetching;
 
   const handleDebounce = useDebouncedCallback(async (value: string) => {
+    if (companyInfo?.web_address === value) return;
+
     if (value) {
       setStatus({
         isFetching: true,
         isDone: false,
       });
-      const { data } = await supabase
-        .from("clients")
-        .select("web_address")
-        .ilike("web_address", value);
 
-      if (data?.length) {
-        setIsWebAddressExist(true);
-        setValue("isWebAddressValid", false);
-      } else {
-        setValue("isWebAddressValid", true);
-      }
+      const response = await fetch(
+        `${provisionApiUrl}/check-hostname?hostname=${value}`,
+        {
+          method: "GET",
+          headers: {
+            "x-api-key": xApiKey,
+          },
+        }
+      );
+      const responseData = await response.text();
 
+      const isAlreadyExist = responseData === "true";
+
+      // const { data } = await supabase
+      //   .from("clients")
+      //   .select("web_address")
+      //   .ilike("web_address", value);
+
+      setIsWebAddressExist(isAlreadyExist);
+      setValue("isWebAddressValid", isAlreadyExist);
       setStatus({ isFetching: false, isDone: true });
     }
   }, 1000); // 1 SECONDS
@@ -73,6 +90,15 @@ export const WebAddress = () => {
             <TextInput
               ref={inputRef as any}
               color="primary"
+              onPaste={(event) => {
+                let copiedText = (
+                  event.clipboardData || (window as any)?.clipboardData
+                ).getData("text");
+
+                if (!REGEX_WEB_ADDRESS_FIELD.test(copiedText)) {
+                  event?.preventDefault();
+                }
+              }}
               placeholder="domain.everesteffect.com"
               className="w-[450px] placeholder-shown:italic "
               value={value}
@@ -84,20 +110,29 @@ export const WebAddress = () => {
                 }
               }}
               onChange={async (event) => {
+                const { value } = event.target;
+
                 setValue("isWebAddressValid", false);
+                setIsWebAddressExist(false);
                 setStatus({
-                  isFetching: true,
+                  isFetching: false,
                   isDone: false,
                 });
-                setIsWebAddressExist(false);
 
-                !event?.target?.value &&
+                onChange(value);
+
+                handleDebounce.cancel();
+
+                if (
+                  companyInfo?.web_address !== value &&
+                  REGEX_WEB_ADDRESS_FIELD.test(value)
+                ) {
                   setStatus({
-                    isFetching: false,
+                    isFetching: true,
                     isDone: false,
                   });
-                handleDebounce(event?.target?.value);
-                onChange(event?.target?.value);
+                  handleDebounce(value);
+                }
               }}
             />
           )}
@@ -123,55 +158,61 @@ export const WebAddress = () => {
         )}
       </div>
       <div className="text-sm mt-2 ml-2 text-black">
-        {status.isDone && (
-          <>
-            {isWebAddressExist ? (
-              <div className="flex items-center">
-                <strong className="text-red-500">{watchWebAddress}</strong>
-                <span className="ml-1">is already taken.</span>
-                <svg
-                  className="ml-1 w-4 h-4 text-red-500 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeWidth="2"
-                    d="m6 6 12 12m3-6a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                  />
-                </svg>
-              </div>
-            ) : (
-              <div className="flex items-center">
-                <strong className="text-green-500">{`${watchWebAddress.toLowerCase()}.everesteffect.com`}</strong>{" "}
-                <span className="ml-1"> is available.</span>
-                <svg
-                  className="w-6 h-6 text-green-400 ml-1 dark:text-white"
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    stroke="currentColor"
-                    strokeLinecap="round"
-                    strokeLinejoin="round"
-                    strokeWidth="2"
-                    d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                  />
-                </svg>
-              </div>
-            )}
-          </>
+        {errors?.web_address?.message ? (
+          <small className="text-xs text-red-500">
+            {String(errors?.web_address?.message)}
+          </small>
+        ) : (
+          status.isDone && (
+            <>
+              {isWebAddressExist ? (
+                <div className="flex items-center">
+                  <strong className="text-red-500">{watchWebAddress}</strong>
+                  <span className="ml-1">is already taken.</span>
+                  <svg
+                    className="ml-1 w-4 h-4 text-red-500 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeWidth="2"
+                      d="m6 6 12 12m3-6a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                  </svg>
+                </div>
+              ) : (
+                <div className="flex items-center">
+                  <strong className="text-green-500">{`${watchWebAddress.toLowerCase()}.everesteffect.com`}</strong>{" "}
+                  <span className="ml-1"> is available.</span>
+                  <svg
+                    className="w-6 h-6 text-green-400 ml-1 dark:text-white"
+                    aria-hidden="true"
+                    xmlns="http://www.w3.org/2000/svg"
+                    width="24"
+                    height="24"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      stroke="currentColor"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth="2"
+                      d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                    />
+                  </svg>
+                </div>
+              )}
+            </>
+          )
         )}
-        {status.isFetching && (
+        {!errors?.web_address && status.isFetching && (
           <div className="flex gap-x-3">
             <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-[130px] mb-4 animate-pulse"></div>
             <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-[80px] mb-4 animate-pulse"></div>
