@@ -91,8 +91,6 @@ export const ServiceProvided = () => {
                             `service_provided[${index}]`
                           );
 
-                          const isMeals = fieldValue?.label === "Meals";
-
                           return (
                             <Draggable
                               key={`draggable-${index}`}
@@ -179,16 +177,8 @@ export const ServiceProvided = () => {
                                         </svg>
                                       </div>
                                       <div
-                                        className={`p-2 rounded-md text-black  group ${
-                                          isMeals
-                                            ? "cursor-not-allowed hover:bg-gray-400"
-                                            : " cursor-pointer hover:bg-red-500"
-                                        }`}
+                                        className={`p-2 rounded-md text-black  group ${" cursor-pointer hover:bg-red-500"}`}
                                         onClick={() => {
-                                          if (isMeals) {
-                                            return;
-                                          }
-
                                           const clonedServiceProvided =
                                             JSON.parse(
                                               JSON.stringify(serviceProvided)

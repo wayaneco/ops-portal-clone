@@ -127,9 +127,7 @@ const CompanyDetail = function ({
       longitude: companyInfo?.longitude ?? "",
       latitude: companyInfo?.latitude ?? "",
       is_enabled: companyInfo?.is_enabled ?? true,
-      service_provided: companyInfo?.service_provided_data ?? [
-        { label: "Meals", type: "count" },
-      ],
+      service_provided: companyInfo?.service_provided_data ?? [],
       tags: companyTags,
       provider_types: companyProviderType,
       provisioning_status: companyInfo?.provisioning_status ?? "DRAFT",
