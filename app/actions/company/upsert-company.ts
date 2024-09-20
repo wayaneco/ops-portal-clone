@@ -3,6 +3,7 @@
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
 import { revalidatePath } from "next/cache";
 import { createClient } from "utils/supabase/server";
+const GenerateSchema = require("generate-schema");
 
 type UpsertCompanyDetailsType = {
   client_id?: string;
@@ -18,11 +19,22 @@ type UpsertCompanyDetailsType = {
   provisioning_status?: string;
   zip_code?: string;
   tags: Array<string>;
-  service_provided: Array<string>;
+  service_provided: Array<{ label: string; count: string }>;
   provider_types: Array<string>;
+  data_schema_id?: string;
 };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+
+const transformPayload = (payload: Array<{ label: string; count: string }>) => {
+  return payload?.map((data) => {
+    const key = data?.label?.toLowerCase();
+
+    return {
+      [key]: 0,
+    };
+  });
+};
 
 export const upsertCompanyDetails = async (
   params: UpsertCompanyDetailsType,
@@ -32,6 +44,17 @@ export const upsertCompanyDetails = async (
 
   try {
     let filePath = params?.logo;
+
+    const generatedSchema = GenerateSchema.json(
+      params.web_address,
+      params.service_provided
+    );
+
+    const transformedServicedProvider = transformPayload(
+      params?.service_provided
+    );
+
+    console.log(transformedServicedProvider);
 
     const upsertClientParams = update
       ? {
@@ -72,6 +95,21 @@ export const upsertCompanyDetails = async (
     );
 
     if (error_update_clients) throw error_update_clients?.message;
+
+    const { error: update_data_schema_error } = await supabase.rpc(
+      "update_data_schema",
+      {
+        p_data_schema_id: params.data_schema_id ? params.data_schema_id : null,
+        p_description: params.web_address,
+        p_identifier: params.web_address,
+        p_is_active: true,
+        p_schema: generatedSchema,
+        p_version_number: 0,
+        staff_id: params.staff_id,
+      }
+    );
+
+    if (update_data_schema_error) throw update_data_schema_error.message;
 
     if (params.logo && params?.logo?.includes("base64")) {
       const file = convertBase64toFile(params.logo!, params?.name);
