@@ -41,6 +41,7 @@ import { useUserClientProviderContext } from "@/app/components/Context/UserClien
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 
 import LoadingSkeleton from "../loading";
+import servicesProvidedDataFormatter from "@/utils/servicesProvidedDataFormatter";
 
 type CompanyDetailType = {
   initialLogs?: Array<{ event: string; status: STATUS_PROVISION }>;
@@ -171,7 +172,9 @@ const CompanyDetail = function ({
             latitude: data?.latitude,
             is_enabled: data?.is_enabled,
             provisioning_status: data?.provisioning_status,
-            service_provided: data?.service_provided,
+            service_provided: servicesProvidedDataFormatter(
+              data?.service_provided
+            ),
             tags: tagPayload,
             provider_types: providerTypePayload,
             staff_id: user?.id,
