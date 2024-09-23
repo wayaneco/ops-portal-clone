@@ -128,7 +128,7 @@ const Navbar = () => {
                 }}
               >
                 {clientList?.map((client: ClientsType, index: number) => (
-                  <option key={index} value={client?.id}>
+                  <option key={index} value={client?.client_id || client?.id}>
                     {client?.name}
                   </option>
                 ))}

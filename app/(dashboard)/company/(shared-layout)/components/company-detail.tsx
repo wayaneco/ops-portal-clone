@@ -55,6 +55,7 @@ type ToastType = {
 };
 
 type ProvisionLoggingContextType = {
+  companyInfo: any;
   logs: Array<{ event: string; status: STATUS_PROVISION }>;
   handleProvision: () => any;
   isProvisioning: boolean;
@@ -388,6 +389,7 @@ const CompanyDetail = function ({
   return (
     <ProvisionLoggingContext.Provider
       value={{
+        companyInfo,
         logs,
         handleProvision,
         isProvisioning: startLogging,
