@@ -221,7 +221,7 @@ const CompanyDetail = function ({
           .update({
             web_address: watchWebAddress,
           })
-          .eq("id", companyInfo?.client_id);
+          .eq("id", companyInfo?.id);
 
         if (error_update_web_address) throw error_update_web_address?.message;
       }
@@ -245,7 +245,7 @@ const CompanyDetail = function ({
         .update({
           provisioning_status: STATUS_IN_PROGRESS,
         })
-        .eq("id", companyInfo?.client_id);
+        .eq("id", companyInfo?.id);
 
       if (error_update_provision_status)
         throw error_update_provision_status?.message;
@@ -317,7 +317,7 @@ const CompanyDetail = function ({
               .update({
                 provisioning_status: STATUS_COMPLETED,
               })
-              .eq("id", companyInfo?.client_id);
+              .eq("id", companyInfo?.id);
 
             if (response?.error) {
               throw new Error(response?.error?.message);
@@ -362,7 +362,7 @@ const CompanyDetail = function ({
             .update({
               provisioning_status: STATUS_COMPLETED,
             })
-            .eq("id", companyInfo?.client_id);
+            .eq("id", companyInfo?.id);
 
           if (error_update_provision_status)
             throw error_update_provision_status?.message;
