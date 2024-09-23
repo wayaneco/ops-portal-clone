@@ -61,13 +61,8 @@ export const WebAddress = () => {
 
       const isAlreadyExist = responseData === "true";
 
-      // const { data } = await supabase
-      //   .from("clients")
-      //   .select("web_address")
-      //   .ilike("web_address", value);
-
       setIsWebAddressExist(isAlreadyExist);
-      setValue("isWebAddressValid", isAlreadyExist);
+      setValue("isWebAddressValid", !isAlreadyExist);
       setStatus({ isFetching: false, isDone: true });
     }
   }, 1000); // 1 SECONDS
