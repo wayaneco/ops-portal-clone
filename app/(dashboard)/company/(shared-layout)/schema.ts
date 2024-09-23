@@ -7,6 +7,7 @@ export const schema = Yup.object().shape({
   latitude: Yup.string(),
   is_enabled: Yup.boolean(),
   web_address: Yup.string().required(),
+  time_zone: Yup.string(),
   service_provided: Yup.array().of(
     Yup.object().shape({
       label: Yup.string().required("This field is required."),

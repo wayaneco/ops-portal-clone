@@ -45,10 +45,10 @@ const transformPayload = (payload: Array<{ label: string; count: string }>) => {
   return payload?.reduce((accumator, currentValue) => {
     accumator[formatData(currentValue.label)] = {
       hasCount: false,
-      count: 0
-    }
-    return accumator
-}, {})
+      count: 0,
+    };
+    return accumator;
+  }, {} as any);
 };
 
 export const upsertCompanyDetails = async (
@@ -63,12 +63,12 @@ export const upsertCompanyDetails = async (
     const transformedServicedProvider = transformPayload(
       params?.service_provided
     );
-    
+
     const generatedSchema = GenerateSchema.json(
       params.web_address,
       transformedServicedProvider
-      );
-      
+    );
+
     const upsertClientParams = update
       ? {
           p_description: params?.description ?? "",
@@ -102,6 +102,8 @@ export const upsertCompanyDetails = async (
           zip_code: params?.zip_code ?? "",
         };
 
+    console.log(upsertClientParams);
+
     const { data: client_id, error: error_update_clients } = await supabase.rpc(
       update ? "update_clients" : "add_clients",
       upsertClientParams
@@ -112,7 +114,6 @@ export const upsertCompanyDetails = async (
     const { error: update_data_schema_error } = await supabase.rpc(
       "update_data_schema",
       {
-        p_data_schema_id: params.data_schema_id ? params.data_schema_id : null,
         p_description: params.web_address,
         p_identifier: params.web_address,
         p_is_active: true,
