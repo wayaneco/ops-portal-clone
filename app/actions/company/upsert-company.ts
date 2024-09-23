@@ -26,9 +26,24 @@ type UpsertCompanyDetailsType = {
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
+// Function to convert strings to snake_case
+const toSnakeCase = (str: string) => {
+  return str
+    .toLowerCase()      // Convert to lowercase
+    .replace(/\s+/g, '_'); // Replace spaces with underscores
+}
+
+// Formatter function to apply snake_case conversion to each label
+const formatData = (data: any) => {
+  return data.map((item: { label: any; }) => ({
+    ...item,
+    label: toSnakeCase(item.label), // Format the label
+  }));
+}
+
 const transformPayload = (payload: Array<{ label: string; count: string }>) => {
   return payload?.reduce((accumator, currentValue) => {
-    accumator[currentValue.label] = {
+    accumator[formatData(currentValue.label)] = {
       hasCount: false,
       count: 0
     }
