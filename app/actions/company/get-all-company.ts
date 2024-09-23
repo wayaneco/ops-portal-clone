@@ -6,7 +6,7 @@ export const getAllCompany = async (sortByName = false) => {
     const { data, error } = await supabase
       .from("clients_data_view")
       .select(
-        "client_id, name, lower_name, logo_url, provisioning_status, created_at, web_address"
+        "id, name, lower_name, logo_url, provisioning_status, created_at, web_address"
       )
       .eq("is_enabled", true)
       .order(sortByName ? "lower_name" : "created_at", {

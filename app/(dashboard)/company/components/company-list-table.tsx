@@ -88,10 +88,10 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                 <Table.Body className="divide-y">
                   {clientList?.map((client: ClientsType) => (
                     <Table.Row
-                      key={client?.client_id}
+                      key={client?.id}
                       className="bg-white cursor-pointer"
                       onClick={() =>
-                        router.push(`/company/${client?.client_id}`)
+                        router.push(`/company/${client?.id}`)
                       }
                     >
                       <Table.Cell>

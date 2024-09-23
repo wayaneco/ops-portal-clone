@@ -46,6 +46,37 @@ const MapComponent = () => {
 
   const { showToast } = useToastContext();
 
+  async function getTimezone(latitude: number, longitude: number) {
+    const timestamp = Math.floor(Date.now() / 1000); // Current timestamp in seconds
+
+    const url = `https://maps.googleapis.com/maps/api/timezone/json?location=${latitude},${longitude}&timestamp=${timestamp}&key=${NEXT_PUBLIC_GOOGLE_MAP_API}`;
+
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+
+      if (data.status === "OK") {
+        const timezone = data.timeZoneId;
+
+        const formatter = Intl.DateTimeFormat("en-US", {
+          timeZone: timezone,
+          timeZoneName: "short",
+        });
+
+        const parts = formatter.formatToParts(timestamp);
+        const timeZoneName = parts.find(
+          (part) => part.type === "timeZoneName"
+        )?.value;
+
+        setValue("time_zone", timeZoneName, { shouldDirty: true });
+      } else {
+        console.log("Error fetching timezone:", data.status);
+      }
+    } catch (error) {
+      console.log("Error:", error);
+    }
+  }
+
   const onMarkerDragEnd = (event: {
     latLng: { lat: () => any; lng: () => any };
   }) => {
@@ -55,6 +86,8 @@ const MapComponent = () => {
 
     setValue("latitude", newLat, { shouldDirty: true });
     setValue("longitude", newLng, { shouldDirty: true });
+
+    getTimezone(newLat, newLng);
   };
 
   const searchLocation = async (address: string) => {
@@ -70,6 +103,8 @@ const MapComponent = () => {
       setNewMarkerPosition(location);
       setValue("latitude", location.lat, { shouldDirty: true });
       setValue("longitude", location.lng, { shouldDirty: true });
+
+      getTimezone(location.lat, location.lng);
     } else {
       showToast({
         message: "Location not found!",

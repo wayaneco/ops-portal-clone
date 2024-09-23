@@ -41,6 +41,21 @@ export const ServiceProvided = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [serviceProvided]);
 
+  const toCapitalizedWords = (str: string) => {
+    return str
+      .split("_") // Split the string by underscores
+      .map(
+        (
+          word,
+          index // Map over each word
+        ) =>
+          index === 0 // Capitalize the first word
+            ? word.charAt(0).toUpperCase() + word.slice(1)
+            : word // Keep the rest as they are (lowercase)
+      )
+      .join(" "); // Join the words with spaces
+  };
+
   return (
     <div>
       <div>
@@ -91,8 +106,6 @@ export const ServiceProvided = () => {
                             `service_provided[${index}]`
                           );
 
-                          const isMeals = fieldValue?.label === "Meals";
-
                           return (
                             <Draggable
                               key={`draggable-${index}`}
@@ -114,6 +127,7 @@ export const ServiceProvided = () => {
                                     render={({ field }) => (
                                       <div className="w-full">
                                         <TextInput
+                                          {...field}
                                           color="primary"
                                           disabled={
                                             !isEditing ||
@@ -121,7 +135,9 @@ export const ServiceProvided = () => {
                                           }
                                           autoFocus={isEditing}
                                           placeholder="Enter service name"
-                                          {...field}
+                                          value={toCapitalizedWords(
+                                            field.value
+                                          )}
                                         />
                                         {(errors?.service_provided as any)?.[
                                           index
@@ -179,16 +195,8 @@ export const ServiceProvided = () => {
                                         </svg>
                                       </div>
                                       <div
-                                        className={`p-2 rounded-md text-black  group ${
-                                          isMeals
-                                            ? "cursor-not-allowed hover:bg-gray-400"
-                                            : " cursor-pointer hover:bg-red-500"
-                                        }`}
+                                        className={`p-2 rounded-md text-black  group ${" cursor-pointer hover:bg-red-500"}`}
                                         onClick={() => {
-                                          if (isMeals) {
-                                            return;
-                                          }
-
                                           const clonedServiceProvided =
                                             JSON.parse(
                                               JSON.stringify(serviceProvided)

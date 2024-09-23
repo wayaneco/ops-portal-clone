@@ -8,6 +8,7 @@ export const schema = Yup.object().shape({
   longitude: Yup.string(),
   latitude: Yup.string(),
   is_enabled: Yup.boolean(),
+  time_zone: Yup.string(),
   web_address: Yup.string()
     .required("This field is required.")
     .matches(REGEX_WEB_ADDRESS_FIELD, "Invalid input value"),

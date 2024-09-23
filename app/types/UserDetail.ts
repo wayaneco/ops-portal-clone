@@ -53,7 +53,7 @@ export type ClientsType = {
     // TODO:
     label: string;
   }>;
-  service_provided_data: Array<{
+  service_provided_list: Array<{
     // TODO:
     label: string;
   }>;

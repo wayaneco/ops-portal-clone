@@ -41,6 +41,7 @@ import { useUserClientProviderContext } from "@/app/components/Context/UserClien
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 
 import LoadingSkeleton from "../loading";
+import servicesProvidedDataFormatter from "@/utils/servicesProvidedDataFormatter";
 
 type CompanyDetailType = {
   initialLogs?: Array<{ event: string; status: STATUS_PROVISION }>;
@@ -128,10 +129,9 @@ const CompanyDetail = function ({
       longitude: companyInfo?.longitude ?? "",
       latitude: companyInfo?.latitude ?? "",
       is_enabled: companyInfo?.is_enabled ?? true,
-      service_provided: companyInfo?.service_provided_data ?? [
-        { label: "Meals", type: "count" },
-      ],
+      service_provided: companyInfo?.service_provided_list ?? [],
       tags: companyTags,
+      time_zone: companyInfo?.time_zone ?? "",
       provider_types: companyProviderType,
       provisioning_status: companyInfo?.provisioning_status ?? "DRAFT",
       isUpdate: !!companyInfo,
@@ -176,9 +176,10 @@ const CompanyDetail = function ({
             provisioning_status: data?.provisioning_status,
             service_provided: data?.service_provided,
             tags: tagPayload,
+            time_zone: data?.time_zone,
             provider_types: providerTypePayload,
             staff_id: user?.id,
-            client_id: companyInfo?.client_id,
+            client_id: companyInfo?.id,
           },
           {
             update: !!companyInfo,
