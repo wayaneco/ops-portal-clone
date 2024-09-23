@@ -6,7 +6,7 @@ export const getCompanyById = async (id: string) => {
     const { data, error } = await supabase
       .from("clients_data_view")
       .select()
-      .eq("client_id", id)
+      .eq("id", id)
       .single();
 
     if (error) throw error?.message;

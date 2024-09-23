@@ -29,21 +29,21 @@ const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 // Function to convert strings to snake_case
 const toSnakeCase = (str: string) => {
   return str
-    .toLowerCase()      // Convert to lowercase
-    .replace(/\s+/g, '_'); // Replace spaces with underscores
-}
+    .toLowerCase() // Convert to lowercase
+    .replace(/\s+/g, "_"); // Replace spaces with underscores
+};
 
 // Formatter function to apply snake_case conversion to each label
 const formatData = (data: any) => {
-  return data.map((item: { label: any; }) => ({
+  return data.map((item: { label: any }) => ({
     ...item,
     label: toSnakeCase(item.label), // Format the label
   }));
-}
+};
 
 const transformPayload = (payload: Array<{ label: string; count: string }>) => {
   return payload?.reduce((accumator, currentValue) => {
-    accumator[formatData(currentValue.label)] = {
+    accumator[currentValue.label] = {
       hasCount: false,
       count: 0,
     };
@@ -61,7 +61,7 @@ export const upsertCompanyDetails = async (
     let filePath = params?.logo;
 
     const transformedServicedProvider = transformPayload(
-      params?.service_provided
+      formatData(params?.service_provided)
     );
 
     const generatedSchema = GenerateSchema.json(
@@ -79,7 +79,7 @@ export const upsertCompanyDetails = async (
           p_longitude: params?.longitude ?? "",
           p_name: params?.name,
           p_provider_type: params?.provider_types,
-          p_services_provided_list: params?.service_provided,
+          p_services_provided_list: formatData(params?.service_provided),
           p_staff_id: params?.staff_id,
           p_tags: params?.tags,
           p_time_zone: params?.time_zone ?? "",
@@ -94,7 +94,7 @@ export const upsertCompanyDetails = async (
           longitude: params?.longitude ?? "",
           name: params?.name,
           p_provider_type: params?.provider_types,
-          p_services_provided_list: params?.service_provided,
+          p_services_provided_list: formatData(params?.service_provided),
           p_tags: params?.tags,
           staff_id: params?.staff_id,
           time_zone: params?.time_zone ?? "",

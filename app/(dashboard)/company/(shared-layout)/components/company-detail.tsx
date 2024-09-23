@@ -128,7 +128,7 @@ const CompanyDetail = function ({
       longitude: companyInfo?.longitude ?? "",
       latitude: companyInfo?.latitude ?? "",
       is_enabled: companyInfo?.is_enabled ?? true,
-      service_provided: companyInfo?.service_provided_data ?? [],
+      service_provided: companyInfo?.service_provided_list ?? [],
       tags: companyTags,
       time_zone: companyInfo?.time_zone ?? "",
       provider_types: companyProviderType,
@@ -178,7 +178,7 @@ const CompanyDetail = function ({
             time_zone: data?.time_zone,
             provider_types: providerTypePayload,
             staff_id: user?.id,
-            client_id: companyInfo?.client_id,
+            client_id: companyInfo?.id,
           },
           {
             update: !!companyInfo,
