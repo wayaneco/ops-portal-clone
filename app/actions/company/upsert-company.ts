@@ -102,8 +102,6 @@ export const upsertCompanyDetails = async (
           zip_code: params?.zip_code ?? "",
         };
 
-    console.log(upsertClientParams);
-
     const { data: client_id, error: error_update_clients } = await supabase.rpc(
       update ? "update_clients" : "add_clients",
       upsertClientParams
