@@ -172,9 +172,7 @@ const CompanyDetail = function ({
             latitude: data?.latitude,
             is_enabled: data?.is_enabled,
             provisioning_status: data?.provisioning_status,
-            service_provided: servicesProvidedDataFormatter(
-              data?.service_provided
-            ),
+            service_provided: data?.service_provided,
             tags: tagPayload,
             provider_types: providerTypePayload,
             staff_id: user?.id,

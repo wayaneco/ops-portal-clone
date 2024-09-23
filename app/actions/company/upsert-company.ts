@@ -27,13 +27,13 @@ type UpsertCompanyDetailsType = {
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
 
 const transformPayload = (payload: Array<{ label: string; count: string }>) => {
-  return payload?.map((data) => {
-    const key = data?.label?.toLowerCase();
-
-    return {
-      [key]: 0,
-    };
-  });
+  return payload?.reduce((accumator, currentValue) => {
+    accumator[currentValue.label] = {
+      hasCount: false,
+      count: 0
+    }
+    return accumator
+}, {})
 };
 
 export const upsertCompanyDetails = async (
@@ -45,17 +45,15 @@ export const upsertCompanyDetails = async (
   try {
     let filePath = params?.logo;
 
-    const generatedSchema = GenerateSchema.json(
-      params.web_address,
-      params.service_provided
-    );
-
     const transformedServicedProvider = transformPayload(
       params?.service_provided
     );
-
-    console.log(transformedServicedProvider);
-
+    
+    const generatedSchema = GenerateSchema.json(
+      params.web_address,
+      transformedServicedProvider
+      );
+      
     const upsertClientParams = update
       ? {
           p_description: params?.description ?? "",
