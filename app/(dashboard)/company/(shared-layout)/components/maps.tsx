@@ -39,8 +39,8 @@ const MapComponent = () => {
     lat: number;
     lng: number;
   }>({
-    lat: Number(watchLatitude) || 40.7128,
-    lng: Number(watchLongitude) || 74.006,
+    lat: Number(watchLatitude),
+    lng: Number(watchLongitude),
   });
   const [addressSearch, setAddressSearch] = useState<string>("");
 
