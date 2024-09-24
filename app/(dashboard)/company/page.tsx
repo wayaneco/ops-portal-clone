@@ -21,3 +21,5 @@ const Page = async function () {
 };
 
 export default Page;
+
+export const dynamic = "force-dynamic";
