@@ -54,3 +54,5 @@ export default async function Layout(props: PropsWithChildren) {
     </SupabaseSessionProvider>
   );
 }
+
+export const revalidate = 3;

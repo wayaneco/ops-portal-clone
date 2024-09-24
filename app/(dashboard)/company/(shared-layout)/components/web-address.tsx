@@ -216,97 +216,95 @@ export const WebAddress = () => {
         )}
       </div>
       <div className="mt-10">
-        <div className="overflow-auto max-h-[calc(100vh-470px)]">
-          <div className="flex flex-col">
-            {(!!logs?.length || isProvisioning) && (
-              <>
-                <h3 className="text-xl font-semibold mb-4 text-black">
-                  Provision Log Content
-                </h3>
-                <List className="overflow-hidden">
-                  {logs?.map(
-                    (
-                      item: { event: string; status: STATUS_PROVISION },
-                      index: any,
-                      all
-                    ) => {
-                      const completedLength = all.filter(
-                        (log) => log?.status === "completed"
-                      ).length;
+        <div className="flex flex-col">
+          {!!logs?.length && (
+            <>
+              <h3 className="text-xl font-semibold mb-4 text-black">
+                Provision Log Content
+              </h3>
+              <List>
+                {logs?.map(
+                  (
+                    item: { event: string; status: STATUS_PROVISION },
+                    index: any,
+                    all
+                  ) => {
+                    const completedLength = all.filter(
+                      (log) => log?.status === "completed"
+                    ).length;
 
-                      const isNextProcess = completedLength === index;
+                    const isNextProcess = completedLength === index;
 
-                      return (
-                        <List.Item
-                          key={index}
-                          className="flex items-start gap-x-2 gap-y-3 h-auto"
-                        >
-                          {item?.status === "pending" ? (
-                            <Spinner
-                              className="w-5 h-5"
-                              size="md"
-                              color="primary"
-                            />
-                          ) : (
-                            <svg
-                              className="min-w-6 min-h-6 w-6 h-6 text-primary-500"
-                              aria-hidden="true"
-                              xmlns="http://www.w3.org/2000/svg"
-                              fill="none"
-                              viewBox="0 0 24 24"
-                            >
-                              <path
-                                stroke="currentColor"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
-                              />
-                            </svg>
-                          )}
-                          <span
-                            className={
-                              index < completedLength || isNextProcess
-                                ? "text-gray-800 font-medium"
-                                : "text-gray-400"
-                            }
+                    return (
+                      <List.Item
+                        key={index}
+                        className="flex items-start gap-x-2 gap-y-3 h-auto"
+                      >
+                        {item?.status === "pending" ? (
+                          <Spinner
+                            className="w-5 h-5"
+                            size="md"
+                            color="primary"
+                          />
+                        ) : (
+                          <svg
+                            className="min-w-6 min-h-6 w-6 h-6 text-primary-500"
+                            aria-hidden="true"
+                            xmlns="http://www.w3.org/2000/svg"
+                            fill="none"
+                            viewBox="0 0 24 24"
                           >
-                            {item.event}
-                          </span>
-                        </List.Item>
-                      );
-                    }
-                  )}
-                </List>
-              </>
-            )}
-            {isCompleted && (
-              <div className="mt-10">
-                <h3 className="text-xl font-semibold mb-4 text-black">
-                  SUCCESSFULLY PROVISIONED
-                </h3>
+                            <path
+                              stroke="currentColor"
+                              stroke-linecap="round"
+                              stroke-linejoin="round"
+                              stroke-width="2"
+                              d="M8.5 11.5 11 14l4-4m6 2a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z"
+                            />
+                          </svg>
+                        )}
+                        <span
+                          className={
+                            index < completedLength || isNextProcess
+                              ? "text-gray-800 font-medium"
+                              : "text-gray-400"
+                          }
+                        >
+                          {item.event}
+                        </span>
+                      </List.Item>
+                    );
+                  }
+                )}
+              </List>
+            </>
+          )}
+          {isCompleted && (
+            <div className="mt-10">
+              <h3 className="text-xl font-semibold mb-4 text-black">
+                SUCCESSFULLY PROVISIONED
+              </h3>
 
-                <div className="flex items-center">
-                  <strong
-                    className="text-primary-500 underline mr-1 cursor-pointer"
-                    onClick={() =>
-                      window.open(
-                        `https://${watchWebAddress.toLowerCase()}.everesteffect.com`,
-                        "_blank"
-                      )
-                    }
-                  >
-                    {`https://${watchWebAddress.toLowerCase()}.everesteffect.com`}
-                  </strong>
-                  <span className="mr-1 text-gray-700">is provisioned.</span>
-                </div>
-                <div className="mt-4">
-                  <strong>Note:</strong> DNS propagation takes 24-48 hours to be
-                  completed.
-                </div>
+              <div className="flex items-center">
+                <strong
+                  className="text-primary-500 underline mr-1 cursor-pointer"
+                  onClick={() =>
+                    window.open(
+                      `https://${watchWebAddress.toLowerCase()}.everesteffect.com`,
+                      "_blank"
+                    )
+                  }
+                >
+                  {`https://${watchWebAddress.toLowerCase()}.everesteffect.com`}
+                </strong>
+                <span className="mr-1 text-gray-700">is provisioned.</span>
               </div>
-            )}
-          </div>
+              <div className="mt-4">
+                <strong>Note:</strong> DNS propagation takes 24-48 hours to be
+                completed.
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </>
