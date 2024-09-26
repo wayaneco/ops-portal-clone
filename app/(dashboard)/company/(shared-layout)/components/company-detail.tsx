@@ -234,7 +234,7 @@ const CompanyDetail = function ({
         },
         body: JSON.stringify({
           name: `${watchWebAddress}-execution-${moment()
-            .format("MMM-DD-YYYY")
+            .format("MMM-DD-YYYY-HH-mm-SS")
             .toLowerCase()}`,
           input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
         }),

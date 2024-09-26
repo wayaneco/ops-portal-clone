@@ -64,11 +64,7 @@ const Navbar = () => {
           <FBNavbar.Link
             as={Link}
             active={REGEX_COMPANY_PAGE.test(pathname)}
-            href={
-              !isEnable([ROLE_NETWORK_ADMIN])
-                ? `/company/${selectedClient}`
-                : "/company"
-            }
+            href={!hasAdminRole ? `/company/${selectedClient}` : "/company"}
             className="text-base md:text-lg"
           >
             Company
