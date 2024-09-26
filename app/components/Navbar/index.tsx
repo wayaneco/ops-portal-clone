@@ -51,6 +51,7 @@ const Navbar = () => {
             as={Link}
             active={REGEX_USER_PAGE.test(pathname)}
             href={
+              !hasAdminRole ||
               !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN])
                 ? `/user/${user?.id}`
                 : "/user"
