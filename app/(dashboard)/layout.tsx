@@ -1,6 +1,5 @@
 import { PropsWithChildren } from "react";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 import { createClient } from "@/utils/supabase/server";
 
@@ -54,5 +53,3 @@ export default async function Layout(props: PropsWithChildren) {
     </SupabaseSessionProvider>
   );
 }
-
-export const revalidate = 3;
