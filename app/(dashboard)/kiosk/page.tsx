@@ -58,6 +58,7 @@ const Page = () => {
     if (selectedClient) {
       (async () => {
         setIsFetching(true);
+
         const initialData = clientData?.find(
           (det) => det.id === selectedClient
         );
@@ -87,7 +88,7 @@ const Page = () => {
 
         const { data } = await supabase
           .from("clients_data_view")
-          .select("name, web_address, provisioning_status, logo_url")
+          .select("id, name, web_address, provisioning_status, logo_url")
           .eq("id", selectedClient)
           .single();
 
@@ -96,7 +97,7 @@ const Page = () => {
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedClient]);
+  }, [clientData, selectedClient]);
 
   if (isFetching) {
     return (

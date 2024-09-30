@@ -52,7 +52,7 @@ const SIDEBAR_ITEMS = [
 
 export default function SidebarContextProvider(props: PropsWithChildren) {
   const router = useRouter();
-  const { currentPrivilege } = useUserClientProviderContext();
+  const { currentPrivilege, hasAdminRole } = useUserClientProviderContext();
 
   const [pathname, setPathname] = useState(() => {
     if (currentPrivilege?.includes(ROLE_NETWORK_ADMIN)) {
@@ -82,13 +82,16 @@ export default function SidebarContextProvider(props: PropsWithChildren) {
               <SidebarItemGroup className="flex-1">
                 {SIDEBAR_ITEMS.map((item) => {
                   const isActive = item.routeName === pathname;
+
                   if (
+                    !hasAdminRole &&
                     !item?.allowedRole.some((allowed) =>
                       currentPrivilege?.includes(allowed)
                     )
                   ) {
                     return null;
                   }
+
                   return (
                     <div
                       key={item.id}

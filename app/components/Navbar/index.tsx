@@ -46,12 +46,13 @@ const Navbar = () => {
 
     return (
       <>
-        {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
+        {(isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) ||
+          hasAdminRole) && (
           <FBNavbar.Link
             as={Link}
             active={REGEX_USER_PAGE.test(pathname)}
             href={
-              !hasAdminRole ||
+              !hasAdminRole &&
               !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN])
                 ? `/user/${user?.id}`
                 : "/user"
@@ -61,7 +62,8 @@ const Navbar = () => {
             User
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]) && (
+        {(isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]) ||
+          hasAdminRole) && (
           <FBNavbar.Link
             as={Link}
             active={REGEX_COMPANY_PAGE.test(pathname)}
@@ -71,7 +73,7 @@ const Navbar = () => {
             Company
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) && (
+        {(isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) || hasAdminRole) && (
           <FBNavbar.Link
             as={Link}
             active={pathname === "/kiosk"}
