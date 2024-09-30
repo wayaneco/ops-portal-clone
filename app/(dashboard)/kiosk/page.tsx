@@ -16,6 +16,7 @@ import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSess
 import * as ImagePlaceholder from "public/image-placeholder.jpg";
 import { createClient } from "@/utils/supabase/client";
 import { ClientsType } from "@/app/types";
+import { revalidatePath } from "@/app/actions/revalidate";
 
 const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
 const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
@@ -80,6 +81,8 @@ const Page = () => {
               provisioning_status: STATUS_COMPLETED,
             })
             .eq("id", selectedClient);
+
+          revalidatePath("/(dashboard)/company");
         }
 
         const { data } = await supabase

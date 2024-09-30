@@ -41,7 +41,7 @@ import { useUserClientProviderContext } from "@/app/components/Context/UserClien
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 
 import LoadingSkeleton from "../loading";
-import servicesProvidedDataFormatter from "@/utils/servicesProvidedDataFormatter";
+import { revalidatePath } from "@/app/actions/revalidate";
 
 type CompanyDetailType = {
   initialLogs?: Array<{ event: string; status: STATUS_PROVISION }>;
@@ -319,9 +319,12 @@ const CompanyDetail = function ({
               })
               .eq("id", companyInfo?.id);
 
+            revalidatePath("/(dashboard)/company");
+
             if (response?.error) {
               throw new Error(response?.error?.message);
             }
+
             setIsCompleted(true);
             setStartLogging(false);
             setShowConfetti(true);
