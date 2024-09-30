@@ -101,7 +101,7 @@ export const WebAddress = () => {
               disabled={isProvisioning || isCompleted}
               onKeyPress={(e) => {
                 e.persist();
-                if (!/^(\d|\w)+$/.test(e.key)) {
+                if (!/^([a-zA-Z0-9-])+$/.test(e.key)) {
                   e.preventDefault();
                 }
               }}

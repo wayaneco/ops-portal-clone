@@ -367,6 +367,8 @@ const CompanyDetail = function ({
             })
             .eq("id", companyInfo?.id);
 
+          revalidatePath("/(dashboard)/company");
+
           if (error_update_provision_status)
             throw error_update_provision_status?.message;
         }
