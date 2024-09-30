@@ -16,6 +16,8 @@ import { FormProvider, useForm } from "react-hook-form";
 import { ModalContentType } from "../types";
 import { UserModalForm } from "./modal-body";
 import { schema } from "./schema";
+import { useUserDetailFormContext } from "./user-detail-form";
+import { ROLE_PRIMARY_CONTACT } from "@/app/constant";
 
 type UserDetailModal = ModalProps & {
   modalContent: ModalContentType;
@@ -31,6 +33,12 @@ export function UserDetailModal(props: UserDetailModal) {
     client,
     ...otherProps
   } = props;
+  const { user: userData } = useUserDetailFormContext();
+
+  const isPrimaryContact = userData?.clients?.some((client: ClientsType) =>
+    client?.privileges?.includes(ROLE_PRIMARY_CONTACT)
+  );
+
   const methods = useForm({
     defaultValues: {
       info: { user, client },
@@ -63,7 +71,7 @@ export function UserDetailModal(props: UserDetailModal) {
       },
     },
     mode: "onChange",
-    resolver: yupResolver(schema(modalContent)),
+    resolver: yupResolver(schema(modalContent, isPrimaryContact)),
   });
 
   return (

@@ -1,3 +1,4 @@
+import * as React from "react";
 import { Label, TextInput, Button, List, Spinner } from "flowbite-react";
 import { useEffect, useRef, useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
@@ -149,7 +150,9 @@ export const WebAddress = () => {
             {(isProvisioning || startProvision) && <Spinner className="ml-2" />}
           </Button>
         ) : (
-          <Button color="primary">Terminate</Button>
+          <Button color="primary" disabled>
+            Terminate
+          </Button>
         )}
       </div>
       <div className="text-sm mt-2 ml-2 text-black">

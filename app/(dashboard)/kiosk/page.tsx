@@ -16,6 +16,7 @@ import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSess
 import * as ImagePlaceholder from "public/image-placeholder.jpg";
 import { createClient } from "@/utils/supabase/client";
 import { ClientsType } from "@/app/types";
+import { revalidatePath } from "@/app/actions/revalidate";
 
 const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
 const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
@@ -57,6 +58,7 @@ const Page = () => {
     if (selectedClient) {
       (async () => {
         setIsFetching(true);
+
         const initialData = clientData?.find(
           (det) => det.id === selectedClient
         );
@@ -80,11 +82,13 @@ const Page = () => {
               provisioning_status: STATUS_COMPLETED,
             })
             .eq("id", selectedClient);
+
+          revalidatePath("/(dashboard)/company");
         }
 
         const { data } = await supabase
           .from("clients_data_view")
-          .select("name, web_address, provisioning_status, logo_url")
+          .select("id, name, web_address, provisioning_status, logo_url")
           .eq("id", selectedClient)
           .single();
 
@@ -93,7 +97,7 @@ const Page = () => {
       })();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedClient]);
+  }, [clientData, selectedClient]);
 
   if (isFetching) {
     return (

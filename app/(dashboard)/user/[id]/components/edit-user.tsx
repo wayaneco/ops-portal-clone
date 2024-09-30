@@ -1,3 +1,4 @@
+import * as React from "react";
 import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
 import { Modal, Spinner, Button } from "flowbite-react";
@@ -8,6 +9,8 @@ import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSess
 import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { CustomTextInput } from "@/app/components/TextInput";
 import { CustomerDatepicker } from "@/app/components/Datepicker";
+import { ClientsType } from "@/app/types";
+import { ROLE_PRIMARY_CONTACT } from "@/app/constant";
 
 export const EditUser = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
