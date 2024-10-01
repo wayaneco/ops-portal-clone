@@ -54,12 +54,11 @@ export const WebAddress = () => {
         `${baseUrl}/api/check-hostname?web_address=${value}`
       );
 
-      const responseData = await response.text();
+      const data = await response.json();
+      const isExists = data.exists;
 
-      const isAlreadyExist = responseData === "true";
-
-      setIsWebAddressExist(isAlreadyExist);
-      setValue("isWebAddressValid", !isAlreadyExist);
+      setIsWebAddressExist(isExists);
+      setValue("isWebAddressValid", !isExists);
       setStatus({ isFetching: false, isDone: true });
     }
   }, 1000); // 1 SECONDS
