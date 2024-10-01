@@ -294,7 +294,6 @@ const CompanyDetail = function ({
             ({ status }: { status: "completed" }) => status === "completed"
           )?.length;
 
-          console.log(data_logs);
           if (totalCompletedEvent === FINISH_LENGTH) {
             const response = await supabase
               .from("clients")
@@ -302,8 +301,6 @@ const CompanyDetail = function ({
                 provisioning_status: STATUS_COMPLETED,
               })
               .eq("id", companyInfo?.id);
-
-            revalidatePath("/(dashboard)/company");
 
             if (response?.error) {
               throw new Error(response?.error?.message);

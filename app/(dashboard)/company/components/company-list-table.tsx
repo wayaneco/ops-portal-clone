@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import * as React from "react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import moment from "moment";
@@ -90,9 +91,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                     <Table.Row
                       key={client?.id}
                       className="bg-white cursor-pointer"
-                      onClick={() =>
-                        router.push(`/company/${client?.id}`)
-                      }
+                      onClick={() => router.push(`/company/${client?.id}`)}
                     >
                       <Table.Cell>
                         <div className="relative h-10 w-full">
