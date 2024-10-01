@@ -38,7 +38,7 @@ export const WebAddress = () => {
     status?.isFetching;
 
   const handleDebounce = useDebouncedCallback(async (value: string) => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
     if (companyInfo?.web_address === value) return;
 
     if (value) {

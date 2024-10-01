@@ -207,7 +207,7 @@ const CompanyDetail = function ({
   };
 
   const handleProvision = async () => {
-    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+    const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
 
     try {
       if (watchWebAddress !== companyInfo?.web_address) {
@@ -280,7 +280,7 @@ const CompanyDetail = function ({
     if (startLogging) {
       const fetchData = async () => {
         try {
-          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+          const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
           let data_logs = [];
           const response = await fetch(
             `${baseUrl}/api/get-initial-logs?web_address=${watchWebAddress}`
@@ -290,10 +290,11 @@ const CompanyDetail = function ({
           setLogs(data_logs);
 
           const FINISH_LENGTH = 7;
-          const totalCompletedEvent = data_logs?.log_content?.filter(
+          const totalCompletedEvent = data_logs?.filter(
             ({ status }: { status: "completed" }) => status === "completed"
           )?.length;
 
+          console.log(data_logs);
           if (totalCompletedEvent === FINISH_LENGTH) {
             const response = await supabase
               .from("clients")
@@ -331,7 +332,7 @@ const CompanyDetail = function ({
   useEffect(() => {
     const getLogs = async () => {
       try {
-        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
         let data_logs = [];
         const response = await fetch(
           `${baseUrl}/api/get-initial-logs?web_address=${watchWebAddress}`

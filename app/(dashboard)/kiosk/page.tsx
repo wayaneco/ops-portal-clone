@@ -32,7 +32,7 @@ const Page = () => {
   const { userInfo } = useSupabaseSessionContext();
 
   const clientData = hasAdminRole ? clientLists : userInfo?.clients;
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
   useEffect(() => {
     if (selectedClient) {
       (async () => {
