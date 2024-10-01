@@ -41,6 +41,7 @@ export const WebAddress = () => {
     status?.isFetching;
 
   const handleDebounce = useDebouncedCallback(async (value: string) => {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
     if (companyInfo?.web_address === value) return;
 
     if (value) {
@@ -50,20 +51,14 @@ export const WebAddress = () => {
       });
 
       const response = await fetch(
-        `${provisionApiUrl}/check-hostname?hostname=${value}`,
-        {
-          method: "GET",
-          headers: {
-            "x-api-key": xApiKey,
-          },
-        }
+        `${baseUrl}/api/check-hostname?web_address=${value}`
       );
-      const responseData = await response.text();
 
-      const isAlreadyExist = responseData === "true";
+      const data = await response.json();
+      const isExists = data.exists;
 
-      setIsWebAddressExist(isAlreadyExist);
-      setValue("isWebAddressValid", !isAlreadyExist);
+      setIsWebAddressExist(isExists);
+      setValue("isWebAddressValid", !isExists);
       setStatus({ isFetching: false, isDone: true });
     }
   }, 1000); // 1 SECONDS

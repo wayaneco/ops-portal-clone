@@ -18,27 +18,6 @@ import { createClient } from "@/utils/supabase/client";
 import { ClientsType } from "@/app/types";
 import { revalidatePath } from "@/app/actions/revalidate";
 
-const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
-const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
-const bucketName = process.env["NEXT_PUBLIC_PROVISION_BUCKET_NAME"];
-
-const getInitialLogs = async (web_address: string) => {
-  try {
-    const provisionResponse = await axios.get<any>(
-      `${provisionApiEnv}/provision-logs?provider_name=${web_address}&bucket_name=${bucketName}`,
-      {
-        headers: {
-          "x-api-key": xApiKey,
-        },
-      }
-    );
-
-    return provisionResponse?.data?.log_content;
-  } catch (_) {
-    return [];
-  }
-};
-
 const Page = () => {
   const supabase = createClient();
 
@@ -53,22 +32,24 @@ const Page = () => {
   const { userInfo } = useSupabaseSessionContext();
 
   const clientData = hasAdminRole ? clientLists : userInfo?.clients;
-
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
   useEffect(() => {
     if (selectedClient) {
       (async () => {
         setIsFetching(true);
-
+        let initial_logs = [];
         const initialData = clientData?.find(
           (det) => det.id === selectedClient
         );
 
-        const response = await getInitialLogs(
-          initialData?.web_address as string
+        const response = await fetch(
+          `${baseUrl}/api/get-initial-logs?web_address=${initialData?.web_address}`
         );
 
+        initial_logs = await response.json();
+
         const isCompleted =
-          response?.filter(
+          initial_logs?.filter(
             (res: { status: STATUS_PROVISION }) => res?.status === "completed"
           )?.length === 7;
 

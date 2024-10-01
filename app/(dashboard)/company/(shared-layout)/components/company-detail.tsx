@@ -68,7 +68,6 @@ export const ProvisionLoggingContext = createContext<
 
 const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
 const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
-const bucketName = process.env["NEXT_PUBLIC_PROVISION_BUCKET_NAME"];
 
 export const useProvisionLoggingContext = () => {
   const context = useContext<ProvisionLoggingContextType | undefined>(
@@ -214,6 +213,8 @@ const CompanyDetail = function ({
   };
 
   const handleProvision = async () => {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
     try {
       if (watchWebAddress !== companyInfo?.web_address) {
         const { error: error_update_web_address } = await supabase
@@ -226,19 +227,9 @@ const CompanyDetail = function ({
         if (error_update_web_address) throw error_update_web_address?.message;
       }
 
-      const response = await fetch(`${provisionApiEnv}/provision`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": xApiKey as string,
-        },
-        body: JSON.stringify({
-          name: `${watchWebAddress}-execution-${moment()
-            .format("MMM-DD-YYYY-HH-mm-SS")
-            .toLowerCase()}`,
-          input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
-        }),
-      });
+      const response = await fetch(
+        `${baseUrl}/api/provision?web_address=${watchWebAddress}`
+      );
 
       const { data, error: error_update_provision_status } = await supabase
         .from("clients")
@@ -295,19 +286,17 @@ const CompanyDetail = function ({
     if (startLogging) {
       const fetchData = async () => {
         try {
-          const { data } = await axios.get<any>(
-            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=${bucketName}`,
-            {
-              headers: {
-                "x-api-key": xApiKey,
-              },
-            }
+          const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+          let data_logs = [];
+          const response = await fetch(
+            `${baseUrl}/api/get-initial-logs?web_address=${watchWebAddress}`
           );
 
-          setLogs(data?.log_content);
+          data_logs = await response.json();
+          setLogs(data_logs);
 
           const FINISH_LENGTH = 7;
-          const totalCompletedEvent = data?.log_content?.filter(
+          const totalCompletedEvent = data_logs?.log_content?.filter(
             ({ status }: { status: "completed" }) => status === "completed"
           )?.length;
 
@@ -348,16 +337,12 @@ const CompanyDetail = function ({
   useEffect(() => {
     const getLogs = async () => {
       try {
-        const { data } = await axios.get<any>(
-          `${provisionApiEnv}/provision-logs?provider_name=${
-            watchWebAddress || companyInfo?.web_address
-          }&bucket_name=${bucketName}`,
-          {
-            headers: {
-              "x-api-key": xApiKey,
-            },
-          }
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+        let data_logs = [];
+        const response = await fetch(
+          `${baseUrl}/api/get-initial-logs?web_address=${watchWebAddress}`
         );
+        data_logs = await response.json();
 
         if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
           const { error: error_update_provision_status } = await supabase
@@ -373,7 +358,7 @@ const CompanyDetail = function ({
             throw error_update_provision_status?.message;
         }
 
-        setLogs(data?.log_content);
+        setLogs(data_logs);
       } catch (error) {
         console.log(error);
       }
