@@ -1,8 +1,5 @@
 "use client";
 
-import moment from "moment";
-import axios from "axios";
-
 import { TextInput, Button, Spinner, Toast } from "flowbite-react";
 import {
   ChangeEvent,
@@ -65,9 +62,6 @@ type ProvisionLoggingContextType = {
 export const ProvisionLoggingContext = createContext<
   ProvisionLoggingContextType | undefined
 >(undefined);
-
-const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
-const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"];
 
 export const useProvisionLoggingContext = () => {
   const context = useContext<ProvisionLoggingContextType | undefined>(

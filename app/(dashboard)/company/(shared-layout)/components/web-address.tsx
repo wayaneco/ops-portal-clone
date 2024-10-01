@@ -8,9 +8,6 @@ import { useProvisionLoggingContext } from "./company-detail";
 
 import { REGEX_WEB_ADDRESS_FIELD, STATUS_PROVISION } from "@/app/constant";
 
-const provisionApiUrl = process.env["NEXT_PUBLIC_PROVISION_API"] as string;
-const xApiKey = process.env["NEXT_PUBLIC_PROVISION_X_API_KEY"] as string;
-
 export const WebAddress = () => {
   const inputRef = useRef();
   const [status, setStatus] = useState({
