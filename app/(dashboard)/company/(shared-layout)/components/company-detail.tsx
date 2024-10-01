@@ -213,6 +213,8 @@ const CompanyDetail = function ({
   };
 
   const handleProvision = async () => {
+    const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
+
     try {
       if (watchWebAddress !== companyInfo?.web_address) {
         const { error: error_update_web_address } = await supabase
@@ -225,19 +227,9 @@ const CompanyDetail = function ({
         if (error_update_web_address) throw error_update_web_address?.message;
       }
 
-      const response = await fetch(`${provisionApiEnv}/provision`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-api-key": xApiKey as string,
-        },
-        body: JSON.stringify({
-          name: `${watchWebAddress}-execution-${moment()
-            .format("MMM-DD-YYYY-HH-mm-SS")
-            .toLowerCase()}`,
-          input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
-        }),
-      });
+      const response = await fetch(
+        `${baseUrl}/api/provision?web_address=${watchWebAddress}`
+      );
 
       const { data, error: error_update_provision_status } = await supabase
         .from("clients")
