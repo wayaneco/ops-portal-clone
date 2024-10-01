@@ -9,7 +9,8 @@ const nextConfig = {
     NEXT_PUBLIC_GOOGLE_MAP_API: process.env["NEXT_PUBLIC_GOOGLE_MAP_API"],
     NEXT_PUBLIC_PROVISION_API: process.env["NEXT_PUBLIC_PROVISION_API"],
     NEXT_PUBLIC_APP_BASE_URL: process.env["NEXT_PUBLIC_APP_BASE_URL"],
-    NEXT_PRIVATE_PROVISION_X_API_KEY: process.env["NEXT_PRIVATE_PROVISION_X_API_KEY"],
+    NEXT_PRIVATE_PROVISION_X_API_KEY:
+      process.env["NEXT_PRIVATE_PROVISION_X_API_KEY"],
   },
   experimental: {
     serverActions: {
@@ -34,6 +35,12 @@ const nextConfig = {
       {
         protocol: "https",
         hostname: "bgybyqnqoclsxyiizloj.supabase.co",
+        port: "",
+        pathname: "/**",
+      },
+      {
+        protocol: "https",
+        hostname: "feyawyriysjfcfhnhkdc.supabase.co",
         port: "",
         pathname: "/**",
       },
