@@ -32,9 +32,8 @@ export async function inviteUser({
   try {
     const { data, error: generate_link_error } =
       await supabaseAdmin.auth.admin.generateLink({
-        type: "signup",
+        type: "magiclink",
         email,
-        password,
       });
 
     if (generate_link_error) throw generate_link_error?.message;
