@@ -59,7 +59,7 @@ export const UserClientContextProvider = memo(
           return [ROLE_NETWORK_ADMIN];
         }
 
-        const defaultId = clientsData.length
+        const defaultId = clientsData?.length
           ? (clientsData?.[0]?.id as string)
           : "";
 

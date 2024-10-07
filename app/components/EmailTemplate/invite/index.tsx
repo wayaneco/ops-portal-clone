@@ -2,7 +2,7 @@ import * as React from "react";
 
 import { Html, Body, Img, Link } from "@react-email/components";
 
-interface EmailTemplateProps {
+interface InviteEmailTemplateProps {
   email: string;
   client: string;
   confirmationLink: string;
@@ -11,14 +11,9 @@ interface EmailTemplateProps {
   role: string;
 }
 
-export const EmailTemplate: React.FC<Readonly<EmailTemplateProps>> = ({
-  email,
-  client,
-  confirmationLink,
-  fullName,
-  password,
-  role,
-}) => (
+export const InviteEmailTemplate: React.FC<
+  Readonly<InviteEmailTemplateProps>
+> = ({ email, client, confirmationLink, fullName, password, role }) => (
   <Html>
     <Body>
       <table

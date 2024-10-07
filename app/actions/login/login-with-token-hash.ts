@@ -16,7 +16,7 @@ export const loginWithTokenHash = async (token_hash: string) => {
       data: { user },
       error,
     } = await supabase.auth.verifyOtp({
-      type: "signup",
+      type: "invite",
       token_hash,
     });
 

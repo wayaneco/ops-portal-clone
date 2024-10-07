@@ -1,5 +1,6 @@
 "use client";
 
+import * as React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -12,6 +13,11 @@ import { CustomTextInput } from "@/app/components/TextInput";
 import { loginWithTokenHash } from "@/app/actions/login/login-with-token-hash";
 
 import schema from "./schema";
+import {
+  LoginContextType,
+  useLoginContextProvider,
+} from "@/app/components/Context/LoginContext";
+import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 
 type LoginFormProps = {
   loginUser: (payload: InferType<typeof schema>) => any;
@@ -25,6 +31,9 @@ const defaultValues = {
 export function LoginForm({ loginUser }: LoginFormProps) {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const isFirstRender = useIsFirstRender();
+
+  const { updateInfo } = useLoginContextProvider();
 
   const token_hash = searchParams.get("token_hash");
 
@@ -46,7 +55,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
 
           if (!response.ok) throw response?.message;
 
-          router?.replace(response?.message);
+          router?.replace(response.message);
         } catch (error) {
           setIsSubmitting(false);
           console.log(error);
@@ -58,6 +67,28 @@ export function LoginForm({ loginUser }: LoginFormProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token_hash]);
 
+  if (isFirstRender) {
+    return (
+      <>
+        <div className="text-center">
+          <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-full mb-4" />
+          <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-full mb-4" />
+          <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-2/4 mb-4 mx-auto" />
+        </div>
+        <div className="flex gap-x-4">
+          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
+          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
+          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
+          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
+          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
+          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
+        </div>
+        <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-full mb-4" />
+        <div className="h-10 bg-gray-200 rounded-sm dark:bg-gray-700 w-full mb-4" />
+      </>
+    );
+  }
+
   return (
     <form
       onSubmit={handleSubmit(async (data: InferType<typeof schema>) => {
@@ -67,12 +98,11 @@ export function LoginForm({ loginUser }: LoginFormProps) {
 
           if (!response.ok) throw response?.message;
 
-          showToast({
-            error: false,
-            message: "Login succeeded.",
+          Object.keys(response?.data).map((key) => {
+            updateInfo(key as keyof LoginContextType, response?.data[key]);
           });
 
-          router?.replace(response?.message);
+          router.replace("/otp");
         } catch (error) {
           showToast({ error: true, message: "Invalid username and password." });
           setIsSubmitting(false);

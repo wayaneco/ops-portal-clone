@@ -58,6 +58,7 @@ export async function addUser(
     } = await supabaseAdmin.auth.admin.createUser({
       email: params?.email,
       password,
+      email_confirm: true,
     });
 
     const response = await inviteUser({

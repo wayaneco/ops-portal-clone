@@ -26,7 +26,7 @@ export const schema = Yup.object().shape({
   email: Yup.string()
     .required("This field is required.")
     .matches(REGEX_EMAIL, "Invalid email address"),
-  primary_phone: Yup.string(),
+  primary_phone: Yup.string().required("This field is required."),
   addr_line_1: Yup.string(),
   addr_line_2: Yup.string(),
   city: Yup.string(),

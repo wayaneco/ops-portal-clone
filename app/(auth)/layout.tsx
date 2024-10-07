@@ -3,18 +3,17 @@ import { Card } from "flowbite-react";
 import { redirect } from "next/navigation";
 import Image from "next/image";
 
-import { LoginForm } from "./components/form";
 import { createClient } from "@/utils/supabase/server";
 
-import { loginUser } from "../actions/login/login-user";
-
 import * as EverestEffect from "public/everest-effect.svg";
+import { PropsWithChildren } from "react";
+import { LoginContextProvider } from "../components/Context/LoginContext";
 
 export const metadata: Metadata = {
   title: "Everest Effect Portal - Login",
 };
 
-export default async function Page() {
+export default async function Page({ children }: PropsWithChildren) {
   const supabase = createClient();
 
   const {
@@ -30,8 +29,8 @@ export default async function Page() {
           <div className="relative h-20 pb-10">
             <Image src={EverestEffect} alt="Everest Effect Logo" fill />
           </div>
-          <div className="my-4 h-px bg-gray-200"></div>
-          <LoginForm loginUser={loginUser} />
+          <div className="my-4 h-px bg-gray-200" />
+          <LoginContextProvider>{children}</LoginContextProvider>
         </Card>
       </div>
     </div>

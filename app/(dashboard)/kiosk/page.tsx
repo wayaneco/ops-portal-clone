@@ -18,6 +18,8 @@ import { createClient } from "@/utils/supabase/client";
 import { ClientsType } from "@/app/types";
 import { revalidatePath } from "@/app/actions/revalidate";
 
+const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+
 const Page = () => {
   const supabase = createClient();
 
@@ -32,7 +34,7 @@ const Page = () => {
   const { userInfo } = useSupabaseSessionContext();
 
   const clientData = hasAdminRole ? clientLists : userInfo?.clients;
-  const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+
   useEffect(() => {
     if (selectedClient) {
       (async () => {
