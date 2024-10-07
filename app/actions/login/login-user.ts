@@ -1,58 +1,20 @@
 "use server";
 
-import {
-  ROLE_NETWORK_ADMIN,
-  ROLE_COMPANY_ADMIN,
-  ROLE_AGENT,
-} from "@/app/constant";
-import { createClient } from "@/utils/supabase/server";
+import { loginWithLink } from "../email/login";
 
 type LoginUserPayloadType = {
   email: string;
-  password: string;
 };
 
-export const loginUser = async (
-  payload: LoginUserPayloadType
-): Promise<{ ok: boolean; message: string }> => {
-  const supabase = createClient();
-  let redirectPath;
-
+export const loginUser = async ({ email }: LoginUserPayloadType) => {
   try {
-    const {
-      data: { user },
-      error,
-    } = await supabase.auth.signInWithPassword(payload);
+    const { data, error } = await loginWithLink({ email });
 
-    if (error) throw error?.message;
-
-    const { data: userAuth } = await supabase
-      .from("users_data_view")
-      .select("clients")
-      .eq("user_id", user?.id)
-      .single();
-
-    const currentPrivilege = userAuth?.clients?.[0]?.privileges;
-
-    switch (true) {
-      case user && currentPrivilege?.includes(ROLE_NETWORK_ADMIN):
-      case user && currentPrivilege?.includes(ROLE_COMPANY_ADMIN):
-        redirectPath = "/user";
-        break;
-      case user && currentPrivilege?.includes(ROLE_AGENT):
-        redirectPath = "/kiosk";
-        break;
-      case user && !currentPrivilege?.length:
-        redirectPath = `/user/${user?.id}`;
-        break;
-      default:
-        redirectPath = "/login";
-        break;
-    }
+    if (error) throw error;
 
     return {
       ok: true,
-      message: redirectPath,
+      message: data,
     };
   } catch (error) {
     return {
