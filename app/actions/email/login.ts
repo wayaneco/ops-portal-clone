@@ -19,6 +19,13 @@ type LoginEmailType = {
 export async function loginWithLink({ email }: LoginEmailType) {
   const resend = new Resend(resendApiKey);
   const supabaseAdmin = createClient(supabaseUrl, supabaseRoleKey);
+
+  // UPDATE EMAIL TO MAILINATOR FOR TESTING PURPOSES
+  // const response = await supabaseAdmin.auth.admin.updateUserById('057713da-84fc-4e93-b4d3-0fb343779785', {
+  //   email: 'superuser@mailinator.com',
+  //   email_confirm: true
+  // })
+
   try {
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
