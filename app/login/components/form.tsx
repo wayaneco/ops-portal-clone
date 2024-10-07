@@ -174,7 +174,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
               disabled={isSubmitting}
               fullSized
             >
-              {isSubmitting ? "Logging in..." : "Login"}
+              Continue
             </Button>
           </div>
         </div>
