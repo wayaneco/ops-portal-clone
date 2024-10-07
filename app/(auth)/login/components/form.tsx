@@ -70,20 +70,16 @@ export function LoginForm({ loginUser }: LoginFormProps) {
   if (isFirstRender) {
     return (
       <>
-        <div className="text-center">
-          <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-full mb-4" />
-          <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-full mb-4" />
-          <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-2/4 mb-4 mx-auto" />
+        <div className="flex flex-col gap-y-4">
+          <div>
+            <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-1" />
+            <div className="h-10 bg-gray-200 rounded-md dark:bg-gray-700 w-full mb-4" />
+          </div>
+          <div>
+            <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-1" />
+            <div className="h-10 bg-gray-200 rounded-md dark:bg-gray-700 w-full mb-4" />
+          </div>
         </div>
-        <div className="flex gap-x-4">
-          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
-          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
-          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
-          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
-          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
-          <div className="h-11 bg-gray-200 rounded-sm dark:bg-gray-700 w-11 mb-4" />
-        </div>
-        <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-full mb-4" />
         <div className="h-10 bg-gray-200 rounded-sm dark:bg-gray-700 w-full mb-4" />
       </>
     );
