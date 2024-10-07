@@ -8,17 +8,21 @@ import {
   ROLE_AGENT,
 } from "@/app/constant";
 
-export const loginWithTokenHash = async (token_hash: string) => {
+export const verifyLogin = async (token_hash: string) => {
   try {
     const supabase = createClient();
 
     const {
-      data: { user },
+      data: { user, session },
       error,
     } = await supabase.auth.verifyOtp({
-      type: "signup",
+      type: "magiclink",
       token_hash,
     });
+
+    if (session) {
+      await supabase.auth.setSession(session);
+    }
 
     if (error) throw error?.message;
 
