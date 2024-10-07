@@ -2,7 +2,10 @@ import { createClient } from "@/utils/supabase/server";
 import { NextApiResponse } from "next";
 import { NextRequest } from "next/server";
 
-export async function POST(request: NextRequest, response: NextApiResponse) {
+export async function POST(
+  request: NextRequest,
+  response: NextApiResponse
+): Promise<any> {
   const supabase = createClient();
   try {
     const { error } = await supabase.rpc("disable_expired_otps");
