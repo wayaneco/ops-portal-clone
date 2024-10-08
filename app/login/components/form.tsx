@@ -45,9 +45,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
     try {
       setIsSubmitting(true);
       const response = await loginUser(data);
-
       if (!response.ok) throw response?.message;
-
       setIsEmailSent(true);
     } catch (error) {
       showToast({ error: true, message: error as string });

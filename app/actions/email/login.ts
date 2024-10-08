@@ -27,6 +27,19 @@ export async function loginWithLink({ email }: LoginEmailType) {
   // })
 
   try {
+    const { data: user_data } = await supabaseAdmin
+      .from("users_data_view")
+      .select("user_id")
+      .eq("email", email)
+      .single();
+
+    if (!user_data) {
+      return {
+        data: null,
+        error: "Email is not exist.",
+      };
+    }
+
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
       type: "magiclink",
       email,
@@ -53,7 +66,7 @@ export async function loginWithLink({ email }: LoginEmailType) {
   } catch (error) {
     return {
       data: null,
-      message: error,
+      error: error,
     };
   }
 }
