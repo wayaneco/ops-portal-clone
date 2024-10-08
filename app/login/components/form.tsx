@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Button } from "flowbite-react";
-import { useRouter } from "next/navigation";
 import { InferType } from "yup";
 import { useForm, Controller } from "react-hook-form";
 import Image from "next/image";
@@ -26,7 +25,6 @@ const defaultValues = {
 };
 
 export function LoginForm({ loginUser }: LoginFormProps) {
-  const router = useRouter();
   const isFirstRender = useIsFirstRender();
 
   const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
