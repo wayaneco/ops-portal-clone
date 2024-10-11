@@ -4,12 +4,12 @@ import { Html, Body, Img, Link } from "@react-email/components";
 
 interface OTPEmailTemplate {
   email: string;
-  otp: string;
+  code: string;
 }
 
 export const OTPEmailTemplate: React.FC<Readonly<OTPEmailTemplate>> = ({
   email,
-  otp,
+  code,
 }) => (
   <Html>
     <Body>
@@ -86,7 +86,7 @@ export const OTPEmailTemplate: React.FC<Readonly<OTPEmailTemplate>> = ({
                               margin: "2rem 0",
                             }}
                           >
-                            {otp.split("").map((value: string, i: number) => (
+                            {code.split("").map((value: string, i: number) => (
                               <div
                                 key={i}
                                 style={{

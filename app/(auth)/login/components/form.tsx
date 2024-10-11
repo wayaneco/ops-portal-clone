@@ -1,16 +1,15 @@
 "use client";
 
 import * as React from "react";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "flowbite-react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import { InferType } from "yup";
 import { useForm, Controller } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 
 import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { CustomTextInput } from "@/app/components/TextInput";
-import { loginWithTokenHash } from "@/app/actions/login/login-with-token-hash";
 
 import schema from "./schema";
 import {
@@ -20,22 +19,21 @@ import {
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 
 type LoginFormProps = {
-  loginUser: (payload: InferType<typeof schema>) => any;
+  sendOTP: (data: { email: string; type: "sms" | "email" }) => Promise<{
+    data: any;
+    error: any;
+  }>;
 };
 
 const defaultValues = {
   email: "",
-  password: "",
 };
 
-export function LoginForm({ loginUser }: LoginFormProps) {
-  const searchParams = useSearchParams();
+export function LoginForm({ sendOTP }: LoginFormProps) {
   const router = useRouter();
   const isFirstRender = useIsFirstRender();
 
   const { updateInfo } = useLoginContextProvider();
-
-  const token_hash = searchParams.get("token_hash");
 
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { showToast } = useToastContext();
@@ -46,35 +44,10 @@ export function LoginForm({ loginUser }: LoginFormProps) {
     mode: "onChange",
   });
 
-  useEffect(() => {
-    if (token_hash) {
-      (async () => {
-        try {
-          setIsSubmitting(true);
-          const response = await loginWithTokenHash(token_hash as string);
-
-          if (!response.ok) throw response?.message;
-
-          router?.replace(response.message);
-        } catch (error) {
-          setIsSubmitting(false);
-          console.log(error);
-          router?.replace("/login");
-        }
-      })();
-    }
-
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token_hash]);
-
   if (isFirstRender) {
     return (
       <>
         <div className="flex flex-col gap-y-4">
-          <div>
-            <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-1" />
-            <div className="h-10 bg-gray-200 rounded-md dark:bg-gray-700 w-full mb-4" />
-          </div>
           <div>
             <div className="h-3 bg-gray-200 rounded-full dark:bg-gray-700 w-20 mb-1" />
             <div className="h-10 bg-gray-200 rounded-md dark:bg-gray-700 w-full mb-4" />
@@ -87,20 +60,20 @@ export function LoginForm({ loginUser }: LoginFormProps) {
 
   return (
     <form
-      onSubmit={handleSubmit(async (data: InferType<typeof schema>) => {
+      onSubmit={handleSubmit(async ({ email }: InferType<typeof schema>) => {
         try {
           setIsSubmitting(true);
-          const response = await loginUser(data);
+          const { data, error } = await sendOTP({ email, type: "email" });
 
-          if (!response.ok) throw response?.message;
+          if (error) throw error;
 
-          Object.keys(response?.data).map((key) => {
-            updateInfo(key as keyof LoginContextType, response?.data[key]);
+          Object.keys(data).map((key) => {
+            updateInfo(key as keyof LoginContextType, data[key]);
           });
 
           router.replace("/otp");
-        } catch (error) {
-          showToast({ error: true, message: "Invalid username and password." });
+        } catch (_error) {
+          showToast({ error: true, message: "Invalid" });
           setIsSubmitting(false);
         }
       })}
@@ -139,44 +112,10 @@ export function LoginForm({ loginUser }: LoginFormProps) {
             />
           )}
         />
-        <Controller
-          name="password"
-          control={control}
-          render={({ field, fieldState: { error } }) => (
-            <CustomTextInput
-              disabled={isSubmitting}
-              required
-              label="Password"
-              type="password"
-              placeholder="Password"
-              error={error?.message}
-              rightIcon={
-                <svg
-                  className={`w-6 h-6 ${
-                    error ? "text-red-500" : "text-gray-800"
-                  }`}
-                  aria-hidden="true"
-                  xmlns="http://www.w3.org/2000/svg"
-                  width="24"
-                  height="24"
-                  fill="currentColor"
-                  viewBox="0 0 24 24"
-                >
-                  <path
-                    fillRule="evenodd"
-                    d="M8 10V7a4 4 0 1 1 8 0v3h1a2 2 0 0 1 2 2v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7a2 2 0 0 1 2-2h1Zm2-3a2 2 0 1 1 4 0v3h-4V7Zm2 6a1 1 0 0 1 1 1v3a1 1 0 1 1-2 0v-3a1 1 0 0 1 1-1Z"
-                    clipRule="evenodd"
-                  />
-                </svg>
-              }
-              {...field}
-            />
-          )}
-        />
       </div>
       <div className="mt-8">
         <Button type="submit" color="primary" disabled={isSubmitting} fullSized>
-          {isSubmitting ? "Logging in..." : "Login"}
+          Continue
         </Button>
       </div>
     </form>

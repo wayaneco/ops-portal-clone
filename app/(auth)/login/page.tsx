@@ -1,6 +1,6 @@
 import { Metadata } from "next";
 
-import { loginUser } from "@/actions/login/login-user";
+import { sendOTP } from "@/app/actions/login/send-otp";
 
 import { LoginForm } from "./components/form";
 
@@ -9,5 +9,5 @@ export const metadata: Metadata = {
 };
 
 export default async function Page() {
-  return <LoginForm loginUser={loginUser} />;
+  return <LoginForm sendOTP={sendOTP} />;
 }

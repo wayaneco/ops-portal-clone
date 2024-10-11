@@ -37,7 +37,7 @@ export function OTPForm() {
   const router = useRouter();
   const isFirstRender = useIsFirstRender();
 
-  const { id, email, access_token, phone_number, redirectUrl, refresh_token } =
+  const { id, email, phone_number, token_hash, redirectUrl, type } =
     useLoginContextProvider();
 
   if (!id) {
@@ -120,19 +120,22 @@ export function OTPForm() {
             ?.map((otp) => otp.value)
             .join("") as string;
 
-          const { data: otp_data, error: otp_error } = await supabase.rpc(
-            "verify_otp",
-            {
-              p_user_id: id,
-              p_otp_code: otp_code,
-            }
-          );
+          const { error: otp_error } = await supabase.rpc("verify_otp", {
+            p_user_id: id,
+            p_otp_code: otp_code,
+          });
 
           if (otp_error) throw otp_error.message;
 
-          await supabase.auth.setSession({
-            access_token,
-            refresh_token,
+          const { error: verify_otp_error } = await supabase.auth.verifyOtp({
+            token_hash,
+            type: "magiclink",
+          });
+
+          if (verify_otp_error) throw verify_otp_error.message;
+
+          showToast({
+            message: `Verification successful! You're now logged in.`,
           });
 
           router.replace(redirectUrl as string);
@@ -145,14 +148,13 @@ export function OTPForm() {
         }
       })}
     >
-      <div className="mb-5 text-center">
+      <div className="mb-8 text-center">
         <p className="text-sm">
-          {/* {`We have send you access code via SMS for mobile number verification
-          ending *****${phone_number.slice(-4)}`} */}
-          {`We have send you access code via email for verification containing ${email.slice(
-            0,
-            1
-          )}****@${email.split("@")[1]}`}
+          {`To complete your login, enter the one-time PIN we’ve just sent to your ${
+            type === "email"
+              ? `email address ${email.slice(0, 1)}****@${email.split("@")[1]}`
+              : `phone number ending ${phone_number.slice(-4)}`
+          }`}
         </p>
       </div>
       <div className="flex gap-x-4">
@@ -232,16 +234,20 @@ export function OTPForm() {
           );
         })}
       </div>
-
-      <div className="mt-4">
-        <p className="text-sm">
+      <div className="my-8">
+        <p className="text-sm mb-3">
           Didn&apos;t receive code?{" "}
+          {!!countDown && (
+            <span>{`${countDown}${countDown > 1 ? "secs" : "sec"}`}</span>
+          )}
+        </p>
+        <p className="text-sm">
           <u
-            className="text-primary-500 cursor-pointer"
+            className="text-primary-500 cursor-pointer block"
             onClick={async () => {
               try {
                 setIsResending(true);
-                const { data, error } = await supabase.rpc("generate_otp", {
+                const { error } = await supabase.rpc("generate_otp", {
                   p_user_id: id,
                 });
 
@@ -261,14 +267,16 @@ export function OTPForm() {
               }
             }}
           >
-            Resend Code{" "}
+            Resend code{" "}
             {isResending && (
               <Spinner color="primary" className="ml-2 size-3.5" />
             )}
-          </u>{" "}
-          {!!countDown && (
-            <span>{`${countDown}${countDown > 1 ? "secs" : "sec"}`}</span>
-          )}
+          </u>
+        </p>
+        <p className="text-sm">
+          <u className="text-primary-500 cursor-pointer">
+            Resend code via email
+          </u>
         </p>
       </div>
       <div className="mt-8">

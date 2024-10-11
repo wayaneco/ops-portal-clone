@@ -7,8 +7,8 @@ export type LoginContextType = {
   email: string;
   phone_number: string;
   redirectUrl: string;
-  access_token: string;
-  refresh_token: string;
+  token_hash: string;
+  type: string;
   updateInfo: (key: keyof LoginContextType, value: string) => void;
 };
 
@@ -26,8 +26,8 @@ export function LoginContextProvider(props: LoginContextProviderProps) {
     email: "",
     phone_number: "",
     redirectUrl: "",
-    access_token: "",
-    refresh_token: "",
+    token_hash: "",
+    type: "",
   });
 
   return (
