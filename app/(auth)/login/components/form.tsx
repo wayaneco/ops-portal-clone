@@ -63,7 +63,7 @@ export function LoginForm({ sendOTP }: LoginFormProps) {
       onSubmit={handleSubmit(async ({ email }: InferType<typeof schema>) => {
         try {
           setIsSubmitting(true);
-          const { data, error } = await sendOTP({ email, type: "email" });
+          const { data, error } = await sendOTP({ email, type: "sms" });
 
           if (error) throw error;
 

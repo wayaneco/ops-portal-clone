@@ -62,11 +62,11 @@ export const sendOTP = async ({
         break;
     }
 
-    const { data: otp_code } = await supabase.rpc("generate_otp", {
-      p_user_id: user?.user_id,
-    });
-
     if (type === "email") {
+      const { data: otp_code } = await supabase.rpc("generate_otp", {
+        p_user_id: user?.user_id,
+      });
+
       const { data, error: send_otp_error } = await sendOTPViaEmail({
         email: email,
         code: otp_code,
@@ -79,7 +79,6 @@ export const sendOTP = async ({
       const { data, error: send_sms_error } = await sendOTPViaSMS({
         email,
         phone_number: user?.primary_phone,
-        code: otp_code,
       });
 
       if (send_sms_error) throw send_sms_error?.message;

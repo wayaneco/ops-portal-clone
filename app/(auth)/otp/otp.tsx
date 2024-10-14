@@ -12,6 +12,7 @@ import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { createClient } from "@/utils/supabase/client";
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import { useLoginContextProvider } from "@/app/components/Context/LoginContext";
+import { verifySMSOTP } from "@/app/actions/email/send-otp-sms";
 
 const schema = Yup.object().shape({
   otp: Yup.array(
@@ -120,12 +121,18 @@ export function OTPForm() {
             ?.map((otp) => otp.value)
             .join("") as string;
 
-          const { error: otp_error } = await supabase.rpc("verify_otp", {
-            p_user_id: id,
-            p_otp_code: otp_code,
-          });
+          if (type === "email") {
+            const { error: otp_error } = await supabase.rpc("verify_otp", {
+              p_user_id: id,
+              p_otp_code: otp_code,
+            });
 
-          if (otp_error) throw otp_error.message;
+            if (otp_error) throw otp_error.message;
+          } else {
+            const { error } = await verifySMSOTP(phone_number, otp_code);
+
+            if (error) throw error;
+          }
 
           const { error: verify_otp_error } = await supabase.auth.verifyOtp({
             token_hash,
