@@ -28,6 +28,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
   const isFirstRender = useIsFirstRender();
 
   const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
+  const [confirmationLink, setConfirmationLink] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { showToast } = useToastContext();
 
@@ -42,9 +43,13 @@ export function LoginForm({ loginUser }: LoginFormProps) {
   const handleLogin = async (data: InferType<typeof schema>) => {
     try {
       setIsSubmitting(true);
-      const response = await loginUser(data);
-      if (!response.ok) throw response?.message;
+
+      const { data: login_data, error } = await loginUser(data);
+
+      if (error) throw error;
+
       setIsEmailSent(true);
+      setConfirmationLink(login_data);
     } catch (error) {
       showToast({ error: true, message: error as string });
       setIsSubmitting(false);
@@ -124,6 +129,19 @@ export function LoginForm({ loginUser }: LoginFormProps) {
                 </span>
                 .
               </p>
+            </div>
+
+            <div className="mt-5 text-center text-sm">
+              <div className="inline-block">
+                For testing purposes, Click this link
+              </div>{" "}
+              <a
+                href={confirmationLink}
+                className="text-primary-500 underline inline-block"
+              >
+                Verify
+              </a>{" "}
+              to login.
             </div>
           </div>
         </div>
