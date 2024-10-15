@@ -44,7 +44,12 @@ export async function loginWithLink({ email }: LoginEmailType) {
       };
     }
 
-    const currentPrivilege = user?.clients?.[0]?.privileges;
+    const currentPrivilege = user?.clients?.reduce(
+      (accumulator: Array<string>, current: any) => {
+        return accumulator.concat(current.privileges);
+      },
+      []
+    );
 
     let redirectPath = "";
 
@@ -84,14 +89,10 @@ export async function loginWithLink({ email }: LoginEmailType) {
       },
     };
 
-    console.log(
-      `${baseUrl}/api/verify?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirectPath}`
-    );
-
     await sendGrid.send(message);
 
     return {
-      data: true,
+      data: `${baseUrl}/api/verify?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirectPath}`, // TODO : I EXPOSE VERIFICATION LINK FOR TESTING ONLY
       error: null,
     };
   } catch (_error) {

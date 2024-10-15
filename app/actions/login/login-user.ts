@@ -13,13 +13,13 @@ export const loginUser = async ({ email }: LoginUserPayloadType) => {
     if (error) throw error;
 
     return {
-      ok: true,
-      message: data,
+      data: data,
+      error: null,
     };
   } catch (error) {
     return {
-      ok: false,
-      message: typeof error !== "string" ? "" : error,
+      data: null,
+      error: typeof error !== "string" ? "Something went wrong" : error,
     };
   }
 };
