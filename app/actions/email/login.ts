@@ -1,43 +1,67 @@
 "use server";
 
-import { Resend } from "resend";
+import sendGrid, { MailDataRequired } from "@sendgrid/mail";
 
 import { createClient } from "@supabase/supabase-js";
-import { LoginTemplate } from "@/app/components/EmailTemplate/Login";
+import {
+  ROLE_NETWORK_ADMIN,
+  ROLE_COMPANY_ADMIN,
+  ROLE_AGENT,
+} from "@/app/constant";
 
-const resendApiKey = process.env["NEXT_PUBLIC_RESEND_API_KEY"];
+const baseUrl = process.env["NEXT_PUBLIC_APP_BASE_URL"] as string;
+
 const supabaseUrl = process.env["NEXT_PUBLIC_SUPABASE_URL"] as string;
 const supabaseRoleKey = process.env[
   "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY"
 ] as string;
-const baseUrl = process.env["NEXT_PUBLIC_APP_BASE_URL"] as string;
+
+const sendGridApiKey = process.env["NEXT_PUBLIC_SEND_GRID_API_KEY"] as string;
+const loginTemplateId = process.env[
+  "NEXT_PUBLIC_SEND_GRID_LOGIN_TEMPLATE_ID"
+] as string;
 
 type LoginEmailType = {
   email: string;
 };
 
+sendGrid.setApiKey(sendGridApiKey);
+
 export async function loginWithLink({ email }: LoginEmailType) {
-  const resend = new Resend(resendApiKey);
   const supabaseAdmin = createClient(supabaseUrl, supabaseRoleKey);
 
-  // UPDATE EMAIL TO MAILINATOR FOR TESTING PURPOSES
-  // const response = await supabaseAdmin.auth.admin.updateUserById('057713da-84fc-4e93-b4d3-0fb343779785', {
-  //   email: 'superuser@mailinator.com',
-  //   email_confirm: true
-  // })
-
   try {
-    const { data: user_data } = await supabaseAdmin
+    const { data: user } = await supabaseAdmin
       .from("users_data_view")
-      .select("user_id")
+      .select("user_id, clients")
       .eq("email", email)
       .single();
 
-    if (!user_data) {
+    if (!user) {
       return {
         data: null,
         error: "Email is not exist.",
       };
+    }
+
+    const currentPrivilege = user?.clients?.[0]?.privileges;
+
+    let redirectPath = "";
+
+    switch (true) {
+      case user && currentPrivilege?.includes(ROLE_NETWORK_ADMIN):
+      case user && currentPrivilege?.includes(ROLE_COMPANY_ADMIN):
+        redirectPath = "/user";
+        break;
+      case user && currentPrivilege?.includes(ROLE_AGENT):
+        redirectPath = "/kiosk";
+        break;
+      case user && !currentPrivilege?.length:
+        redirectPath = `/user/${user?.user_id}`;
+        break;
+      default:
+        redirectPath = "/login";
+        break;
     }
 
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
@@ -47,26 +71,33 @@ export async function loginWithLink({ email }: LoginEmailType) {
 
     if (error) throw error?.message;
 
-    const { error: resend_error } = await resend.emails.send({
-      from: "Everest Effect <noreply@everesteffect.com>",
+    const message: MailDataRequired = {
       to: email,
-      subject: "Sign-in to Everest Effect",
-      react: LoginTemplate({
+      from: {
+        email: "noreply@everesteffect.com",
+        name: "Everest Effect",
+      },
+      templateId: loginTemplateId,
+      dynamicTemplateData: {
         email,
-        confirmationLink: `${baseUrl}/verify-token?token_hash=${data?.properties?.hashed_token}`,
-      }),
-    });
+        confirmation_link: `${baseUrl}/api/verify?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirectPath}`,
+      },
+    };
 
-    if (resend_error) throw resend_error?.message;
+    console.log(
+      `${baseUrl}/api/verify?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirectPath}`
+    );
+
+    await sendGrid.send(message);
 
     return {
       data: true,
       error: null,
     };
-  } catch (error) {
+  } catch (_error) {
     return {
       data: null,
-      error: error,
+      error: _error,
     };
   }
 }
