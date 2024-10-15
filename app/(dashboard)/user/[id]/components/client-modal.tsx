@@ -60,6 +60,7 @@ export function UserDetailModal(props: UserDetailModal) {
         middle_name: user?.middle_name ?? "",
         birth_date: user?.birth_date ?? "",
         preferred_name: user?.preferred_name ?? "",
+        preferred_contact: user?.preferred_contact ?? "email",
         email: user?.email ?? "",
         primary_phone: user?.primary_phone ?? "",
         addr_line_1: user?.addr_line_1 ?? "",

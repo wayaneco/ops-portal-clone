@@ -35,11 +35,16 @@ export const schema = (
         last_name: Yup.string(),
         middle_name: Yup.string(),
         preferred_name: Yup.string(),
+        preferred_contact: Yup.string(),
         birth_date: Yup.string(),
         email: Yup.string().email(),
         primary_phone: isPrimaryContact
           ? Yup.string().required("This field is required")
-          : Yup.string(),
+          : Yup.string().when("preferred_contact", {
+              is: (value: string) => value === "sms",
+              then: () => Yup.string().required("This field is required"),
+              otherwise: () => Yup.string(),
+            }),
         addr_line_1: isPrimaryContact
           ? Yup.string().required("This field is required")
           : Yup.string(),

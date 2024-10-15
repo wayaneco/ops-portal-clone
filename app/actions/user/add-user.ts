@@ -1,6 +1,5 @@
 "use server";
 
-import PasswordGenerator from "generate-password";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
 
 import { createClient } from "utils/supabase/server";
@@ -18,6 +17,7 @@ type UpdateUserInfoType = {
   middle_name: string;
   birth_date: string;
   preferred_name: string;
+  preferred_contact: string;
   email: string;
   primary_phone: string;
   addr_line_1: string;
@@ -46,30 +46,22 @@ export async function addUser(
 
     let photoUrl = params?.photo_url ? params.photo_url : "";
 
-    const password = PasswordGenerator.generate({
-      length: 10,
-      numbers: true,
-      uppercase: true,
-    });
-
     const {
       data: { user: authUser },
       error: error_create_user,
     } = await supabaseAdmin.auth.admin.createUser({
       email: params?.email,
-      password,
       email_confirm: true,
     });
 
-    const response = await inviteUser({
-      fullName: `${params?.first_name} ${params?.last_name}`,
+    const { error } = await inviteUser({
+      full_name: `${params?.first_name} ${params?.last_name}`,
       client: params?.client_name,
       role: params?.role_name,
       email: authUser?.email || params?.email,
-      password,
     });
 
-    if (!response.ok) throw response?.message;
+    if (error) throw error;
 
     if (error_create_user) throw error_create_user?.message;
 
@@ -84,6 +76,7 @@ export async function addUser(
         middle_name: params?.middle_name ?? "",
         p_user_id: authUser.id ?? "",
         preferred_name: params?.preferred_name ?? "",
+        preferred_contact: params?.preferred_contact ?? "",
         primary_email: params?.email ?? "",
         primary_phone: params?.primary_phone ?? "",
         profile_url: photoUrl,

@@ -13,6 +13,7 @@ export type UserDetailType = {
   middle_name: string;
   last_name: string;
   preferred_name: string;
+  preferred_contact: string;
   birth_date: string;
   primary_phone: string;
   secondary_phone: string | null;
