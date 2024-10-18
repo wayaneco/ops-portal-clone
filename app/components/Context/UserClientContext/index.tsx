@@ -15,6 +15,7 @@ import {
 import { ClientsType } from "@/app/types";
 
 import { useSupabaseSessionContext } from "../SupabaseSessionProvider";
+import { ROLE_NETWORK_ADMIN } from "@/app/constant";
 
 type UserClientContextType = {
   selectRef: any;
@@ -43,21 +44,26 @@ export const UserClientContextProvider = memo(
     const selectRef = useRef<HTMLSelectElement>();
     const { userInfo } = useSupabaseSessionContext();
 
+    const clientsData = hasAdminRole ? clientLists : userInfo?.clients;
+
     const [selectedClient, setSelectedClient] = useState<string>(
       useMemo(() => {
-        return userInfo?.clients?.length
-          ? (userInfo?.clients?.[0]?.id as string)
-          : "";
-      }, [userInfo])
+        return clientsData?.length ? (clientsData?.[0]?.id as string) : "";
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+      }, [hasAdminRole, clientsData])
     );
 
     const [currentPrivilege, setCurrentPrivilege] = useState<Array<string>>(
       useMemo(() => {
-        const defaultId = userInfo?.clients?.length
-          ? (userInfo?.clients?.[0]?.id as string)
+        if (hasAdminRole) {
+          return [ROLE_NETWORK_ADMIN];
+        }
+
+        const defaultId = clientsData.length
+          ? (clientsData?.[0]?.id as string)
           : "";
 
-        const findClient = userInfo?.clients?.find(
+        const findClient = clientsData?.find(
           (client) => client?.id === defaultId
         );
 
@@ -67,23 +73,22 @@ export const UserClientContextProvider = memo(
 
         return [];
         // eslint-disable-next-line react-hooks/exhaustive-deps
-      }, [userInfo])
+      }, [hasAdminRole, userInfo])
     );
 
     useEffect(() => {
-      if (selectedClient) {
+      if (!hasAdminRole && selectedClient) {
         const findClient = userInfo?.clients?.find(
           (client) => client?.id === selectedClient
         );
 
         if (findClient) {
-          setCurrentPrivilege(findClient?.privileges as Array<string>);
-          return;
+          return setCurrentPrivilege(findClient?.privileges as Array<string>);
         }
 
         // setCurrentPrivilege([]); // TODO: After clarification
       }
-    }, [selectedClient, userInfo]);
+    }, [hasAdminRole, selectedClient, userInfo]);
 
     return (
       <UserClientContext.Provider
@@ -91,7 +96,9 @@ export const UserClientContextProvider = memo(
           selectRef,
           selectedClient,
           currentPrivilege,
-          changeClient: (value: string) => setSelectedClient(value as string),
+          changeClient: (value: string) => {
+            setSelectedClient(value as string);
+          },
           clientLists,
           hasAdminRole,
         }}

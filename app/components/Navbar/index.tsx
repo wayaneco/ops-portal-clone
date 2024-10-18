@@ -15,7 +15,7 @@ import {
   ROLE_COMPANY_ADMIN,
   ROLE_AGENT,
 } from "@/app/constant";
-import { logOutUser } from "@/app/actions/login/logout-user";
+import { logOutUser } from "@/app/actions/auth/logout";
 
 import * as EverestEffect from "public/everest-effect.svg";
 
@@ -35,6 +35,7 @@ const Navbar = () => {
 
   const REGEX_COMPANY_PAGE = new RegExp(/^\/company?\w/);
   const REGEX_USER_PAGE = new RegExp(/^\/user?(\/\w)?.+/);
+  const REGEX_USER_ID_PAGE = new RegExp(/^\/user\/\w/);
 
   const MenuList = ({ currentPrivilege }: { currentPrivilege: Array<any> }) => {
     const isEnable = (expectedPrivilege: Array<any>) => {
@@ -45,11 +46,13 @@ const Navbar = () => {
 
     return (
       <>
-        {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) && (
+        {(isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN, ROLE_AGENT]) ||
+          hasAdminRole) && (
           <FBNavbar.Link
             as={Link}
             active={REGEX_USER_PAGE.test(pathname)}
             href={
+              !hasAdminRole &&
               !isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN])
                 ? `/user/${user?.id}`
                 : "/user"
@@ -59,21 +62,18 @@ const Navbar = () => {
             User
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]) && (
+        {(isEnable([ROLE_NETWORK_ADMIN, ROLE_COMPANY_ADMIN]) ||
+          hasAdminRole) && (
           <FBNavbar.Link
             as={Link}
             active={REGEX_COMPANY_PAGE.test(pathname)}
-            href={
-              !isEnable([ROLE_NETWORK_ADMIN])
-                ? `/company/${selectedClient}`
-                : "/company"
-            }
+            href={!hasAdminRole ? `/company/${selectedClient}` : "/company"}
             className="text-base md:text-lg"
           >
             Company
           </FBNavbar.Link>
         )}
-        {isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) && (
+        {(isEnable([ROLE_NETWORK_ADMIN, ROLE_AGENT]) || hasAdminRole) && (
           <FBNavbar.Link
             as={Link}
             active={pathname === "/kiosk"}
@@ -101,7 +101,11 @@ const Navbar = () => {
 
     switch (true) {
       case clientList?.length > 1:
-        if (hasAdminRole && REGEX_COMPANY_PAGE.test(pathname)) {
+        if (
+          hasAdminRole &&
+          (REGEX_COMPANY_PAGE.test(pathname) ||
+            REGEX_USER_ID_PAGE.test(pathname))
+        ) {
           component = (
             <div className="flex items-center gap-x-2 text-gray-600">
               <strong>{userInfo?.email}</strong> as{" "}
@@ -112,7 +116,7 @@ const Navbar = () => {
           component = (
             <div className="flex items-center gap-x-2 text-gray-600">
               <strong>{userInfo?.email}</strong>
-              <div className="">in behalf of</div>
+              <div className="">on behalf of</div>
               <Select
                 ref={selectRef}
                 color="primary"
@@ -136,7 +140,7 @@ const Navbar = () => {
         component = (
           <div className="flex items-center gap-x-2 text-gray-600">
             <strong>{userInfo?.email}</strong>
-            <div className="">in behalf of</div>
+            <div className="">on behalf of</div>
             <strong>{userInfo?.clients[0].name}</strong>
           </div>
         );

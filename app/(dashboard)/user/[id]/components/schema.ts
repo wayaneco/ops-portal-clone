@@ -2,7 +2,10 @@ import * as Yup from "yup";
 
 import { ModalContentType } from "../types";
 
-export const schema = (contentType: ModalContentType) => {
+export const schema = (
+  contentType: ModalContentType,
+  isPrimaryContact: boolean
+) => {
   return Yup.object().shape({
     info: Yup.object().shape({
       user: Yup.object(),
@@ -32,15 +35,34 @@ export const schema = (contentType: ModalContentType) => {
         last_name: Yup.string(),
         middle_name: Yup.string(),
         preferred_name: Yup.string(),
+        preferred_contact: Yup.string(),
         birth_date: Yup.string(),
         email: Yup.string().email(),
-        primary_phone: Yup.string(),
-        addr_line_1: Yup.string(),
-        addr_line_2: Yup.string(),
-        city: Yup.string(),
-        zip_code: Yup.string(),
-        country: Yup.string(),
-        state_province_region: Yup.string(),
+        primary_phone: isPrimaryContact
+          ? Yup.string().required("This field is required")
+          : Yup.string().when("preferred_contact", {
+              is: (value: string) => value === "sms",
+              then: () => Yup.string().required("This field is required"),
+              otherwise: () => Yup.string(),
+            }),
+        addr_line_1: isPrimaryContact
+          ? Yup.string().required("This field is required")
+          : Yup.string(),
+        addr_line_2: isPrimaryContact
+          ? Yup.string().required("This field is required")
+          : Yup.string(),
+        city: isPrimaryContact
+          ? Yup.string().required("This field is required")
+          : Yup.string(),
+        zip_code: isPrimaryContact
+          ? Yup.string().required("This field is required")
+          : Yup.string(),
+        country: isPrimaryContact
+          ? Yup.string().required("This field is required")
+          : Yup.string(),
+        state_province_region: isPrimaryContact
+          ? Yup.string().required("This field is required")
+          : Yup.string(),
       }),
     }),
   });

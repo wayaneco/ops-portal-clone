@@ -13,6 +13,7 @@ export type UserDetailType = {
   middle_name: string;
   last_name: string;
   preferred_name: string;
+  preferred_contact: string;
   birth_date: string;
   primary_phone: string;
   secondary_phone: string | null;
@@ -40,16 +41,20 @@ export type ClientsType = {
   created_at: string;
   privileges?: Array<Privileges>;
   tags: Array<{
-    label: string;
+    id: string;
+    name: string;
+    slug: string;
   }>;
   provider_types: Array<{
-    label: string;
+    id: string;
+    name: string;
+    slug: string;
   }>;
   service_provided: Array<{
     // TODO:
     label: string;
   }>;
-  service_provided_data: Array<{
+  service_provided_list: Array<{
     // TODO:
     label: string;
   }>;

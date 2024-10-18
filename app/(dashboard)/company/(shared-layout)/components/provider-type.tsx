@@ -1,79 +1,150 @@
 "use client";
 
-import { TextInput, Button, Radio, Label } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { TextInput, Button, Select } from "flowbite-react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
-import {
-  Controller,
-  FieldValues,
-  useFieldArray,
-  useFormContext,
-} from "react-hook-form";
+import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import { createClient } from "@/utils/supabase/client";
 
 export const ProviderType = () => {
+  const supabase = createClient();
+
+  const [providerTypeOptions, setProviderTypeOptions] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
+  const [selectedProviderType, setSelectedProviderType] = useState<string>("");
+  const [providerTypeInput, setProviderTypeInput] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false);
+
   const {
-    setValue,
     watch,
     control,
     reset,
     getValues,
-    trigger,
+    clearErrors,
+    setValue,
+    setError,
     formState: { errors },
   } = useFormContext();
 
-  const providerTypes = watch("provider_types");
+  const provider_types = watch("provider_types");
 
   const { fields, append, remove } = useFieldArray({
     control,
     name: "provider_types",
   });
 
+  const checkDuplicates = (value: string, index: number) => {
+    const isExisting = provider_types
+      ?.filter((provider_type: { label: string }) => !!provider_type?.label)
+      ?.find(
+        (provider_type: { label: string }) => provider_type?.label === value
+      );
+
+    if (!!isExisting) {
+      setError(`provider_types[${index}].label`, {
+        type: "validate",
+        message: "Value is already exist.",
+      });
+    } else {
+      clearErrors("provider_types");
+    }
+
+    return !!isExisting;
+  };
+
+  useEffect(() => {
+    return () => {
+      // REMOVE THE LAST ADDED PROVIDER TYPE IF EMPTY
+
+      if (provider_types?.length >= 1) {
+        const isLastProviderTypeEmpty =
+          !provider_types[provider_types?.length - 1].label;
+
+        if (isLastProviderTypeEmpty) {
+          remove(provider_types?.length - 1);
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [provider_types]);
+
+  useEffect(() => {
+    const getProviderTypeList = async () => {
+      const { data } = await supabase
+        .from("provider_types")
+        .select(`name`)
+        .order("name", {
+          ascending: true,
+        });
+
+      const formatData = data?.map((item) => ({
+        label: item?.name,
+        value: item?.name,
+      }));
+      setProviderTypeOptions(
+        formatData as Array<{ label: string; value: string }>
+      );
+    };
+
+    getProviderTypeList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div>
+      <div className="mb-5">
+        <div className="text-sm text-gray-600">
+          {provider_types
+            ?.filter(
+              (provider_type: { label: string }) => !!provider_type?.label
+            )
+            ?.map((provider_type: { label: string }) => provider_type?.label)
+            .join(", ")}
+        </div>
+      </div>
       <div>
-        <div className="overflow-y-auto rounded-md border border-gray-200">
-          <div className="max-h-[calc(100vh-550px)]">
-            <div className="bg-white">
-              <DragDropContext
-                onDragEnd={(result) => {
-                  const { destination, source } = result;
+        <div className="rounded-md border border-gray-200">
+          <div className="bg-white">
+            <DragDropContext
+              onDragEnd={(result) => {
+                const { destination, source } = result;
 
-                  if (!destination) return;
+                if (!destination) return;
 
-                  if (
-                    destination.droppableId === source.droppableId &&
-                    destination.index === source.index
-                  )
-                    return;
+                if (
+                  destination.droppableId === source.droppableId &&
+                  destination.index === source.index
+                )
+                  return;
 
-                  const clonedProviderTypes = JSON.parse(
-                    JSON.stringify(providerTypes)
-                  );
+                const clonedProviderTypes = JSON.parse(
+                  JSON.stringify(provider_types)
+                );
 
-                  const [item] = clonedProviderTypes.splice(source.index, 1);
-                  clonedProviderTypes.splice(destination.index, 0, item);
+                const [item] = clonedProviderTypes.splice(source.index, 1);
+                clonedProviderTypes.splice(destination.index, 0, item);
 
-                  reset({
-                    ...getValues(),
-                    provider_types: clonedProviderTypes,
-                  });
-                }}
-              >
-                <Droppable droppableId="1">
-                  {(droppableProvided) => (
-                    <div
-                      ref={droppableProvided.innerRef}
-                      {...droppableProvided.droppableProps}
-                    >
-                      {!fields?.length ? (
-                        <div className="p-6">
-                          <div className="text-center text-gray-600">
-                            No Data
-                          </div>
-                        </div>
-                      ) : (
-                        fields.map((_, index: number) => (
+                reset({
+                  ...getValues(),
+                  provider_types: clonedProviderTypes,
+                });
+                setValue("isDirty", true);
+              }}
+            >
+              <Droppable droppableId="1">
+                {(droppableProvided) => (
+                  <div
+                    ref={droppableProvided.innerRef}
+                    {...droppableProvided.droppableProps}
+                  >
+                    {!fields?.length ? (
+                      <div className="p-6">
+                        <div className="text-center text-gray-600">No Data</div>
+                      </div>
+                    ) : (
+                      fields.map((_, index: number) => {
+                        return (
                           <Draggable
                             key={`draggable-${index}`}
                             index={index}
@@ -93,23 +164,82 @@ export const ProviderType = () => {
                                   name={`provider_types[${index}].label`}
                                   render={({ field }) => (
                                     <div className="w-full">
-                                      <TextInput
-                                        color="primary"
-                                        disabled={
-                                          !isEditing ||
-                                          fields?.length - 1 !== index
-                                        }
-                                        placeholder="Enter tag"
-                                        {...field}
-                                      />
-                                      {(
-                                        errors?.provider_types as FieldValues
-                                      )?.[index]?.label?.message && (
+                                      <div
+                                        className={`w-full ${
+                                          isEditing &&
+                                          fields?.length - 1 === index
+                                            ? "flex gap-x-4 items-center"
+                                            : ""
+                                        }`}
+                                      >
+                                        {isEditing &&
+                                        fields?.length - 1 === index ? (
+                                          <div className="w-full flex items-center gap-x-4">
+                                            <div className="w-[450px]">
+                                              <Select
+                                                color="primary"
+                                                disabled={!!providerTypeInput}
+                                                value={selectedProviderType}
+                                                onChange={(event) => {
+                                                  checkDuplicates(
+                                                    event.target.value,
+                                                    index
+                                                  );
+                                                  setSelectedProviderType(
+                                                    event?.target?.value
+                                                  );
+                                                }}
+                                              >
+                                                <option key={-1} value={""}>
+                                                  Select Provider Type
+                                                </option>
+                                                {providerTypeOptions?.map(
+                                                  (option, index) => (
+                                                    <option
+                                                      key={index}
+                                                      value={option?.value}
+                                                    >
+                                                      {option?.label}
+                                                    </option>
+                                                  )
+                                                )}
+                                              </Select>
+                                            </div>
+                                            <TextInput
+                                              color="primary"
+                                              disabled={!!selectedProviderType}
+                                              autoFocus
+                                              value={providerTypeInput}
+                                              placeholder="Enter Provider Type"
+                                              onChange={(event) => {
+                                                checkDuplicates(
+                                                  event.target.value,
+                                                  index
+                                                );
+
+                                                setProviderTypeInput(
+                                                  event.target.value
+                                                );
+                                              }}
+                                            />
+                                          </div>
+                                        ) : (
+                                          <TextInput
+                                            color="primary"
+                                            disabled={true}
+                                            placeholder="Enter Provider Type"
+                                            {...field}
+                                          />
+                                        )}
+                                      </div>
+
+                                      {(errors?.provider_types as any)?.[index]
+                                        ?.label?.message && (
                                         <small className="text-red-500 mt-1">
                                           {
-                                            (
-                                              errors?.provider_types as FieldValues
-                                            )?.[index]?.label?.message
+                                            (errors?.provider_types as any)?.[
+                                              index
+                                            ]?.label?.message
                                           }
                                         </small>
                                       )}
@@ -117,7 +247,7 @@ export const ProviderType = () => {
                                   )}
                                 />
                                 {!isEditing && (
-                                  <div className="mt-2 flex">
+                                  <div className="mt-1.5 flex">
                                     <div
                                       {...draggableProvided.dragHandleProps}
                                       className="p-2 rounded-md text-black cursor-pointer hover:bg-primary-500 group"
@@ -144,7 +274,7 @@ export const ProviderType = () => {
                                       className="p-2 rounded-md text-black cursor-pointer hover:bg-red-500 group"
                                       onClick={() => {
                                         const clonedProviderTypes = JSON.parse(
-                                          JSON.stringify(providerTypes)
+                                          JSON.stringify(provider_types)
                                         );
 
                                         clonedProviderTypes.splice(index, 1);
@@ -153,6 +283,7 @@ export const ProviderType = () => {
                                           ...getValues(),
                                           provider_types: clonedProviderTypes,
                                         });
+                                        setValue("isDirty", true);
                                       }}
                                     >
                                       <svg
@@ -176,37 +307,69 @@ export const ProviderType = () => {
                                   </div>
                                 )}
                                 {fields?.length - 1 === index && isEditing && (
-                                  <Button
-                                    color="primary"
-                                    onClick={() => {
-                                      const fieldLabel = watch(
-                                        `provider_types[${index}].label`
-                                      );
+                                  <div className="flex items-center gap-x-2">
+                                    <Button
+                                      color="primary"
+                                      onClick={() => {
+                                        if (
+                                          errors?.provider_types ||
+                                          (!selectedProviderType &&
+                                            !providerTypeInput)
+                                        ) {
+                                          setError(
+                                            `provider_types[${index}].label`,
+                                            {
+                                              type: "required",
+                                              message:
+                                                "This field is required.",
+                                            }
+                                          );
+                                          return;
+                                        }
 
-                                      if (!fieldLabel) {
-                                        trigger([
-                                          `provider_types[${index}].label`,
-                                        ]);
-                                        return;
-                                      }
-
-                                      setIsEditing(false);
-                                    }}
-                                  >
-                                    Save
-                                  </Button>
+                                        if (selectedProviderType) {
+                                          setValue(
+                                            `provider_types[${index}].label`,
+                                            selectedProviderType
+                                          );
+                                        } else {
+                                          setValue(
+                                            `provider_types[${index}].label`,
+                                            providerTypeInput
+                                          );
+                                        }
+                                        setSelectedProviderType("");
+                                        setProviderTypeInput("");
+                                        setIsEditing(false);
+                                      }}
+                                    >
+                                      Save
+                                    </Button>
+                                    <Button
+                                      color="primaryBordered"
+                                      onClick={() => {
+                                        remove(index);
+                                        setSelectedProviderType("");
+                                        setProviderTypeInput("");
+                                        clearErrors("provider_types");
+                                        setIsEditing(false);
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
                                 )}
                               </div>
                             )}
                           </Draggable>
-                        ))
-                      )}
-                      {droppableProvided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
+                        );
+                      })
+                    )}
+                    {droppableProvided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
         </div>
       </div>

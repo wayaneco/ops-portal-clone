@@ -10,6 +10,7 @@ import {
 import {
   Modal,
   TextInput,
+  Radio,
   Spinner,
   Button,
   Label,
@@ -50,7 +51,7 @@ export const AddUser = (props: AddUserProps) => {
 
   const { showToast } = useToastContext();
   const { user } = useSupabaseSessionContext();
-  const { selectedClient } = useUserClientProviderContext();
+  const { selectedClient, clientLists } = useUserClientProviderContext();
   const { hasAdminRole } = useUserClientProviderContext();
 
   const methods = useForm({
@@ -62,6 +63,7 @@ export const AddUser = (props: AddUserProps) => {
       middle_name: "",
       birth_date: "",
       preferred_name: "",
+      preferred_contact: "email",
       email: "",
       primary_phone: "",
       addr_line_1: "",
@@ -79,9 +81,13 @@ export const AddUser = (props: AddUserProps) => {
     control,
     trigger,
     getValues,
-    setFocus,
-    formState: { errors },
+    setValue,
+    watch,
+    formState: { errors, isDirty },
   } = methods;
+
+  const watchPreferredContact = watch("preferred_contact");
+  const watchPrimaryPhone = watch("primary_phone");
 
   const handleSubmit = async () => {
     const isFieldsValid = await trigger();
@@ -96,12 +102,18 @@ export const AddUser = (props: AddUserProps) => {
         };
       };
 
+      const client_name =
+        clientLists?.find((client) => client?.client_id === selectedClient)
+          ?.name || "";
+
       const response = await addUser({
         ...payload,
         role_id: role?.value,
+        role_name: role?.label,
         isNetworkAdmin: role?.label === ROLE_NETWORK_ADMIN,
         staff_id: user?.id,
         client_id: selectedClient,
+        client_name,
       });
 
       if (!response.ok) throw response?.message;
@@ -285,6 +297,7 @@ export const AddUser = (props: AddUserProps) => {
                 fieldState: { error },
               }) => (
                 <CustomerSelect
+                  required
                   label="Role"
                   value={value}
                   onChange={onChange}
@@ -317,31 +330,61 @@ export const AddUser = (props: AddUserProps) => {
                 />
               )}
             />
-            <Controller
-              control={control}
-              name="email"
-              render={({ field, fieldState: { error } }) => (
-                <CustomTextInput
-                  required
-                  label="Email"
-                  placeholder="Email"
-                  error={error?.message}
-                  {...field}
+            <div className="flex gap-x-4">
+              <Controller
+                control={control}
+                name="email"
+                render={({ field, fieldState: { error } }) => (
+                  <CustomTextInput
+                    required
+                    label="Email"
+                    placeholder="Email"
+                    error={error?.message}
+                    {...field}
+                  />
+                )}
+              />
+              <div className="w-20 text-center">
+                <Label className="text-xs">Preferred</Label>
+                <Radio
+                  className="block size-5 mx-auto mt-2.5 cursor-pointer"
+                  checked={watchPreferredContact === "email"}
+                  onChange={() => {
+                    setValue("preferred_contact", "email", {
+                      shouldDirty: true,
+                    });
+                    trigger("primary_phone");
+                  }}
                 />
-              )}
-            />
-            <Controller
-              control={control}
-              name="primary_phone"
-              render={({ field, fieldState: { error } }) => (
-                <CustomTextInput
-                  label="Phone Number"
-                  placeholder="Phone Number"
-                  error={error?.message}
-                  {...field}
+              </div>
+            </div>
+            <div className="flex gap-x-4">
+              <Controller
+                control={control}
+                name="primary_phone"
+                render={({ field, fieldState: { error } }) => (
+                  <CustomTextInput
+                    label="Phone Number"
+                    placeholder="Phone Number"
+                    error={error?.message}
+                    {...field}
+                  />
+                )}
+              />
+              <div className="w-20 text-center">
+                <Label className="opacity-0 text-xs">Preferred</Label>
+                <Radio
+                  className={`block size-5 mx-auto mt-2.5 ${
+                    !watchPrimaryPhone ? "cursor-not-allowed" : "cursor-pointer"
+                  }`}
+                  checked={watchPreferredContact === "sms"}
+                  disabled={!watchPrimaryPhone}
+                  onChange={() =>
+                    setValue("preferred_contact", "sms", { shouldDirty: true })
+                  }
                 />
-              )}
-            />
+              </div>
+            </div>
             <Controller
               control={control}
               name="addr_line_1"
@@ -427,6 +470,7 @@ export const AddUser = (props: AddUserProps) => {
         </Modal.Body>
         <Modal.Footer>
           <Button
+            disabled={!isDirty}
             color="primary"
             className="w-[150px] mx-auto"
             onClick={handleSubmit}

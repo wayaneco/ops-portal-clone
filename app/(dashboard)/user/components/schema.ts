@@ -23,10 +23,15 @@ export const schema = Yup.object().shape({
   middle_name: Yup.string(),
   birth_date: Yup.string().nullable(),
   preferred_name: Yup.string(),
+  preferred_contact: Yup.string(),
   email: Yup.string()
     .required("This field is required.")
     .matches(REGEX_EMAIL, "Invalid email address"),
-  primary_phone: Yup.string(),
+  primary_phone: Yup.string().when("preferred_contact", {
+    is: (value: string) => value === "sms",
+    then: () => Yup.string().required("This field is required."),
+    otherwise: () => Yup.string(),
+  }),
   addr_line_1: Yup.string(),
   addr_line_2: Yup.string(),
   city: Yup.string(),

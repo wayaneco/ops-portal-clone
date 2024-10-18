@@ -1,19 +1,12 @@
 "use server";
 
-import moment from "moment";
-import { revalidatePath } from "next/cache";
 import { convertBase64toFile } from "@/utils/file/convertBase64ToFile";
 
 import { createClient } from "utils/supabase/server";
-import {
-  createClient as createAdminClient,
-  PostgrestSingleResponse,
-} from "@supabase/supabase-js";
-import {
-  SUPABASE_URL,
-  DEFAULT_PASSWORD,
-  SUPABASE_SERVICE_ROLE_KEY,
-} from "@/constant/index";
+import { createClient as createAdminClient } from "@supabase/supabase-js";
+import { SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY } from "@/constant/index";
+
+import { inviteUser } from "../email/invite";
 
 type UpdateUserInfoType = {
   role_id: string;
@@ -24,6 +17,7 @@ type UpdateUserInfoType = {
   middle_name: string;
   birth_date: string;
   preferred_name: string;
+  preferred_contact: string;
   email: string;
   primary_phone: string;
   addr_line_1: string;
@@ -34,6 +28,8 @@ type UpdateUserInfoType = {
   state_province_region: string;
   staff_id: string;
   client_id: string;
+  role_name: string;
+  client_name: string;
 };
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -49,28 +45,23 @@ export async function addUser(
     );
 
     let photoUrl = params?.photo_url ? params.photo_url : "";
-    const password = DEFAULT_PASSWORD;
-
-    let generatedEmail: any;
-
-    if (!params.email) {
-      const { data: publicEmail, error: error_generate_email } = await supabase
-        .rpc("generate_email")
-        .single();
-
-      generatedEmail = publicEmail;
-
-      if (error_generate_email) throw error_generate_email?.message;
-    }
 
     const {
       data: { user: authUser },
       error: error_create_user,
     } = await supabaseAdmin.auth.admin.createUser({
-      email: params?.email ? params?.email : generatedEmail,
-      password,
+      email: params?.email,
       email_confirm: true,
     });
+
+    const { error } = await inviteUser({
+      full_name: `${params?.first_name} ${params?.last_name}`,
+      client: params?.client_name,
+      role: params?.role_name,
+      email: authUser?.email || params?.email,
+    });
+
+    if (error) throw error;
 
     if (error_create_user) throw error_create_user?.message;
 
@@ -85,6 +76,7 @@ export async function addUser(
         middle_name: params?.middle_name ?? "",
         p_user_id: authUser.id ?? "",
         preferred_name: params?.preferred_name ?? "",
+        preferred_contact: params?.preferred_contact ?? "",
         primary_email: params?.email ?? "",
         primary_phone: params?.primary_phone ?? "",
         profile_url: photoUrl,

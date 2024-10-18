@@ -1,7 +1,7 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import { TextInput, Button } from "flowbite-react";
-import { useState } from "react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
 
@@ -14,6 +14,7 @@ export const ServiceProvided = () => {
     reset,
     getValues,
     trigger,
+    setValue,
     formState: { errors },
   } = useFormContext();
 
@@ -24,11 +25,42 @@ export const ServiceProvided = () => {
     name: "service_provided",
   });
 
+  useEffect(() => {
+    return () => {
+      // REMOVE THE LAST SERVICE PROVIDED TAG IF EMPTY
+
+      if (serviceProvided?.length >= 1) {
+        const isLastServiceProvidedEmpty =
+          !serviceProvided[serviceProvided?.length - 1].label;
+
+        if (isLastServiceProvidedEmpty) {
+          remove(serviceProvided?.length - 1);
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [serviceProvided]);
+
+  const toCapitalizedWords = (str: string) => {
+    return str
+      .split("_") // Split the string by underscores
+      .map(
+        (
+          word,
+          index // Map over each word
+        ) =>
+          index === 0 // Capitalize the first word
+            ? word.charAt(0).toUpperCase() + word.slice(1)
+            : word // Keep the rest as they are (lowercase)
+      )
+      .join(" "); // Join the words with spaces
+  };
+
   return (
     <div>
       <div>
-        <div className="overflow-y-auto rounded-md border border-gray-200">
-          <div className="max-h-[calc(100vh-400px)]">
+        <div className="rounded-md border border-gray-200">
+          <div>
             <div className="bg-white">
               <DragDropContext
                 onDragEnd={(result) => {
@@ -53,6 +85,7 @@ export const ServiceProvided = () => {
                     ...getValues(),
                     service_provided: clonedServiceProvided,
                   });
+                  setValue("isDirty", true);
                 }}
               >
                 <Droppable droppableId="1">
@@ -72,8 +105,6 @@ export const ServiceProvided = () => {
                           const fieldValue = watch(
                             `service_provided[${index}]`
                           );
-
-                          const isMeals = fieldValue?.label === "Meals";
 
                           return (
                             <Draggable
@@ -96,13 +127,17 @@ export const ServiceProvided = () => {
                                     render={({ field }) => (
                                       <div className="w-full">
                                         <TextInput
+                                          {...field}
                                           color="primary"
                                           disabled={
                                             !isEditing ||
                                             fields?.length - 1 !== index
                                           }
+                                          autoFocus={isEditing}
                                           placeholder="Enter service name"
-                                          {...field}
+                                          value={toCapitalizedWords(
+                                            field.value
+                                          )}
                                         />
                                         {(errors?.service_provided as any)?.[
                                           index
@@ -160,16 +195,8 @@ export const ServiceProvided = () => {
                                         </svg>
                                       </div>
                                       <div
-                                        className={`p-2 rounded-md text-black  group ${
-                                          isMeals
-                                            ? "cursor-not-allowed hover:bg-gray-400"
-                                            : " cursor-pointer hover:bg-red-500"
-                                        }`}
+                                        className={`p-2 rounded-md text-black  group ${" cursor-pointer hover:bg-red-500"}`}
                                         onClick={() => {
-                                          if (isMeals) {
-                                            return;
-                                          }
-
                                           const clonedServiceProvided =
                                             JSON.parse(
                                               JSON.stringify(serviceProvided)
@@ -185,6 +212,7 @@ export const ServiceProvided = () => {
                                             service_provided:
                                               clonedServiceProvided,
                                           });
+                                          setValue("isDirty", true);
                                         }}
                                       >
                                         <svg
@@ -209,91 +237,36 @@ export const ServiceProvided = () => {
                                   )}
                                   {fields?.length - 1 === index &&
                                     isEditing && (
-                                      //   <Button
-                                      //     color="primary"
-                                      //     onClick={() => {
-                                      //       const fieldLabel = watch(
-                                      //         `service_provided[${index}].label`
-                                      //       );
+                                      <div className="flex items-center gap-x-2">
+                                        <Button
+                                          color="primary"
+                                          onClick={() => {
+                                            const fieldLabel = watch(
+                                              `service_provided[${index}].label`
+                                            );
 
-                                      //       if (!fieldLabel) {
-                                      //         trigger([
-                                      //           `service_provided[${index}].label`,
-                                      //         ]);
-                                      //         return;
-                                      //       }
+                                            if (!fieldLabel) {
+                                              trigger([
+                                                `service_provided[${index}].label`,
+                                              ]);
+                                              return;
+                                            }
 
-                                      //       setIsEditing(false);
-                                      //     }}
-                                      //   >
-                                      //     Save
-                                      // </Button>
-                                      <div className="mt-1 5">
-                                        <div className="flex items-center gap-x-2">
-                                          <div
-                                            className={`p-2 rounded-md text-white bg-green-500 group cursor-pointer hover:bg-green-500"
-                                      }`}
-                                            onClick={() => {
-                                              const fieldLabel = watch(
-                                                `service_provided[${index}].label`
-                                              );
+                                            setIsEditing(false);
+                                          }}
+                                        >
+                                          Save
+                                        </Button>
+                                        <Button
+                                          color="primaryBordered"
+                                          onClick={() => {
+                                            remove(index);
 
-                                              if (!fieldLabel) {
-                                                trigger([
-                                                  `service_provided[${index}].label`,
-                                                ]);
-                                                return;
-                                              }
-
-                                              setIsEditing(false);
-                                            }}
-                                          >
-                                            <svg
-                                              className="w-4 h-4 text-white"
-                                              aria-hidden="true"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              width="24"
-                                              height="24"
-                                              fill="none"
-                                              viewBox="0 0 24 24"
-                                            >
-                                              <path
-                                                stroke="currentColor"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                                d="M5 11.917 9.724 16.5 19 7.5"
-                                              />
-                                            </svg>
-                                          </div>
-                                          <div
-                                            className={`p-2 rounded-md text-white bg-red-500 group cursor-pointer hover:bg-red-500"
-                                      }`}
-                                            onClick={() => {
-                                              remove(index);
-
-                                              setIsEditing(false);
-                                            }}
-                                          >
-                                            <svg
-                                              className="w-4 h-4 text-white dark:text-white"
-                                              aria-hidden="true"
-                                              xmlns="http://www.w3.org/2000/svg"
-                                              width="24"
-                                              height="24"
-                                              fill="none"
-                                              viewBox="0 0 24 24"
-                                            >
-                                              <path
-                                                stroke="currentColor"
-                                                strokeLinecap="round"
-                                                strokeLinejoin="round"
-                                                strokeWidth="2"
-                                                d="M6 18 17.94 6M18 18 6.06 6"
-                                              />
-                                            </svg>
-                                          </div>
-                                        </div>
+                                            setIsEditing(false);
+                                          }}
+                                        >
+                                          Cancel
+                                        </Button>
                                       </div>
                                     )}
                                 </div>

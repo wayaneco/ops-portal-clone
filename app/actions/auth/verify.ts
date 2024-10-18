@@ -1,28 +1,28 @@
 "use server";
 
+import { createClient } from "@/utils/supabase/server";
+
 import {
   ROLE_NETWORK_ADMIN,
   ROLE_COMPANY_ADMIN,
   ROLE_AGENT,
 } from "@/app/constant";
-import { createClient } from "@/utils/supabase/server";
 
-type LoginUserPayloadType = {
-  email: string;
-  password: string;
-};
-
-export const loginUser = async (
-  payload: LoginUserPayloadType
-): Promise<{ ok: boolean; message: string }> => {
-  const supabase = createClient();
-  let redirectPath;
-
+export const verifyLogin = async (token_hash: string) => {
   try {
+    const supabase = createClient();
+
     const {
-      data: { user },
+      data: { user, session },
       error,
-    } = await supabase.auth.signInWithPassword(payload);
+    } = await supabase.auth.verifyOtp({
+      type: "magiclink",
+      token_hash,
+    });
+
+    if (session) {
+      await supabase.auth.setSession(session);
+    }
 
     if (error) throw error?.message;
 
@@ -33,6 +33,8 @@ export const loginUser = async (
       .single();
 
     const currentPrivilege = userAuth?.clients?.[0]?.privileges;
+
+    let redirectPath = "";
 
     switch (true) {
       case user && currentPrivilege?.includes(ROLE_NETWORK_ADMIN):
@@ -57,7 +59,7 @@ export const loginUser = async (
   } catch (error) {
     return {
       ok: false,
-      message: typeof error !== "string" ? "" : error,
+      message: error as string,
     };
   }
 };

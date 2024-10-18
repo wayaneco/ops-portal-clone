@@ -1,7 +1,12 @@
+import { Metadata } from "next";
 import { Card } from "flowbite-react";
 
 import { CompanyListTable } from "./components/company-list-table";
 import { getAllCompany } from "@/app/actions/company/get-all-company";
+
+export const metadata: Metadata = {
+  title: "Everest Effect Portal - Companies",
+};
 
 const Page = async function () {
   const clients = await getAllCompany();
@@ -16,3 +21,5 @@ const Page = async function () {
 };
 
 export default Page;
+
+export const dynamic = "force-dynamic";

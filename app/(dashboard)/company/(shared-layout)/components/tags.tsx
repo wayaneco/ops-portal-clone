@@ -1,11 +1,19 @@
 "use client";
 
-import { TextInput, Button } from "flowbite-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import { TextInput, Button, Select } from "flowbite-react";
 import { DragDropContext, Draggable, Droppable } from "react-beautiful-dnd";
 import { Controller, useFieldArray, useFormContext } from "react-hook-form";
+import { createClient } from "@/utils/supabase/client";
 
 export const Tags = () => {
+  const supabase = createClient();
+
+  const [tagOptions, setTagOptions] = useState<
+    Array<{ label: string; value: string }>
+  >([]);
+  const [selectedTag, setSelectedTag] = useState<string>("");
+  const [tagInput, setTagInput] = useState<string>("");
   const [isEditing, setIsEditing] = useState<boolean>(false);
 
   const {
@@ -13,60 +21,121 @@ export const Tags = () => {
     control,
     reset,
     getValues,
-    trigger,
+    clearErrors,
+    setValue,
+    setError,
     formState: { errors },
   } = useFormContext();
 
   const tags = watch("tags");
 
-  const { fields, append } = useFieldArray({
+  const { fields, append, remove } = useFieldArray({
     control,
     name: "tags",
   });
 
+  const checkDuplicates = (value: string, index: number) => {
+    const isExisting = tags
+      ?.filter((tag: { label: string }) => !!tag?.label)
+      ?.find((tag: { label: string }) => tag?.label === value);
+
+    if (!!isExisting) {
+      setError(`tags[${index}].label`, {
+        type: "validate",
+        message: "Value is already exist.",
+      });
+    } else {
+      clearErrors("tags");
+    }
+
+    return !!isExisting;
+  };
+
+  useEffect(() => {
+    return () => {
+      // REMOVE THE LAST ADDED TAG IF EMPTY
+
+      if (tags?.length >= 1) {
+        const isLastTagIsEmpty = !tags[tags?.length - 1].label;
+
+        if (isLastTagIsEmpty) {
+          remove(tags?.length - 1);
+        }
+      }
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tags]);
+
+  useEffect(() => {
+    const getTagsList = async () => {
+      const { data } = await supabase
+        .from("tags")
+        .select(`name`)
+        .order("name", {
+          ascending: true,
+        });
+
+      const formatData = data?.map((item) => ({
+        label: item?.name,
+        value: item?.name,
+      }));
+      setTagOptions(formatData as Array<{ label: string; value: string }>);
+    };
+
+    getTagsList();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   return (
     <div>
+      <div className="mb-5">
+        <div className="text-sm text-gray-600">
+          {tags
+            ?.filter((tag: { label: string }) => !!tag?.label)
+            ?.map((tag: { label: string }) => tag?.label)
+            .join(", ")}
+        </div>
+      </div>
       <div>
-        <div className="overflow-y-auto rounded-md border border-gray-200">
-          <div className="max-h-[calc(100vh-550px)]">
-            <div className="bg-white">
-              <DragDropContext
-                onDragEnd={(result) => {
-                  const { destination, source } = result;
+        <div className="rounded-md border border-gray-200">
+          <div className="bg-white">
+            <DragDropContext
+              onDragEnd={(result) => {
+                const { destination, source } = result;
 
-                  if (!destination) return;
+                if (!destination) return;
 
-                  if (
-                    destination.droppableId === source.droppableId &&
-                    destination.index === source.index
-                  )
-                    return;
+                if (
+                  destination.droppableId === source.droppableId &&
+                  destination.index === source.index
+                )
+                  return;
 
-                  const clonedTags = JSON.parse(JSON.stringify(tags));
+                const clonedTags = JSON.parse(JSON.stringify(tags));
 
-                  const [item] = clonedTags.splice(source.index, 1);
-                  clonedTags.splice(destination.index, 0, item);
+                const [item] = clonedTags.splice(source.index, 1);
+                clonedTags.splice(destination.index, 0, item);
 
-                  reset({
-                    ...getValues(),
-                    tags: clonedTags,
-                  });
-                }}
-              >
-                <Droppable droppableId="1">
-                  {(droppableProvided) => (
-                    <div
-                      ref={droppableProvided.innerRef}
-                      {...droppableProvided.droppableProps}
-                    >
-                      {!fields?.length ? (
-                        <div className="p-6">
-                          <div className="text-center text-gray-600">
-                            No Data
-                          </div>
-                        </div>
-                      ) : (
-                        fields.map((_, index: number) => (
+                reset({
+                  ...getValues(),
+                  tags: clonedTags,
+                });
+                setValue("isDirty", true);
+              }}
+            >
+              <Droppable droppableId="1">
+                {(droppableProvided) => (
+                  <div
+                    ref={droppableProvided.innerRef}
+                    {...droppableProvided.droppableProps}
+                  >
+                    {!fields?.length ? (
+                      <div className="p-6">
+                        <div className="text-center text-gray-600">No Data</div>
+                      </div>
+                    ) : (
+                      fields.map((_, index: number) => {
+                        return (
                           <Draggable
                             key={`draggable-${index}`}
                             index={index}
@@ -86,15 +155,73 @@ export const Tags = () => {
                                   name={`tags[${index}].label`}
                                   render={({ field }) => (
                                     <div className="w-full">
-                                      <TextInput
-                                        color="primary"
-                                        disabled={
-                                          !isEditing ||
-                                          fields?.length - 1 !== index
-                                        }
-                                        placeholder="Enter tag"
-                                        {...field}
-                                      />
+                                      <div
+                                        className={`w-full ${
+                                          isEditing &&
+                                          fields?.length - 1 === index
+                                            ? "flex gap-x-4 items-center"
+                                            : ""
+                                        }`}
+                                      >
+                                        {isEditing &&
+                                        fields?.length - 1 === index ? (
+                                          <div className="w-full flex items-center gap-x-4">
+                                            <div className="w-[450px]">
+                                              <Select
+                                                color="primary"
+                                                disabled={!!tagInput}
+                                                value={selectedTag}
+                                                onChange={(event) => {
+                                                  checkDuplicates(
+                                                    event.target.value,
+                                                    index
+                                                  );
+                                                  setSelectedTag(
+                                                    event?.target?.value
+                                                  );
+                                                }}
+                                              >
+                                                <option key={-1} value={""}>
+                                                  Select tag
+                                                </option>
+                                                {tagOptions?.map(
+                                                  (option, index) => (
+                                                    <option
+                                                      key={index}
+                                                      value={option?.value}
+                                                    >
+                                                      {option?.label}
+                                                    </option>
+                                                  )
+                                                )}
+                                              </Select>
+                                            </div>
+                                            <TextInput
+                                              color="primary"
+                                              disabled={!!selectedTag}
+                                              value={tagInput}
+                                              autoFocus
+                                              placeholder="Enter Tag"
+                                              onChange={(event) => {
+                                                checkDuplicates(
+                                                  event.target.value,
+                                                  index
+                                                );
+
+                                                setTagInput(event.target.value);
+                                              }}
+                                            />
+                                          </div>
+                                        ) : (
+                                          <TextInput
+                                            color="primary"
+                                            disabled={true}
+                                            placeholder="Enter tag"
+                                            {...field}
+                                          />
+                                        )}
+                                      </div>
+
                                       {(errors?.tags as any)?.[index]?.label
                                         ?.message && (
                                         <small className="text-red-500 mt-1">
@@ -108,7 +235,7 @@ export const Tags = () => {
                                   )}
                                 />
                                 {!isEditing && (
-                                  <div className="mt-2 flex">
+                                  <div className="mt-1.5 flex">
                                     <div
                                       {...draggableProvided.dragHandleProps}
                                       className="p-2 rounded-md text-black cursor-pointer hover:bg-primary-500 group"
@@ -144,6 +271,7 @@ export const Tags = () => {
                                           ...getValues(),
                                           tags: clonedTags,
                                         });
+                                        setValue("isDirty", true);
                                       }}
                                     >
                                       <svg
@@ -167,35 +295,64 @@ export const Tags = () => {
                                   </div>
                                 )}
                                 {fields?.length - 1 === index && isEditing && (
-                                  <Button
-                                    color="primary"
-                                    onClick={() => {
-                                      const fieldLabel = watch(
-                                        `tags[${index}].label`
-                                      );
+                                  <div className="flex items-center gap-x-2">
+                                    <Button
+                                      color="primary"
+                                      onClick={() => {
+                                        if (
+                                          errors?.tags ||
+                                          (!selectedTag && !tagInput)
+                                        ) {
+                                          setError(`tags[${index}].label`, {
+                                            type: "required",
+                                            message: "This field is required.",
+                                          });
+                                          return;
+                                        }
 
-                                      if (!fieldLabel) {
-                                        trigger([`tags[${index}].label`]);
-                                        return;
-                                      }
-
-                                      setIsEditing(false);
-                                    }}
-                                  >
-                                    Save
-                                  </Button>
+                                        if (selectedTag) {
+                                          setValue(
+                                            `tags[${index}].label`,
+                                            selectedTag
+                                          );
+                                        } else {
+                                          setValue(
+                                            `tags[${index}].label`,
+                                            tagInput
+                                          );
+                                        }
+                                        setSelectedTag("");
+                                        setTagInput("");
+                                        setIsEditing(false);
+                                      }}
+                                    >
+                                      Save
+                                    </Button>
+                                    <Button
+                                      color="primaryBordered"
+                                      onClick={() => {
+                                        remove(index);
+                                        setSelectedTag("");
+                                        setTagInput("");
+                                        clearErrors("tags");
+                                        setIsEditing(false);
+                                      }}
+                                    >
+                                      Cancel
+                                    </Button>
+                                  </div>
                                 )}
                               </div>
                             )}
                           </Draggable>
-                        ))
-                      )}
-                      {droppableProvided.placeholder}
-                    </div>
-                  )}
-                </Droppable>
-              </DragDropContext>
-            </div>
+                        );
+                      })
+                    )}
+                    {droppableProvided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </DragDropContext>
           </div>
         </div>
       </div>

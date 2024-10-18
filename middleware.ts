@@ -12,6 +12,5 @@ export const config = {
      * add more routes you want to be protected
      */
     "/((?!|auth|login).{1,})",
-    "/notes/:path*",
   ],
 };

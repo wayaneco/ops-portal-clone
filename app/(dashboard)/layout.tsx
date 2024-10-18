@@ -1,6 +1,5 @@
 import { PropsWithChildren } from "react";
 import { redirect } from "next/navigation";
-import { headers } from "next/headers";
 
 import { createClient } from "@/utils/supabase/server";
 
@@ -22,6 +21,7 @@ export default async function Layout(props: PropsWithChildren) {
   } = await supabase.auth.getUser();
 
   if (!user) redirect("/login");
+
   const getHasRoleAdmin = async (id: string) => {
     try {
       const { data } = await supabase.rpc("has_admin_role", {
@@ -36,7 +36,7 @@ export default async function Layout(props: PropsWithChildren) {
   };
 
   const userInfo = await getUserById(user?.id);
-  const clientLists = await getAllCompany();
+  const clientLists = await getAllCompany(true);
   const hasAdminRole = await getHasRoleAdmin(user?.id);
 
   return (

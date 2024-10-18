@@ -1,6 +1,7 @@
 /* eslint-disable @next/next/no-img-element */
 "use client";
 
+import * as React from "react";
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import moment from "moment";
@@ -88,7 +89,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                 <Table.Body className="divide-y">
                   {clientList?.map((client: ClientsType) => (
                     <Table.Row
-                      key={client?.client_id}
+                      key={client?.id}
                       className="bg-white cursor-pointer"
                       onClick={() => router.push(`/company/${client?.id}`)}
                     >
@@ -97,7 +98,7 @@ export const CompanyListTable = (props: CompanyListTableProps) => {
                           <img
                             src={
                               !!client?.logo_url
-                                ? client?.logo_url
+                                ? `${client?.logo_url}?${new Date().getTime()}`
                                 : ImagePlaceholder.default.src
                             }
                             alt={`${client?.name} logo`}

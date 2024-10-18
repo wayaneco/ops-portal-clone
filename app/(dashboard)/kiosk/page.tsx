@@ -1,34 +1,111 @@
 "use client";
 
-import { useMemo } from "react";
+import axios from "axios";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 
 import { Avatar, Button, Card } from "flowbite-react";
 
 import { useUserClientProviderContext } from "@/app/components/Context/UserClientContext";
-import { ROLE_NETWORK_ADMIN, STATUS_COMPLETED } from "@/app/constant";
+import {
+  STATUS_COMPLETED,
+  STATUS_IN_PROGRESS,
+  STATUS_PROVISION,
+} from "@/app/constant";
 import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSessionProvider";
 import * as ImagePlaceholder from "public/image-placeholder.jpg";
+import { createClient } from "@/utils/supabase/client";
+import { ClientsType } from "@/app/types";
+import { revalidatePath } from "@/app/actions/revalidate";
 
 const Page = () => {
-  const { selectRef, currentPrivilege, clientLists, selectedClient } =
+  const supabase = createClient();
+
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [clientInfo, setClientInfo] = useState<Pick<
+    ClientsType,
+    "name" | "web_address" | "logo_url" | "provisioning_status"
+  > | null>(null);
+
+  const { selectRef, hasAdminRole, clientLists, selectedClient } =
     useUserClientProviderContext();
   const { userInfo } = useSupabaseSessionContext();
 
-  const currentClient = useMemo(() => {
-    let data;
+  const clientData = hasAdminRole ? clientLists : userInfo?.clients;
+  const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+  useEffect(() => {
+    if (selectedClient) {
+      (async () => {
+        setIsFetching(true);
+        let initial_logs = [];
+        const initialData = clientData?.find(
+          (det) => det.id === selectedClient
+        );
 
-    data = currentPrivilege?.some((privilege) =>
-      [ROLE_NETWORK_ADMIN]?.includes(privilege)
-    )
-      ? clientLists
-      : userInfo?.clients;
+        const response = await fetch(
+          `${baseUrl}/api/get-initial-logs?web_address=${initialData?.web_address}`
+        );
 
-    return {
-      length: data?.length,
-      data: data?.find((client) => client?.id === selectedClient),
-    };
-  }, [clientLists, userInfo, selectedClient, currentPrivilege]);
+        initial_logs = await response.json();
+
+        const isCompleted =
+          initial_logs?.filter(
+            (res: { status: STATUS_PROVISION }) => res?.status === "completed"
+          )?.length === 7;
+
+        if (
+          isCompleted &&
+          initialData?.provisioning_status === STATUS_IN_PROGRESS
+        ) {
+          await supabase
+            .from("clients_data_view")
+            .update({
+              provisioning_status: STATUS_COMPLETED,
+            })
+            .eq("id", selectedClient);
+
+          revalidatePath("/(dashboard)/company");
+        }
+
+        const { data } = await supabase
+          .from("clients_data_view")
+          .select("id, name, web_address, provisioning_status, logo_url")
+          .eq("id", selectedClient)
+          .single();
+
+        setClientInfo(data);
+        setIsFetching(false);
+      })();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [clientData, selectedClient]);
+
+  if (isFetching) {
+    return (
+      <div className="py-16">
+        <Card>
+          <div className="flex gap-x-10 items-center">
+            <div className="flex items-center justify-center w-52 h-56 bg-gray-300 rounded">
+              <svg
+                className="w-10 h-10 text-gray-200 dark:text-gray-600"
+                aria-hidden="true"
+                xmlns="http://www.w3.org/2000/svg"
+                fill="currentColor"
+                viewBox="0 0 20 18"
+              >
+                <path d="M18 0H2a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V2a2 2 0 0 0-2-2Zm-5.5 4a1.5 1.5 0 1 1 0 3 1.5 1.5 0 0 1 0-3Zm4.376 10.481A1 1 0 0 1 16 15H4a1 1 0 0 1-.895-1.447l3.5-7A1 1 0 0 1 7.468 6a.965.965 0 0 1 .9.5l2.775 4.757 1.546-1.887a1 1 0 0 1 1.618.1l2.541 4a1 1 0 0 1 .028 1.011Z" />
+              </svg>
+            </div>
+            <div className="flex flex-col align-middle">
+              <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 w-72 mb-4" />
+              <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 w-56 mb-4" />
+              <div className="h-4 bg-gray-200 rounded-full dark:bg-gray-700 w-96 mb-4" />
+            </div>
+          </div>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="py-16">
@@ -40,23 +117,21 @@ const Page = () => {
                 <div className="h-56 w-52">
                   <Image
                     src={
-                      currentClient?.data?.logo_url
-                        ? currentClient?.data?.logo_url
+                      clientInfo?.logo_url
+                        ? `${clientInfo?.logo_url}?${new Date().getTime()}`
                         : (ImagePlaceholder.default.src as string)
                     }
                     alt={`User Profile`}
                     fill
                     {...avatarProps}
                     className={
-                      !currentClient?.data?.logo_url
-                        ? "bg-[#C4C4C4] object-contain"
-                        : ""
+                      !clientInfo?.logo_url ? "bg-[#C4C4C4] object-contain" : ""
                     }
                   />
                 </div>
               )}
             />
-            {currentClient?.length > 1 ? (
+            {clientData?.length > 1 ? (
               <div className="mt-4">
                 <Button
                   color="primary"
@@ -67,12 +142,12 @@ const Page = () => {
               </div>
             ) : null}
           </div>
-          {currentClient?.data?.provisioning_status === STATUS_COMPLETED ? (
+          {clientInfo?.provisioning_status === STATUS_COMPLETED ? (
             <div
               className="flex items-center mb-[40px]"
               onClick={() =>
                 window.open(
-                  `https://${currentClient?.data?.web_address.toLowerCase()}.everesteffect.com`,
+                  `https://${clientInfo?.web_address.toLowerCase()}.everesteffect.com`,
                   "_blank"
                 )
               }
@@ -96,7 +171,7 @@ const Page = () => {
                   </svg>
 
                   <div className="transition-colors  group-hover:text-white">
-                    Launch Kiosk for {currentClient?.data?.name}
+                    Launch Kiosk for {clientInfo?.name}
                   </div>
                 </div>
               </div>

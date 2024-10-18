@@ -41,6 +41,7 @@ type HandleOpenModalType = {
 
 type UserDetailFormContextType = {
   closeDialog: () => void;
+  user: UserDetailType;
 };
 
 const UserDetailFormContext = React.createContext<
@@ -132,6 +133,7 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
     <UserDetailFormContext.Provider
       value={{
         closeDialog: handleResetModal,
+        user: data,
       }}
     >
       <Link
@@ -149,8 +151,8 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                 {data?.photo_url ? (
                   // eslint-disable-next-line @next/next/no-img-element
                   <img
-                    src={data?.photo_url}
-                    alt="Tonis Kitchen"
+                    src={`${data?.photo_url}?${new Date().getTime()}`}
+                    alt={`${data?.first_name} Profile Photo`}
                     className="w-full h-full object-cover"
                   />
                 ) : (
@@ -221,7 +223,9 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                     label="Name"
                     value={`${data?.first_name || ""} ${
                       data?.middle_name || ""
-                    } ${data?.last_name || ""}`}
+                    } ${data?.last_name || ""}`
+                      .replace(/\s+/g, " ")
+                      .trim()}
                     disabled
                   />
                   <FloatingLabel
@@ -239,9 +243,16 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                   <FloatingLabel
                     variant="outlined"
                     label="Address"
-                    value={`${data?.addr_line_1 || ""} ${
-                      data?.addr_line_2 || ""
-                    } ${data?.city || ""} ${data?.state_province_region || ""}`}
+                    value={[
+                      data?.addr_line_1 || "",
+                      data?.addr_line_2 || "",
+                      data?.city || "",
+                      data?.state_province_region || "",
+                      data?.country || "",
+                      data?.zip_code || "",
+                    ]
+                      .filter(Boolean)
+                      .join(", ")}
                     disabled
                   />
                 </div>

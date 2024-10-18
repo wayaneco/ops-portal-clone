@@ -1,8 +1,5 @@
 "use client";
 
-import moment from "moment";
-import axios from "axios";
-
 import { TextInput, Button, Spinner, Toast } from "flowbite-react";
 import {
   ChangeEvent,
@@ -29,6 +26,8 @@ import { upsertCompanyDetails } from "@/app/actions/company/upsert-company";
 import { convertFileToBase64 } from "@/utils/file/convertFileToBase64";
 import { createClient } from "@/utils/supabase/client";
 import {
+  ROLE_AGENT,
+  ROLE_COMPANY_ADMIN,
   ROLE_NETWORK_ADMIN,
   STATUS_COMPLETED,
   STATUS_IN_PROGRESS,
@@ -39,6 +38,7 @@ import { useUserClientProviderContext } from "@/app/components/Context/UserClien
 import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 
 import LoadingSkeleton from "../loading";
+import { revalidatePath } from "@/app/actions/revalidate";
 
 type CompanyDetailType = {
   initialLogs?: Array<{ event: string; status: STATUS_PROVISION }>;
@@ -52,6 +52,7 @@ type ToastType = {
 };
 
 type ProvisionLoggingContextType = {
+  companyInfo: any;
   logs: Array<{ event: string; status: STATUS_PROVISION }>;
   handleProvision: () => any;
   isProvisioning: boolean;
@@ -61,8 +62,6 @@ type ProvisionLoggingContextType = {
 export const ProvisionLoggingContext = createContext<
   ProvisionLoggingContextType | undefined
 >(undefined);
-
-const provisionApiEnv = process.env["NEXT_PUBLIC_PROVISION_API"];
 
 export const useProvisionLoggingContext = () => {
   const context = useContext<ProvisionLoggingContextType | undefined>(
@@ -96,13 +95,24 @@ const CompanyDetail = function ({
 
   const { showToast } = useToastContext();
   const { user } = useSupabaseSessionContext();
-  const { currentPrivilege } = useUserClientProviderContext();
+  const { currentPrivilege, selectedClient, hasAdminRole } =
+    useUserClientProviderContext();
   const { pathname } = useContext<SidebarContextType | undefined>(
     SidebarContext
   )!;
   const inputRef = useRef<HTMLInputElement>();
 
   const isFirstRender = useIsFirstRender();
+
+  const companyTags = companyInfo?.tags
+    ?.filter((tag) => !!tag?.name)
+    ?.map((tag) => ({ label: tag?.name }));
+
+  const companyProviderType = companyInfo?.provider_types
+    ?.filter((provider_type) => !!provider_type?.name)
+    ?.map((provider_type) => ({
+      label: provider_type?.name,
+    }));
 
   const methods = useForm({
     values: {
@@ -112,25 +122,26 @@ const CompanyDetail = function ({
       longitude: companyInfo?.longitude ?? "",
       latitude: companyInfo?.latitude ?? "",
       is_enabled: companyInfo?.is_enabled ?? true,
-      service_provided: companyInfo?.service_provided_data ?? [
-        { label: "Meals", type: "count" },
-      ],
-      tags: [], // TODO: companyInfo?.tags should be a Array not an string
-      provider_types: companyInfo?.provider_types ?? [],
+      service_provided: companyInfo?.service_provided_list ?? [],
+      tags: companyTags,
+      time_zone: companyInfo?.time_zone ?? "",
+      provider_types: companyProviderType,
       provisioning_status: companyInfo?.provisioning_status ?? "DRAFT",
       isUpdate: !!companyInfo,
       isWebAddressValid: !!companyInfo,
+      isDirty: false,
     },
     resolver: yupResolver(schema),
     mode: "onChange",
   });
 
+  const watchIsDirty = methods.watch("isDirty");
   const watchName = methods.watch("name");
   const watchWebAddress = methods.watch("web_address");
   const watchIsWebAddressValid = methods.watch("isWebAddressValid");
 
   const isSubmitButtonDisabled =
-    !methods?.formState?.isDirty ||
+    (!watchIsDirty && !methods?.formState?.isDirty) ||
     startLogging ||
     !watchIsWebAddressValid ||
     !watchName ||
@@ -140,20 +151,28 @@ const CompanyDetail = function ({
     setIsSubmitting(true);
     startTransition(async () => {
       try {
+        const tagPayload =
+          data?.tags?.map((tag: { label: string }) => tag.label) || [];
+        const providerTypePayload =
+          data?.provider_types?.map(
+            (provider_type: { label: string }) => provider_type.label
+          ) || [];
+
         const response = await upsertCompanyDetails(
           {
             logo: data?.logo as string,
             name: data?.name,
             web_address: data?.web_address,
-            longitude: data?.longitude,
-            latitude: data?.latitude,
+            longitude: data?.longitude || 74.006,
+            latitude: data?.latitude || 40.7128,
             is_enabled: data?.is_enabled,
             provisioning_status: data?.provisioning_status,
             service_provided: data?.service_provided,
-            tags: data?.tags,
-            provider_types: data?.provider_types,
+            tags: tagPayload,
+            time_zone: data?.time_zone || "EST",
+            provider_types: providerTypePayload,
             staff_id: user?.id,
-            client_id: companyInfo?.client_id,
+            client_id: companyInfo?.id,
           },
           {
             update: !!companyInfo,
@@ -173,7 +192,10 @@ const CompanyDetail = function ({
           ),
         });
 
-        router.push("/company");
+        if (!companyInfo) {
+          router.push("/company");
+        }
+        setIsSubmitting(false);
       } catch (error: any) {
         showToast({
           message: error,
@@ -185,6 +207,8 @@ const CompanyDetail = function ({
   };
 
   const handleProvision = async () => {
+    const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+
     try {
       if (watchWebAddress !== companyInfo?.web_address) {
         const { error: error_update_web_address } = await supabase
@@ -192,31 +216,21 @@ const CompanyDetail = function ({
           .update({
             web_address: watchWebAddress,
           })
-          .eq("id", companyInfo?.client_id);
+          .eq("id", companyInfo?.id);
 
         if (error_update_web_address) throw error_update_web_address?.message;
       }
 
-      const response = await fetch(`${provisionApiEnv}/provision`, {
-        method: "POST",
-        mode: "no-cors", // Set to 'no-cors' to disable CORS handling
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          name: `${watchWebAddress}-execution-${moment()
-            .format("MMM-DD-YYYY")
-            .toLowerCase()}`,
-          input: `{"hostname": "${watchWebAddress}", "build_id": "${watchWebAddress}_${watchWebAddress}_v.1.0.0_dev"}`,
-        }),
-      });
+      const response = await fetch(
+        `${baseUrl}/api/provision?web_address=${watchWebAddress}`
+      );
 
       const { data, error: error_update_provision_status } = await supabase
         .from("clients")
         .update({
           provisioning_status: STATUS_IN_PROGRESS,
         })
-        .eq("id", companyInfo?.client_id);
+        .eq("id", companyInfo?.id);
 
       if (error_update_provision_status)
         throw error_update_provision_status?.message;
@@ -245,17 +259,38 @@ const CompanyDetail = function ({
   }, [showConfetti]);
 
   useEffect(() => {
+    if (!!companyInfo && selectedClient && !hasAdminRole) {
+      switch (true) {
+        case currentPrivilege?.some((current) =>
+          [ROLE_COMPANY_ADMIN, ROLE_NETWORK_ADMIN].includes(current)
+        ):
+          router.replace(`/company/${selectedClient}`);
+          break;
+        case currentPrivilege?.includes(ROLE_AGENT):
+          router.replace("/");
+          break;
+        default:
+          null;
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedClient]);
+
+  useEffect(() => {
     if (startLogging) {
       const fetchData = async () => {
         try {
-          const { data } = await axios.get<any>(
-            `${provisionApiEnv}/provision-logs?provider_name=${watchWebAddress}&bucket_name=ee-provision-dev`
+          const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+          let data_logs = [];
+          const response = await fetch(
+            `${baseUrl}/api/get-initial-logs?web_address=${watchWebAddress}`
           );
 
-          setLogs(data?.log_content);
+          data_logs = await response.json();
+          setLogs(data_logs);
 
           const FINISH_LENGTH = 7;
-          const totalCompletedEvent = data?.log_content?.filter(
+          const totalCompletedEvent = data_logs?.filter(
             ({ status }: { status: "completed" }) => status === "completed"
           )?.length;
 
@@ -265,23 +300,22 @@ const CompanyDetail = function ({
               .update({
                 provisioning_status: STATUS_COMPLETED,
               })
-              .eq("id", companyInfo?.client_id);
+              .eq("id", companyInfo?.id);
 
             if (response?.error) {
               throw new Error(response?.error?.message);
             }
+
             setIsCompleted(true);
             setStartLogging(false);
             setShowConfetti(true);
             clearInterval(intervalId);
           }
         } catch (err) {
-          fetchData();
+          console.log(err);
         }
       };
-
       fetchData(); // Initial fetch
-
       const intervalId = setInterval(() => {
         fetchData();
       }, 8000); // 8 seconds
@@ -295,11 +329,12 @@ const CompanyDetail = function ({
   useEffect(() => {
     const getLogs = async () => {
       try {
-        const { data } = await axios.get<any>(
-          `${provisionApiEnv}/provision-logs?provider_name=${
-            watchWebAddress || companyInfo?.web_address
-          }&bucket_name=ee-provision-dev`
+        const baseUrl = process.env.NEXT_PUBLIC_APP_BASE_URL;
+        let data_logs = [];
+        const response = await fetch(
+          `${baseUrl}/api/get-initial-logs?web_address=${watchWebAddress}`
         );
+        data_logs = await response.json();
 
         if (companyInfo?.provisioning_status === STATUS_IN_PROGRESS) {
           const { error: error_update_provision_status } = await supabase
@@ -307,13 +342,15 @@ const CompanyDetail = function ({
             .update({
               provisioning_status: STATUS_COMPLETED,
             })
-            .eq("id", companyInfo?.client_id);
+            .eq("id", companyInfo?.id);
+
+          revalidatePath("/(dashboard)/company");
 
           if (error_update_provision_status)
             throw error_update_provision_status?.message;
         }
 
-        setLogs(data?.log_content);
+        setLogs(data_logs);
       } catch (error) {
         console.log(error);
       }
@@ -334,6 +371,7 @@ const CompanyDetail = function ({
   return (
     <ProvisionLoggingContext.Provider
       value={{
+        companyInfo,
         logs,
         handleProvision,
         isProvisioning: startLogging,
@@ -353,7 +391,7 @@ const CompanyDetail = function ({
           }}
         >
           <div className="absolute left-0 right-0 overflow-x-hidden">
-            <div className="relative z-10 bg-gray-50">
+            <div className="fixed w-full z-10 bg-gray-50">
               <div className="flex items-center">
                 <div className="min-w-64 w-64">
                   <Controller
@@ -381,8 +419,12 @@ const CompanyDetail = function ({
                         ) : (
                           // eslint-disable-next-line @next/next/no-img-element
                           <img
-                            src={value as string}
-                            alt="Tonis Kitchen"
+                            src={
+                              (value as string)?.includes("base64")
+                                ? (value as string)
+                                : `${value}?${new Date().getTime()}`
+                            }
+                            alt={`Company Logo`}
                             className="w-auto h-20"
                           />
                         )}
@@ -434,7 +476,7 @@ const CompanyDetail = function ({
                 </div>
               </div>
             </div>
-            <div className="h-full w-full pl-64">
+            <div className="h-full w-full pl-64 bg-gray-200">
               <AddClientForm routeName={pathname} />
             </div>
           </div>

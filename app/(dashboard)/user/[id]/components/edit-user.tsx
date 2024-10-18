@@ -1,6 +1,7 @@
+import * as React from "react";
 import { useState } from "react";
 import { Controller, useFormContext } from "react-hook-form";
-import { Modal, Spinner, Button } from "flowbite-react";
+import { Modal, Spinner, Button, Label, Radio } from "flowbite-react";
 
 import { useUserDetailFormContext } from "./user-detail-form";
 import { updateUserInfo } from "@/app/actions/user/update-user";
@@ -8,6 +9,8 @@ import { useSupabaseSessionContext } from "@/app/components/Context/SupabaseSess
 import { useToastContext } from "@/app/components/Context/ToastProvider";
 import { CustomTextInput } from "@/app/components/TextInput";
 import { CustomerDatepicker } from "@/app/components/Datepicker";
+import { ClientsType } from "@/app/types";
+import { ROLE_PRIMARY_CONTACT } from "@/app/constant";
 
 export const EditUser = () => {
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -16,6 +19,7 @@ export const EditUser = () => {
     control,
     watch,
     getValues,
+    setValue,
     formState: { isDirty },
     trigger,
   } = useFormContext();
@@ -25,6 +29,8 @@ export const EditUser = () => {
 
   const { user } = watch("info");
   const watchUserEmail = watch("edit_user.email");
+  const watchPreferredContact = watch("edit_user.preferred_contact");
+  const watchPrimaryPhone = watch("edit_user.primary_phone");
 
   const isSelfService = userInfo?.user_id === user?.user_id;
 
@@ -143,31 +149,63 @@ export const EditUser = () => {
               />
             )}
           />
-          <Controller
-            control={control}
-            name="edit_user.email"
-            render={({ field, fieldState: { error } }) => (
-              <CustomTextInput
-                disabled
-                error={error?.message}
-                label="Email"
-                placeholder="Email"
-                {...field}
+          <div className="flex gap-x-4">
+            <Controller
+              control={control}
+              name="edit_user.email"
+              render={({ field, fieldState: { error } }) => (
+                <CustomTextInput
+                  disabled
+                  error={error?.message}
+                  label="Email"
+                  placeholder="Email"
+                  {...field}
+                />
+              )}
+            />
+            <div className="w-20 text-center">
+              <Label className="text-xs">Preferred</Label>
+              <Radio
+                className="block size-5 mx-auto mt-2.5 cursor-pointer"
+                checked={watchPreferredContact === "email"}
+                onChange={() => {
+                  setValue("edit_user.preferred_contact", "email", {
+                    shouldDirty: true,
+                  });
+                  trigger("edit_user.primary_phone");
+                }}
               />
-            )}
-          />
-          <Controller
-            control={control}
-            name="edit_user.primary_phone"
-            render={({ field, fieldState: { error } }) => (
-              <CustomTextInput
-                error={error?.message}
-                label="Phone Number"
-                placeholder="Phone Number"
-                {...field}
+            </div>
+          </div>
+          <div className="flex gap-x-4">
+            <Controller
+              control={control}
+              name="edit_user.primary_phone"
+              render={({ field, fieldState: { error } }) => (
+                <CustomTextInput
+                  error={error?.message}
+                  label="Phone Number"
+                  placeholder="Phone Number"
+                  {...field}
+                />
+              )}
+            />
+            <div className="w-20 text-center">
+              <Label className="opacity-0 text-xs">Preferred</Label>
+              <Radio
+                className={`block size-5 mx-auto mt-2.5 cursor-pointer ${
+                  !watchPrimaryPhone ? "cursor-not-allowed" : "cursor-pointer"
+                }`}
+                checked={watchPreferredContact === "sms"}
+                disabled={!watchPrimaryPhone}
+                onChange={() =>
+                  setValue("edit_user.preferred_contact", "sms", {
+                    shouldDirty: true,
+                  })
+                }
               />
-            )}
-          />
+            </div>
+          </div>
           <Controller
             control={control}
             name="edit_user.addr_line_1"
