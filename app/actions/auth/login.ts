@@ -1,44 +1,31 @@
 "use server";
-import sendgrid, { MailDataRequired } from "@sendgrid/mail";
-import { createClient } from "@supabase/supabase-js";
+
 import {
   ROLE_NETWORK_ADMIN,
   ROLE_COMPANY_ADMIN,
   ROLE_AGENT,
 } from "@/app/constant";
+import { createClient } from "@supabase/supabase-js";
+import { sendLinkViaEmail } from "../email/login";
+import { sendLinkViaSMS } from "../sms/login";
 
-const baseUrl = process.env["NEXT_PUBLIC_APP_BASE_URL"] as string;
-
-const sendgridApiKey = process.env["NEXT_PUBLIC_SEND_GRID_API_KEY"] as string;
-const inviteTemplateId = process.env[
-  "NEXT_PUBLIC_SEND_GRID_INVITE_TEMPLATE_ID"
-] as string;
+type LoginUserPayloadType = {
+  email: string;
+  preferred_contact: string;
+};
 
 const supabaseUrl = process.env["NEXT_PUBLIC_SUPABASE_URL"] as string;
 const supabaseRoleKey = process.env[
   "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY"
 ] as string;
 
-type InviteUserTypes = {
-  full_name: string;
-  client: string;
-  role: string;
-  email: string;
-};
-
-sendgrid.setApiKey(sendgridApiKey);
-
-export async function inviteUser({
-  full_name,
-  client,
-  role,
-  email,
-}: InviteUserTypes) {
+export const loginUser = async ({ email }: LoginUserPayloadType) => {
   const supabaseAdmin = createClient(supabaseUrl, supabaseRoleKey);
+
   try {
     const { data: user } = await supabaseAdmin
       .from("users_data_view")
-      .select("user_id, clients")
+      .select("user_id, clients, primary_phone") // TODO: Add Preferred Contact
       .eq("email", email)
       .single();
 
@@ -75,40 +62,43 @@ export async function inviteUser({
     }
 
     const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-      type: "invite",
+      type: "magiclink",
       email,
     });
 
     if (error) throw error?.message;
 
-    const msg: MailDataRequired = {
-      to: email,
-      from: {
-        email: "noreply@everesteffect.com",
-        name: "Everest Effect",
-      },
-      templateId: inviteTemplateId,
-      dynamicTemplateData: {
-        full_name,
-        client,
-        role,
-        confirmation_link: `${baseUrl}/api/verify/invite?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirect_url}`,
-      },
-    };
+    let preferred_contact = "SMS"; // TODO: Adto ni kuhaon sa users_data_view nga table, uWu
 
-    await sendgrid.send(msg);
+    if (preferred_contact === "EMAIL") {
+      const response = await sendLinkViaEmail({
+        user_id: user?.user_id,
+        email,
+        token_hash: data?.properties?.hashed_token,
+        redirect_url,
+      });
 
-    return {
-      data,
-      error: null,
-    };
-  } catch (_error) {
+      return response;
+    } else if (preferred_contact === "SMS") {
+      const response = await sendLinkViaSMS({
+        phone_number: user?.primary_phone,
+        user_id: user?.user_id,
+        email,
+        token_hash: data?.properties?.hashed_token,
+        redirect_url,
+      });
+
+      return response;
+    } else {
+      return {
+        data: null,
+        error: null,
+      };
+    }
+  } catch (error) {
     return {
       data: null,
-      error:
-        typeof _error === "object"
-          ? "Something went wrong. Please contact your administrator"
-          : _error,
+      error: typeof error !== "string" ? "Something went wrong" : error,
     };
   }
-}
+};

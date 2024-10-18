@@ -15,7 +15,7 @@ import {
   ROLE_COMPANY_ADMIN,
   ROLE_AGENT,
 } from "@/app/constant";
-import { logOutUser } from "@/app/actions/login/logout-user";
+import { logOutUser } from "@/app/actions/auth/logout";
 
 import * as EverestEffect from "public/everest-effect.svg";
 

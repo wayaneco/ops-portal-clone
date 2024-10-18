@@ -5,7 +5,7 @@ import { redirect } from "next/navigation";
 import { LoginForm } from "./components/form";
 import { createClient } from "@/utils/supabase/server";
 
-import { loginUser } from "../actions/login/login-user";
+import { loginUser } from "../actions/auth/login";
 
 export const metadata: Metadata = {
   title: "Everest Effect Portal - Login",
