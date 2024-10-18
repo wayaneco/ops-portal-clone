@@ -1,36 +1,44 @@
 "use server";
 
 import moment from "moment";
-import sendgrid, { MailDataRequired } from "@sendgrid/mail";
+import twilio from "twilio";
 
 import { createClient } from "@/utils/supabase/server";
 
 const baseUrl = process.env["NEXT_PUBLIC_APP_BASE_URL"] as string;
-const sendgridApiKey = process.env["NEXT_PUBLIC_SEND_GRID_API_KEY"] as string;
-const loginTemplateId = process.env[
-  "NEXT_PUBLIC_SEND_GRID_LOGIN_TEMPLATE_ID"
+const twilioAccountSid = process.env[
+  "NEXT_PUBLIC_TWILIO_ACCOUNT_SID"
+] as string;
+const twilioAuthTOken = process.env["NEXT_PUBLIC_TWILIO_AUTH_TOKEN"] as string;
+const twilioMessageSid = process.env[
+  "NEXT_PUBLIC_TWILIO_MESSAGE_SID"
+] as string;
+const twilioContentSid = process.env[
+  "NEXT_PUBLIC_TWILIO_CONTENT_SID"
 ] as string;
 
-sendgrid.setApiKey(sendgridApiKey);
-
-type SendLinkViaEmailType = {
+type SendLinkViaSMSType = {
   user_id: string;
   email: string;
+  phone_number: string;
   redirect_url: string;
   token_hash: string;
 };
 
-export async function sendLinkViaEmail({
+const client = twilio(twilioAccountSid, twilioAuthTOken);
+
+export const sendLinkViaSMS = async ({
   user_id,
   email,
-  token_hash,
+  phone_number,
   redirect_url,
-}: SendLinkViaEmailType) {
-  const supabaseAdmin = createClient();
+  token_hash,
+}: SendLinkViaSMSType) => {
+  const supabase = createClient();
 
   try {
     const { data: login_events_data, error: login_events_error } =
-      await supabaseAdmin
+      await supabase
         .from("login_events")
         .insert({
           user_id,
@@ -42,24 +50,18 @@ export async function sendLinkViaEmail({
 
     if (login_events_error) throw login_events_error?.message;
 
-    const msg: MailDataRequired = {
-      to: email,
-      from: {
-        email: "noreply@everesteffect.com",
-        name: "Everest Effect",
-      },
-      templateId: loginTemplateId,
-      dynamicTemplateData: {
-        email,
+    const response = await client.messages.create({
+      to: phone_number,
+      messagingServiceSid: twilioMessageSid,
+      contentSid: twilioContentSid,
+      contentVariables: JSON.stringify({
+        email: email as string,
         confirmation_link: `${baseUrl}/api/verify/login?verification_id=${login_events_data?.id}&token_hash=${token_hash}&redirect_url=${redirect_url}`,
-      },
-    };
+        expired_time: "30 minutes",
+      }),
+    });
 
-    const [response] = await sendgrid.send(msg);
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      console.log("Success!");
-    }
+    console.log("================================", response);
 
     return {
       data: {
@@ -71,7 +73,10 @@ export async function sendLinkViaEmail({
   } catch (_error) {
     return {
       data: null,
-      error: _error,
+      error:
+        typeof _error === "object"
+          ? "Something went wrong. Please contact your administrator"
+          : _error,
     };
   }
-}
+};
