@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "flowbite-react";
+import { useRouter } from "next/navigation";
 import { InferType } from "yup";
 import { useForm, Controller } from "react-hook-form";
 import Image from "next/image";
@@ -15,9 +16,13 @@ import { useIsFirstRender } from "@/app/hooks/isFirstRender";
 import schema from "./schema";
 
 import * as EverestEffect from "public/everest-effect.svg";
+import { createClient } from "@/utils/supabase/client";
+import { verifyToken } from "@/app/actions/verify/verify-token";
 
 type LoginFormProps = {
-  loginUser: (payload: InferType<typeof schema>) => any;
+  loginUser: (
+    payload: InferType<typeof schema> & { preferred_contact: string }
+  ) => any;
 };
 
 const defaultValues = {
@@ -25,10 +30,12 @@ const defaultValues = {
 };
 
 export function LoginForm({ loginUser }: LoginFormProps) {
+  const supabase = createClient();
+  const router = useRouter();
   const isFirstRender = useIsFirstRender();
 
+  const [userData, setUserData] = useState<any>(null);
   const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
-  const [confirmationLink, setConfirmationLink] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { showToast } = useToastContext();
 
@@ -44,17 +51,65 @@ export function LoginForm({ loginUser }: LoginFormProps) {
     try {
       setIsSubmitting(true);
 
-      const { data: login_data, error } = await loginUser(data);
+      const { data: login_user_data, error } = await loginUser({
+        ...data,
+        preferred_contact: "email",
+      });
 
       if (error) throw error;
 
+      setUserData(login_user_data);
+
       setIsEmailSent(true);
-      setConfirmationLink(login_data);
     } catch (error) {
       showToast({ error: true, message: error as string });
       setIsSubmitting(false);
     }
   };
+
+  useEffect(() => {
+    let loginEvent;
+
+    loginEvent = supabase
+      .channel("login_events")
+      .on(
+        "postgres_changes",
+        {
+          event: "UPDATE",
+          schema: "public",
+          table: "login_events",
+        },
+        async (payload) => {
+          try {
+            if (
+              payload?.new?.id === userData?.id &&
+              payload?.new?.status === "verified"
+            ) {
+              console.log("ajsdjsajd", payload?.new);
+              const { token_hash, redirect_url } = payload?.new?.data;
+
+              const { error } = await verifyToken(token_hash);
+
+              if (error) throw error;
+
+              showToast({
+                message: "Verified successfully, You are now logged in!",
+              });
+
+              router.replace(redirect_url);
+            }
+          } catch (_error) {
+            console.log(_error);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      loginEvent.unsubscribe();
+    };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [userData]);
 
   if (isFirstRender) {
     return (
@@ -129,19 +184,6 @@ export function LoginForm({ loginUser }: LoginFormProps) {
                 </span>
                 .
               </p>
-            </div>
-
-            <div className="mt-5 text-center text-sm">
-              <div className="inline-block">
-                For testing purposes, Click this link
-              </div>{" "}
-              <a
-                href={confirmationLink}
-                className="text-primary-500 underline inline-block"
-              >
-                Verify
-              </a>{" "}
-              to login.
             </div>
           </div>
         </div>

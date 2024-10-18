@@ -1,7 +1,5 @@
 "use server";
 
-import sendGrid, { MailDataRequired } from "@sendgrid/mail";
-
 import { createClient } from "@supabase/supabase-js";
 import {
   ROLE_NETWORK_ADMIN,
@@ -16,16 +14,9 @@ const supabaseRoleKey = process.env[
   "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY"
 ] as string;
 
-const sendGridApiKey = process.env["NEXT_PUBLIC_SEND_GRID_API_KEY"] as string;
-const loginTemplateId = process.env[
-  "NEXT_PUBLIC_SEND_GRID_LOGIN_TEMPLATE_ID"
-] as string;
-
 type LoginEmailType = {
   email: string;
 };
-
-sendGrid.setApiKey(sendGridApiKey);
 
 export async function loginWithLink({ email }: LoginEmailType) {
   const supabaseAdmin = createClient(supabaseUrl, supabaseRoleKey);
@@ -51,48 +42,35 @@ export async function loginWithLink({ email }: LoginEmailType) {
       []
     );
 
-    let redirectPath = "";
+    let emailRedirectTo = "";
 
     switch (true) {
       case user && currentPrivilege?.includes(ROLE_NETWORK_ADMIN):
       case user && currentPrivilege?.includes(ROLE_COMPANY_ADMIN):
-        redirectPath = "/user";
+        emailRedirectTo = "/user";
         break;
       case user && currentPrivilege?.includes(ROLE_AGENT):
-        redirectPath = "/kiosk";
+        emailRedirectTo = "/kiosk";
         break;
       case user && !currentPrivilege?.length:
-        redirectPath = `/user/${user?.user_id}`;
+        emailRedirectTo = `/user/${user?.user_id}`;
         break;
       default:
-        redirectPath = "/login";
+        emailRedirectTo = "/login";
         break;
     }
 
-    const { data, error } = await supabaseAdmin.auth.admin.generateLink({
-      type: "magiclink",
+    const { data, error } = await supabaseAdmin.auth.signInWithOtp({
       email,
+      options: {
+        emailRedirectTo,
+      },
     });
 
     if (error) throw error?.message;
 
-    const message: MailDataRequired = {
-      to: email,
-      from: {
-        email: "noreply@everesteffect.com",
-        name: "Everest Effect",
-      },
-      templateId: loginTemplateId,
-      dynamicTemplateData: {
-        email,
-        confirmation_link: `${baseUrl}/api/verify?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirectPath}`,
-      },
-    };
-
-    await sendGrid.send(message);
-
     return {
-      data: `${baseUrl}/api/verify?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirectPath}`, // TODO : I EXPOSE VERIFICATION LINK FOR TESTING ONLY
+      data,
       error: null,
     };
   } catch (_error) {

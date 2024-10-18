@@ -1,7 +1,5 @@
 "use server";
 
-import sendGrid, { MailDataRequired } from "@sendgrid/mail";
-
 import { createClient } from "@supabase/supabase-js";
 import {
   ROLE_NETWORK_ADMIN,
@@ -16,19 +14,12 @@ const supabaseRoleKey = process.env[
   "NEXT_PUBLIC_SUPABASE_SERVICE_ROLE_KEY"
 ] as string;
 
-const sendGridApiKey = process.env["NEXT_PUBLIC_SEND_GRID_API_KEY"] as string;
-const inviteTemplateId = process.env[
-  "NEXT_PUBLIC_SEND_GRID_INVITE_TEMPLATE_ID"
-] as string;
-
 type InviteUserTypes = {
   full_name: string;
   client: string;
   role: string;
   email: string;
 };
-
-sendGrid.setApiKey(sendGridApiKey);
 
 export async function inviteUser({
   full_name,
@@ -38,14 +29,6 @@ export async function inviteUser({
 }: InviteUserTypes) {
   const supabaseAdmin = createClient(supabaseUrl, supabaseRoleKey);
   try {
-    const { data, error: generate_link_error } =
-      await supabaseAdmin.auth.admin.generateLink({
-        type: "magiclink",
-        email,
-      });
-
-    if (generate_link_error) throw generate_link_error?.message;
-
     const { data: user } = await supabaseAdmin
       .from("users_data_view")
       .select("user_id, clients")
@@ -59,42 +42,40 @@ export async function inviteUser({
       };
     }
 
-    const currentPrivilege = user?.clients?.[0]?.privileges;
+    const currentPrivilege = user?.clients?.reduce(
+      (accumulator: Array<string>, current: any) => {
+        return accumulator.concat(current.privileges);
+      },
+      []
+    );
 
-    let redirectPath = "";
+    let redirectTo = "";
 
     switch (true) {
       case user && currentPrivilege?.includes(ROLE_NETWORK_ADMIN):
       case user && currentPrivilege?.includes(ROLE_COMPANY_ADMIN):
-        redirectPath = "/user";
+        redirectTo = "/user";
         break;
       case user && currentPrivilege?.includes(ROLE_AGENT):
-        redirectPath = "/kiosk";
+        redirectTo = "/kiosk";
         break;
       case user && !currentPrivilege?.length:
-        redirectPath = `/user/${user?.user_id}`;
+        redirectTo = `/user/${user?.user_id}`;
         break;
       default:
-        redirectPath = "/login";
+        redirectTo = "/login";
         break;
     }
 
-    const message: MailDataRequired = {
-      to: email,
-      from: "noreply@everesteffect.com",
-      templateId: inviteTemplateId,
-      dynamicTemplateData: {
-        full_name,
-        client,
-        role,
-        confirmation_link: `${baseUrl}/api/verify?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirectPath}`,
-      },
-    };
+    const { data, error: generate_link_error } =
+      await supabaseAdmin.auth.admin.inviteUserByEmail(email, {
+        redirectTo,
+      });
 
-    await sendGrid.send(message);
+    if (generate_link_error) throw generate_link_error?.message;
 
     return {
-      data: "Success",
+      data,
       error: null,
     };
   } catch (_error) {
