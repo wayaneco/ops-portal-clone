@@ -22,7 +22,7 @@ export async function POST(
 
   console.log("request", await request);
   console.log("BODY", await request.body);
-  console.log("JSON", await request.json());
+  console.log("JSON", await request.formData());
 
   return NextResponse.json({
     status: 200,
