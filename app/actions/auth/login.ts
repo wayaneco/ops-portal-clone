@@ -68,7 +68,7 @@ export const loginUser = async ({ email }: LoginUserPayloadType) => {
 
     if (error) throw error?.message;
 
-    let preferred_contact = "EMAIL"; // TODO: Adto ni kuhaon sa users_data_view nga table, uWu
+    let preferred_contact = "SMS"; // TODO: Adto ni kuhaon sa users_data_view nga table, uWu
 
     if (preferred_contact === "EMAIL") {
       const response = await sendLinkViaEmail({
