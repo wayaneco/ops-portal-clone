@@ -59,7 +59,7 @@ export const sendLinkViaSMS = async ({
         confirmation_link: `${baseUrl}/api/verify/login?verification_id=${login_events_data?.id}&token_hash=${token_hash}&redirect_url=${redirect_url}`,
         expired_time: "30 minutes",
       }),
-      statusCallback: `${baseUrl}/api/webhook/sms/${user_id}`,
+      statusCallback: `https://ops-portal-clone.vercel.app/api/webhook/sms/${user_id}`,
     });
 
     console.log("================================", response);

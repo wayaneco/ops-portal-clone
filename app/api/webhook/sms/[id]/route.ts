@@ -8,24 +8,18 @@ export async function POST(
   console.log("id", params.id);
   const supabase = createClient();
 
-  // {
-  //   "SmsMessageSid": "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  //   "SmsSid": "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  //   "SmsStatus": "received",
-  //   "MessageStatus": "received",
-  //   "To": "+1234567890",
-  //   "From": "+0987654321",
-  //   "Body": "Hello, World!",
-  //   "AccountSid": "ACXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
-  //   "ApiVersion": "2010-04-01"
-  // }
+  const formData = await request.formData();
 
-  console.log("request", await request);
-  console.log("BODY", await request.body);
-  console.log("JSON", await request.json());
+  const dataObject: any = {};
+
+  for (const [key, value] of formData.entries() as any) {
+    dataObject[key] = value;
+  }
+
+  console.log("data", dataObject);
 
   return NextResponse.json({
     status: 200,
-    data: request.body,
+    data: dataObject,
   });
 }
