@@ -18,25 +18,6 @@ export async function POST(
 
   const messageStatus = formData.get("MessageStatus") as string;
 
-  if (["failed", "undelivered", "bounced"].includes(messageStatus)) {
-    const { data, error } = await supabase
-      .from("preferred_contact")
-      .update({
-        status: MESSAGE_STATUS_FAILED,
-      })
-      .eq("user_id", params?.id);
-
-    console.log("Data ===========================", data);
-    console.log("Error Message ============================", error?.message);
-    console.log("Error Details ============================", error?.details);
-    if (error) {
-      return NextResponse.json({
-        status: 400,
-        data: error?.message,
-      });
-    }
-  }
-
   const dataObject: any = {};
 
   for (const [key, value] of formData.entries() as any) {
@@ -44,6 +25,26 @@ export async function POST(
   }
 
   console.log("data", dataObject);
+
+  if (["failed", "undelivered", "bounced"].includes(messageStatus)) {
+    const response = await supabase
+      .from("preferred_contact")
+      .update({
+        status: MESSAGE_STATUS_FAILED,
+      })
+      .eq("user_id", params?.id);
+
+    console.log({ id: params?.id });
+    console.log(
+      "RESPONSE ===========================",
+      JSON.stringify(response)
+    );
+    console.log(
+      "Error Message ============================",
+      JSON.stringify(response?.error)
+    );
+    console.log("STATUS", JSON.stringify(response.status));
+  }
 
   return NextResponse.json({
     status: 200,
