@@ -27,7 +27,8 @@ export async function POST(
       .eq("user_id", params?.id);
 
     console.log("Data ===========================", data);
-    console.log("Error ============================", error);
+    console.log("Error Message ============================", error?.message);
+    console.log("Error Details ============================", error?.details);
     if (error) {
       return NextResponse.json({
         status: 400,
