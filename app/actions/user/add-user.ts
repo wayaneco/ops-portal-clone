@@ -76,7 +76,7 @@ export async function addUser(
         middle_name: params?.middle_name ?? "",
         p_user_id: authUser.id ?? "",
         preferred_name: params?.preferred_name ?? "",
-        preferred_contact: params?.preferred_contact ?? "",
+        preferred_contact_type: params?.preferred_contact ?? "",
         primary_email: params?.email ?? "",
         primary_phone: params?.primary_phone ?? "",
         profile_url: photoUrl,
