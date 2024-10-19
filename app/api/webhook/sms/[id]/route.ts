@@ -14,20 +14,6 @@ export async function POST(
   console.log("id", params.id);
   const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
-  // STATUS sent > queued > delivered | failed
-  // SAMPLE FORMDATA RESPONSE
-  // {
-  //   MessagingServiceSid: 'MG87a403b8a7a09e9182afebec0b3347b7',
-  //   ApiVersion: '2010-04-01',
-  //   MessageStatus: 'sent',
-  //   SmsSid: 'MMf812eb3e1211ed28088990e24e6aeef6',
-  //   SmsStatus: 'sent',
-  //   To: '+639676877218',
-  //   From: '+12092925213',
-  //   MessageSid: 'MMf812eb3e1211ed28088990e24e6aeef6',
-  //   AccountSid: 'AC05887541ad4594ad5205443bac16aea9'
-  // }
-
   const formData = await request.formData();
 
   const messageStatus = formData.get("MessageStatus") as string;
