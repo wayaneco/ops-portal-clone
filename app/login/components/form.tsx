@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Button } from "flowbite-react";
+import { Button, Card, Spinner } from "flowbite-react";
 import { useRouter } from "next/navigation";
 import { InferType } from "yup";
 import { useForm, Controller } from "react-hook-form";
@@ -36,6 +36,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
 
   const [userData, setUserData] = useState<any>(null);
   const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
+  const [isVerifying, setIsVerifying] = useState<boolean>(false);
   const [hasPreferredContactError, setHasPreferredContactError] =
     useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
@@ -101,6 +102,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
               payload?.new?.id === userData?.id &&
               payload?.new?.status === "verified"
             ) {
+              setIsVerifying(true);
               const { token_hash, redirect_url } = payload?.new?.data;
 
               const { error } = await verifyToken(token_hash);
@@ -121,6 +123,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
       .subscribe();
 
     return () => {
+      setIsVerifying(false);
       loginEvent.unsubscribe();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -128,7 +131,7 @@ export function LoginForm({ loginUser }: LoginFormProps) {
 
   if (isFirstRender) {
     return (
-      <>
+      <Card className="p-6 backdrop-blur-md shadow-md w-[450px]">
         <div className="flex items-center mx-auto justify-center w-4/5 h-32 bg-gray-300 rounded">
           <svg
             className="w-10 h-10 text-gray-200 "
@@ -144,121 +147,128 @@ export function LoginForm({ loginUser }: LoginFormProps) {
         <div className="h-3 bg-gray-200 rounded-full w-11" />
         <div className="h-11 bg-gray-200 rounded-md w-full mb-4" />
         <div className="h-10 bg-gray-200 rounded-md w-full" />
-      </>
+      </Card>
     );
   }
 
   return (
     <>
-      {!isEmailSent && (
-        <>
-          <div className="relative h-20 pb-10">
-            <Image src={EverestEffect} alt="Everest Effect Logo" fill />
-          </div>
-          <div className="my-4 h-px bg-gray-200" />
-        </>
-      )}
-      <form onSubmit={handleSubmit(handleLogin)}>
-        <div className={isEmailSent ? "block" : "hidden"}>
-          <div className="flex flex-col">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-              strokeWidth={1.5}
-              stroke="currentColor"
-              className="size-20 mx-auto text-primary-500"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
-              />
-            </svg>
-
-            <div className="text-center text-2xl font-medium text-gray-700 mb-5">
-              Email confirmation
-            </div>
-            <div className="text-center">
-              <span className="text-gray-500">We have sent an email to</span>{" "}
-              <span className="text-primary-500 font-bold">{email}</span>{" "}
-              <span className="text-gray-500">
-                to confirm the validity of your email address.
-              </span>
-            </div>
-            <div className="mt-10 border-t border-gray-100 pt-5">
-              <p className="text-center text-sm">
-                Didn&apos;t receive an email?{" "}
-                <span
-                  className="text-primary-500 font-bold cursor-pointer"
-                  onClick={async () => {
-                    await handleLogin({ email });
-                  }}
-                >
-                  Resend confirmation email
-                </span>
-                .
-              </p>
-            </div>
-          </div>
+      {isVerifying && (
+        <div className="fixed inset-0 bg-gray-200/25 z-40 flex items-center justify-center flex-col">
+          <Spinner color="primary" className="block size-10" />
         </div>
-        <div className={isEmailSent ? "hidden" : "block"}>
-          <div className="flex flex-col gap-y-4">
-            <Controller
-              name="email"
-              control={control}
-              render={({ field, fieldState: { error } }) => (
-                <CustomTextInput
-                  disabled={isSubmitting}
-                  required
-                  label="Email"
-                  placeholder="Email"
-                  error={error?.message}
-                  rightIcon={
-                    <svg
-                      className={`w-6 h-6 ${
-                        error ? "text-red-500" : "text-gray-800"
-                      }`}
-                      aria-hidden="true"
-                      xmlns="http://www.w3.org/2000/svg"
-                      width="24"
-                      height="24"
-                      fill="currentColor"
-                      viewBox="0 0 24 24"
-                    >
-                      <path
-                        fillRule="evenodd"
-                        d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
-                        clipRule="evenodd"
-                      />
-                    </svg>
-                  }
-                  {...field}
+      )}
+      <Card className="p-6 backdrop-blur-md shadow-md w-[450px]">
+        {!isEmailSent && (
+          <>
+            <div className="relative h-20 pb-10">
+              <Image src={EverestEffect} alt="Everest Effect Logo" fill />
+            </div>
+            <div className="my-4 h-px bg-gray-200" />
+          </>
+        )}
+        <form onSubmit={handleSubmit(handleLogin)}>
+          <div className={isEmailSent ? "block" : "hidden"}>
+            <div className="flex flex-col">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                fill="none"
+                viewBox="0 0 24 24"
+                strokeWidth={1.5}
+                stroke="currentColor"
+                className="size-20 mx-auto text-primary-500"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75"
                 />
-              )}
-            />
-          </div>
-          <div className="mt-8">
-            <Button
-              type="submit"
-              color="primary"
-              disabled={isSubmitting}
-              fullSized
-            >
-              Continue
-            </Button>
-          </div>
-          {hasPreferredContactError && (
-            <div className="mt-5">
-              <div className="text-red-500 font-bold">Unable to Log In</div>
-              <div className="text-red-500 mt-2">
-                Your account information needs to be updated. Please contact
-                your Company Administrator.
+              </svg>
+
+              <div className="text-center text-2xl font-medium text-gray-700 mb-5">
+                Email confirmation
+              </div>
+              <div className="text-center">
+                <span className="text-gray-500">We have sent an email to</span>{" "}
+                <span className="text-primary-500 font-bold">{email}</span>{" "}
+                <span className="text-gray-500">
+                  to confirm the validity of your email address.
+                </span>
+              </div>
+              <div className="mt-10 border-t border-gray-100 pt-5">
+                <p className="text-center text-sm">
+                  Didn&apos;t receive an email?{" "}
+                  <span
+                    className="text-primary-500 font-bold cursor-pointer"
+                    onClick={async () => {
+                      await handleLogin({ email });
+                    }}
+                  >
+                    Resend confirmation email
+                  </span>
+                  .
+                </p>
               </div>
             </div>
-          )}
-        </div>
-      </form>
+          </div>
+          <div className={isEmailSent ? "hidden" : "block"}>
+            <div className="flex flex-col gap-y-4">
+              <Controller
+                name="email"
+                control={control}
+                render={({ field, fieldState: { error } }) => (
+                  <CustomTextInput
+                    disabled={isSubmitting}
+                    required
+                    label="Email"
+                    placeholder="Email"
+                    error={error?.message}
+                    rightIcon={
+                      <svg
+                        className={`w-6 h-6 ${
+                          error ? "text-red-500" : "text-gray-800"
+                        }`}
+                        aria-hidden="true"
+                        xmlns="http://www.w3.org/2000/svg"
+                        width="24"
+                        height="24"
+                        fill="currentColor"
+                        viewBox="0 0 24 24"
+                      >
+                        <path
+                          fillRule="evenodd"
+                          d="M12 4a4 4 0 1 0 0 8 4 4 0 0 0 0-8Zm-2 9a4 4 0 0 0-4 4v1a2 2 0 0 0 2 2h8a2 2 0 0 0 2-2v-1a4 4 0 0 0-4-4h-4Z"
+                          clipRule="evenodd"
+                        />
+                      </svg>
+                    }
+                    {...field}
+                  />
+                )}
+              />
+            </div>
+            <div className="mt-8">
+              <Button
+                type="submit"
+                color="primary"
+                disabled={isSubmitting}
+                fullSized
+              >
+                Continue
+              </Button>
+            </div>
+            {hasPreferredContactError && (
+              <div className="mt-5">
+                <div className="text-red-500 font-bold">Unable to Log In</div>
+                <div className="text-red-500 mt-2">
+                  Your account information needs to be updated. Please contact
+                  your Company Administrator.
+                </div>
+              </div>
+            )}
+          </div>
+        </form>
+      </Card>
     </>
   );
 }

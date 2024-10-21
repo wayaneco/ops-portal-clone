@@ -5,6 +5,7 @@ import {
   ROLE_COMPANY_ADMIN,
   ROLE_AGENT,
   MESSAGE_STATUS_FAILED,
+  MESSAGE_STATUS_PENDING,
 } from "@/app/constant";
 import { createClient } from "@supabase/supabase-js";
 import { sendLinkViaEmail } from "../email/login";
@@ -48,6 +49,11 @@ export const loginUser = async ({ email }: LoginUserPayloadType) => {
         data: null,
         error: "PREFERRED_CONTACT_ERROR",
       };
+    } else if (preferred_contact_data?.status === MESSAGE_STATUS_PENDING) {
+      return {
+        data: null,
+        error: "You need to verify your email address before you can log in.",
+      };
     }
 
     const currentPrivilege = user?.clients?.reduce(
@@ -82,7 +88,7 @@ export const loginUser = async ({ email }: LoginUserPayloadType) => {
 
     if (error) throw error?.message;
 
-    let preferred_contact = "SMS"; // TODO: Adto ni kuhaon sa users_data_view nga table, uWu
+    let preferred_contact = "EMAIL"; // TODO: Adto ni kuhaon sa users_data_view nga table, uWu
 
     if (preferred_contact === "EMAIL") {
       const response = await sendLinkViaEmail({

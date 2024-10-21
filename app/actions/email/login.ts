@@ -6,9 +6,9 @@ import sendgrid, { MailDataRequired } from "@sendgrid/mail";
 import { createClient } from "@/utils/supabase/server";
 
 const baseUrl = process.env["NEXT_PUBLIC_APP_BASE_URL"] as string;
-const sendgridApiKey = process.env["NEXT_PUBLIC_SEND_GRID_API_KEY"] as string;
+const sendgridApiKey = process.env["NEXT_PRIVATE_SEND_GRID_API_KEY"] as string;
 const loginTemplateId = process.env[
-  "NEXT_PUBLIC_SEND_GRID_LOGIN_TEMPLATE_ID"
+  "NEXT_PRIVATE_SEND_GRID_LOGIN_TEMPLATE_ID"
 ] as string;
 
 sendgrid.setApiKey(sendgridApiKey);

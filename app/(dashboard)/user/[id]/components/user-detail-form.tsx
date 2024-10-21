@@ -283,11 +283,11 @@ export const UserDetailForm = React.memo((props: UserDetailFormType) => {
                   onClick={() =>
                     handleOpenModal({
                       data,
-                      modalContent: ModalContentType.PASSKEY,
+                      modalContent: ModalContentType.INVITE,
                     })
                   }
                 >
-                  Reissue Passkey
+                  Reinvite
                 </Button>
               )}
             </div>

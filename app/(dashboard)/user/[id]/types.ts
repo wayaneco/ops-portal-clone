@@ -2,6 +2,6 @@ export enum ModalContentType {
   ADD,
   EDIT,
   REVOKE,
-  PASSKEY,
+  INVITE,
   EDIT_USER,
 }

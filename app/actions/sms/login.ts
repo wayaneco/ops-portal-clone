@@ -7,14 +7,14 @@ import { createClient } from "@/utils/supabase/server";
 
 const baseUrl = process.env["NEXT_PUBLIC_APP_BASE_URL"] as string;
 const twilioAccountSid = process.env[
-  "NEXT_PUBLIC_TWILIO_ACCOUNT_SID"
+  "NEXT_PRIVATE_TWILIO_ACCOUNT_SID"
 ] as string;
-const twilioAuthTOken = process.env["NEXT_PUBLIC_TWILIO_AUTH_TOKEN"] as string;
+const twilioAuthTOken = process.env["NEXT_PRIVATE_TWILIO_AUTH_TOKEN"] as string;
 const twilioMessageSid = process.env[
-  "NEXT_PUBLIC_TWILIO_MESSAGE_SID"
+  "NEXT_PRIVATE_TWILIO_MESSAGE_SID"
 ] as string;
 const twilioContentSid = process.env[
-  "NEXT_PUBLIC_TWILIO_CONTENT_SID"
+  "NEXT_PRIVATE_TWILIO_CONTENT_SID"
 ] as string;
 
 type SendLinkViaSMSType = {

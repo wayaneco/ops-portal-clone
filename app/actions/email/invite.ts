@@ -9,9 +9,9 @@ import {
 
 const baseUrl = process.env["NEXT_PUBLIC_APP_BASE_URL"] as string;
 
-const sendgridApiKey = process.env["NEXT_PUBLIC_SEND_GRID_API_KEY"] as string;
+const sendgridApiKey = process.env["NEXT_PRIVATE_SEND_GRID_API_KEY"] as string;
 const inviteTemplateId = process.env[
-  "NEXT_PUBLIC_SEND_GRID_INVITE_TEMPLATE_ID"
+  "NEXT_PRIVATE_SEND_GRID_INVITE_TEMPLATE_ID"
 ] as string;
 
 const supabaseUrl = process.env["NEXT_PUBLIC_SUPABASE_URL"] as string;
@@ -92,7 +92,7 @@ export async function inviteUser({
         full_name,
         client,
         role,
-        confirmation_link: `${baseUrl}/api/verify/invite?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirect_url}`,
+        confirmation_link: `${baseUrl}/api/verify/invite?token_hash=${data?.properties?.hashed_token}&redirect_url=${redirect_url}&user_id=${user?.user_id}`,
       },
     };
 

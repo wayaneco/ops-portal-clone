@@ -2,7 +2,7 @@ import { ModalProps } from "flowbite-react";
 import { ModalContentType } from "../types";
 import { AddClient } from "./add-client";
 import { EditClient } from "./edit-client";
-import { Passkey } from "./passkey";
+import { Invite } from "./invite";
 import { RevokeClient } from "./revoke-client";
 import { EditUser } from "./edit-user";
 
@@ -23,8 +23,8 @@ export const UserModalForm = ({
     case ModalContentType.REVOKE:
       component = <RevokeClient />;
       break;
-    case ModalContentType.PASSKEY:
-      component = <Passkey />;
+    case ModalContentType.INVITE:
+      component = <Invite />;
       break;
     case ModalContentType.EDIT_USER:
       component = <EditUser />;
