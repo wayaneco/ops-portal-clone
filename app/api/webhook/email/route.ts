@@ -34,12 +34,8 @@ export async function POST(request: NextRequest) {
     }
   }
 
-  console.log("request", await request);
-  console.log("BODY", await request.body);
-  console.log("JSON", await request.json());
-
   return NextResponse.json({
     status: 200,
-    data: request.body,
+    data: "Success!",
   });
 }

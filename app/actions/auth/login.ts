@@ -4,6 +4,7 @@ import {
   ROLE_NETWORK_ADMIN,
   ROLE_COMPANY_ADMIN,
   ROLE_AGENT,
+  MESSAGE_STATUS_FAILED,
 } from "@/app/constant";
 import { createClient } from "@supabase/supabase-js";
 import { sendLinkViaEmail } from "../email/login";
@@ -33,6 +34,19 @@ export const loginUser = async ({ email }: LoginUserPayloadType) => {
       return {
         data: null,
         error: "Email is not exist.",
+      };
+    }
+
+    const { data: preferred_contact_data } = await supabaseAdmin
+      .from("preferred_contact")
+      .select("status")
+      .eq("user_id", user?.user_id)
+      .single();
+
+    if (preferred_contact_data?.status === MESSAGE_STATUS_FAILED) {
+      return {
+        data: null,
+        error: "PREFERRED_CONTACT_ERROR",
       };
     }
 
@@ -95,10 +109,13 @@ export const loginUser = async ({ email }: LoginUserPayloadType) => {
         error: null,
       };
     }
-  } catch (error) {
+  } catch (_error) {
     return {
       data: null,
-      error: typeof error !== "string" ? "Something went wrong" : error,
+      error:
+        typeof _error !== "string"
+          ? "Something went wrong, Please contact your administrator."
+          : _error,
     };
   }
 };

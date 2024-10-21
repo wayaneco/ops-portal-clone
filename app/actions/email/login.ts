@@ -29,18 +29,17 @@ export async function sendLinkViaEmail({
   const supabaseAdmin = createClient();
 
   try {
-    const { data: login_events_data, error: login_events_error } =
-      await supabaseAdmin
-        .from("login_events")
-        .insert({
-          user_id,
-          status: "pending",
-          expires_at: moment().add(30, "minutes").toISOString(),
-        })
-        .select()
-        .single();
+    const { data, error } = await supabaseAdmin
+      .from("login_events")
+      .insert({
+        user_id,
+        status: "pending",
+        expires_at: moment().add(30, "minutes").toISOString(),
+      })
+      .select()
+      .single();
 
-    if (login_events_error) throw login_events_error?.message;
+    if (error) throw error?.message;
 
     const msg: MailDataRequired = {
       to: email,
@@ -51,27 +50,26 @@ export async function sendLinkViaEmail({
       templateId: loginTemplateId,
       dynamicTemplateData: {
         email,
-        confirmation_link: `${baseUrl}/api/verify/login?verification_id=${login_events_data?.id}&token_hash=${token_hash}&redirect_url=${redirect_url}`,
+        confirmation_link: `${baseUrl}/api/verify/login?verification_id=${data?.id}&token_hash=${token_hash}&redirect_url=${redirect_url}`,
       },
     };
 
-    const [response] = await sendgrid.send(msg);
-
-    if (response.statusCode >= 200 && response.statusCode < 300) {
-      console.log("Success!");
-    }
+    await sendgrid.send(msg);
 
     return {
       data: {
-        ...login_events_data,
-        confirmation_link: `${baseUrl}/api/verify/login?verification_id=${login_events_data?.id}&token_hash=${token_hash}&redirect_url=${redirect_url}`,
+        ...data,
+        confirmation_link: `${baseUrl}/api/verify/login?verification_id=${data?.id}&token_hash=${token_hash}&redirect_url=${redirect_url}`,
       },
       error: null,
     };
   } catch (_error) {
     return {
       data: null,
-      error: _error,
+      error:
+        typeof _error !== "string"
+          ? "Something went wrong, Please contact your administrator."
+          : _error,
     };
   }
 }

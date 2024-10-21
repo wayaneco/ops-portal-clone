@@ -11,7 +11,6 @@ export async function POST(
   request: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // console.log("id", params.id);
   const supabase = createClient(supabaseUrl, supabaseServiceRoleKey);
 
   const { data, error } = await supabase
@@ -21,10 +20,9 @@ export async function POST(
     })
     .eq("user_id", "aaa5e5eb-36dc-4a6f-b6b7-3f1b73cb401f");
 
-  console.log({ error });
-
   return NextResponse.json({
     status: 200,
     data,
+    error,
   });
 }

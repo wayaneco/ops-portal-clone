@@ -3,7 +3,6 @@
 import { revalidatePath } from "next/cache";
 
 import { createClient } from "@/utils/supabase/server";
-import { redirect } from "next/navigation";
 
 export const logOutUser = async () => {
   const supabase = createClient();
@@ -13,10 +12,16 @@ export const logOutUser = async () => {
     revalidatePath("/login");
 
     return {
-      ok: true,
-      message: "Success.",
+      data: true,
+      error: null,
     };
-  } catch (error) {
-    return { ok: false, message: error as string };
+  } catch (_error) {
+    return {
+      data: null,
+      error:
+        typeof _error !== "string"
+          ? "Something went wrong, Please contact your administrator."
+          : _error,
+    };
   }
 };

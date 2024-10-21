@@ -189,9 +189,9 @@ const Navbar = () => {
             className="text-black hidden md:block"
             onClick={async () => {
               try {
-                const response = await logOutUser();
+                const { error } = await logOutUser();
 
-                if (!response.ok) throw response?.message;
+                if (error) throw error;
 
                 router.replace("/login");
               } catch (error) {

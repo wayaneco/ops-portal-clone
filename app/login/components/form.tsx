@@ -36,10 +36,12 @@ export function LoginForm({ loginUser }: LoginFormProps) {
 
   const [userData, setUserData] = useState<any>(null);
   const [isEmailSent, setIsEmailSent] = useState<boolean>(false);
+  const [hasPreferredContactError, setHasPreferredContactError] =
+    useState<boolean>(false);
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const { showToast } = useToastContext();
 
-  const { control, handleSubmit, watch } = useForm({
+  const { control, handleSubmit, watch, setValue } = useForm({
     defaultValues,
     resolver: yupResolver(schema),
     mode: "onChange",
@@ -50,19 +52,33 @@ export function LoginForm({ loginUser }: LoginFormProps) {
   const handleLogin = async (data: InferType<typeof schema>) => {
     try {
       setIsSubmitting(true);
+      setHasPreferredContactError(false);
 
       const { data: login_user_data, error } = await loginUser({
         ...data,
         preferred_contact: "email",
       });
+      // "Your account information needs to be updated. Please contact your Company Administrator.",
 
       if (error) throw error;
 
       setUserData(login_user_data);
 
       setIsEmailSent(true);
-    } catch (error) {
-      showToast({ error: true, message: error as string });
+    } catch (_error) {
+      if (_error === "PREFERRED_CONTACT_ERROR") {
+        setHasPreferredContactError(true);
+        setIsSubmitting(false);
+        return;
+      }
+
+      showToast({
+        error: true,
+        message:
+          typeof _error !== "string"
+            ? "Something went wrong, Please contact your administrator."
+            : _error,
+      });
       setIsSubmitting(false);
     }
   };
@@ -85,7 +101,6 @@ export function LoginForm({ loginUser }: LoginFormProps) {
               payload?.new?.id === userData?.id &&
               payload?.new?.status === "verified"
             ) {
-              console.log("ajsdjsajd", payload?.new);
               const { token_hash, redirect_url } = payload?.new?.data;
 
               const { error } = await verifyToken(token_hash);
@@ -233,6 +248,15 @@ export function LoginForm({ loginUser }: LoginFormProps) {
               Continue
             </Button>
           </div>
+          {hasPreferredContactError && (
+            <div className="mt-5">
+              <div className="text-red-500 font-bold">Unable to Log In</div>
+              <div className="text-red-500 mt-2">
+                Your account information needs to be updated. Please contact
+                your Company Administrator.
+              </div>
+            </div>
+          )}
         </div>
       </form>
     </>

@@ -106,8 +106,8 @@ export async function inviteUser({
     return {
       data: null,
       error:
-        typeof _error === "object"
-          ? "Something went wrong. Please contact your administrator"
+        typeof _error !== "string"
+          ? "Something went wrong, Please contact your administrator."
           : _error,
     };
   }
